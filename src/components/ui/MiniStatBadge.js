@@ -1,7 +1,7 @@
 'use client';
 
 export default function MiniStatBadge({ abbr, count }) {
-    if (count === 0) return null;
+    // if (count === 0) return null;
 
     return (
         <span className="group inline-flex items-center gap-3 rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-500 transition-all hover:bg-white hover:border-indigo-200 hover:text-indigo-600 hover:shadow-md cursor-default">

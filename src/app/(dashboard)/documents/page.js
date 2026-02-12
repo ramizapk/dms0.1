@@ -104,7 +104,7 @@ export default function DocumentsPage() {
 
             {/* Mini Stats Row */}
             {data?.stats?.by_type && (
-                <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                <div className="flex items-center justify-center gap-3 overflow-x-auto flex-wrap pb-2 scrollbar-hide">
                     {data.stats.by_type.map((item, idx) => (
                         <MiniStatBadge key={`${item.abbr}-${idx}`} abbr={item.abbr} count={item.count} />
                     ))}
