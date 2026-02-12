@@ -11,19 +11,21 @@ export default function PageHeader({ title, subtitle, actions }) {
             className="mb-12 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between"
         >
             <div className="space-y-2">
-                <div className="flex items-center gap-3">
-                    <div className="h-8 w-1.5 rounded-full bg-indigo-500" />
-                    <h1 className="text-4xl font-extrabold text-white tracking-tight">{title}</h1>
+                <div className="flex items-center gap-4">
+                    <div className="h-10 w-1.5 rounded-full bg-gradient-to-b from-indigo-500 to-violet-500 shadow-lg shadow-indigo-500/20" />
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tight lg:text-5xl">{title}</h1>
                 </div>
                 {subtitle && (
-                    <p className="text-base text-slate-500 font-medium pl-4.5 rtl:pr-4.5 border-l rtl:border-r border-white/10 leading-relaxed max-w-2xl">
-                        {subtitle}
-                    </p>
+                    <div className="pl-5.5 rtl:pr-5.5 border-l-2 rtl:border-r-2 border-indigo-500/10 transition-colors hover:border-indigo-500/30">
+                        <p className="text-lg text-slate-500 font-bold tracking-tight">
+                            {subtitle}
+                        </p>
+                    </div>
                 )}
             </div>
 
             {actions && (
-                <div className="flex items-center gap-4 bg-white/5 p-2 rounded-2xl border border-white/5 animate-in">
+                <div className="flex items-center gap-4 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm animate-in">
                     {actions}
                 </div>
             )}

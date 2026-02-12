@@ -10,163 +10,249 @@ import {
     FileText,
     FolderKanban,
     Settings,
-    ChevronLeft,
-    ChevronRight,
+    Archive,
     LogOut,
     FileStack,
+    X,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useState } from 'react';
 
 const iconMap = {
     LayoutDashboard,
     FileText,
     FolderKanban,
     Settings,
+    Archive,
 };
 
-export default function Sidebar({ isCollapsed, onToggle }) {
+export default function Sidebar({ isCollapsed, onToggle, isMobileOpen, onMobileClose }) {
     const pathname = usePathname();
     const { t, isRTL } = useI18n();
     const { logout, user } = useAuth();
-
-    const CollapseIcon = isRTL
-        ? (isCollapsed ? ChevronLeft : ChevronRight)
-        : (isCollapsed ? ChevronRight : ChevronLeft);
+    const [hoveredItem, setHoveredItem] = useState(null);
 
     return (
-        <motion.aside
-            initial={false}
-            animate={{ width: isCollapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)' }}
-            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-            className="fixed top-0 bottom-0 z-50 flex flex-col glass-surface overflow-hidden"
-            style={{
-                [isRTL ? 'right' : 'left']: 0,
-            }}
-        >
-            {/* Logo Section */}
-            <div className={`flex items-center gap-4 border-b border-white/5 ${isCollapsed ? 'justify-center px-4' : 'px-6'}`} style={{ height: 'var(--navbar-height)' }}>
-                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 shadow-xl shadow-indigo-500/20">
-                    <FileStack className="h-5.5 w-5.5 text-white" />
-                </div>
-                <AnimatePresence>
-                    {!isCollapsed && (
-                        <motion.div
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -10 }}
-                            className="overflow-hidden whitespace-nowrap"
-                        >
-                            <h1 className="text-lg font-bold tracking-tight text-white">
-                                {t('app_short')}
-                            </h1>
-                            <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">{t('app_name')}</p>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </div>
+        <>
+            {/* Mobile Overlay */}
+            <AnimatePresence>
+                {isMobileOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="sidebar-overlay"
+                        onClick={onMobileClose}
+                    />
+                )}
+            </AnimatePresence>
 
-            {/* Navigation */}
-            <nav className="flex-1 px-4 py-8 space-y-2 overflow-y-auto">
-                <AnimatePresence>
-                    {!isCollapsed && (
-                        <motion.p
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="px-3 mb-4 text-[10px] font-bold uppercase tracking-widest text-slate-500"
-                        >
-                            {t('sidebar.menu') || 'Navigation'}
-                        </motion.p>
-                    )}
-                </AnimatePresence>
-
-                {NAV_ITEMS.map((item) => {
-                    const Icon = iconMap[item.icon] || LayoutDashboard;
-                    const isActive = pathname === item.path || pathname.startsWith(item.path + '/');
-
-                    return (
-                        <Link key={item.key} href={item.path}>
-                            <motion.div
-                                whileHover={{ scale: 1.02, x: isRTL ? -4 : 4 }}
-                                whileTap={{ scale: 0.98 }}
-                                className={`relative flex items-center gap-4 rounded-xl px-3 py-3.5 transition-all duration-300 group
-                                    ${isActive
-                                        ? 'bg-white/10 text-white shadow-xl shadow-black/10'
-                                        : 'text-slate-400 hover:bg-white/5 hover:text-white'
-                                    }`}
-                            >
-                                {isActive && (
-                                    <motion.div
-                                        layoutId="activeNavIndicator"
-                                        className={`absolute ${isRTL ? '-right-1' : '-left-1'} top-1/2 -translate-y-1/2 h-6 w-1 rounded-full bg-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.6)]`}
-                                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                                    />
-                                )}
-                                <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl transition-all duration-300
-                                    ${isActive
-                                        ? 'bg-indigo-500/20 text-indigo-400'
-                                        : 'text-slate-400 group-hover:text-white group-hover:scale-110'
-                                    }`}
-                                >
-                                    <Icon className="h-5 w-5" />
-                                </div>
-                                <AnimatePresence>
-                                    {!isCollapsed && (
-                                        <motion.span
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            className="overflow-hidden whitespace-nowrap text-sm font-semibold tracking-tight"
-                                        >
-                                            {t(`sidebar.${item.key}`)}
-                                        </motion.span>
-                                    )}
-                                </AnimatePresence>
-                            </motion.div>
-                        </Link>
-                    );
-                })}
-            </nav>
-
-            {/* Bottom Profiles Section */}
-            <div className="border-t border-white/5 p-4 space-y-3">
-                <div className={`flex items-center gap-4 rounded-2xl p-3 bg-white/5 border border-white/5 ${isCollapsed ? 'justify-center' : ''}`}>
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 font-bold shadow-lg shadow-emerald-500/20 text-white">
-                        {user?.fullName?.charAt(0) || 'U'}
+            <motion.aside
+                initial={false}
+                animate={{
+                    width: isCollapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)',
+                }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                className={`sidebar-container ${isMobileOpen ? 'sidebar-mobile-open' : ''}`}
+                style={{
+                    left: isRTL ? 'auto' : 0,
+                    right: isRTL ? 0 : 'auto'
+                }}
+            >
+                {/* Brand Header */}
+                <div
+                    className={`sidebar-brand ${isCollapsed ? 'sidebar-brand--collapsed' : ''}`}
+                    style={{ height: 'var(--navbar-height)' }}
+                >
+                    <div className="sidebar-brand__logo-wrapper">
+                        <div className="sidebar-brand__logo-glow" />
+                        <div className="sidebar-brand__logo">
+                            <FileStack className="h-6 w-6" />
+                        </div>
                     </div>
+
                     <AnimatePresence>
                         {!isCollapsed && (
                             <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="min-w-0 flex-1"
+                                initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: isRTL ? 20 : -20 }}
+                                transition={{ duration: 0.3 }}
+                                className="sidebar-brand__text"
                             >
-                                <p className="text-sm font-bold text-white truncate">
-                                    {user?.fullName || 'User'}
-                                </p>
-                                <p className="text-[10px] font-medium text-slate-500 truncate uppercase tracking-tight">
-                                    {user?.userId || ''}
-                                </p>
+                                <h1 className="sidebar-brand__title">
+                                    SALASAH<span className="sidebar-brand__dot">.</span>
+                                </h1>
+                                <div className="sidebar-brand__subtitle">
+                                    <span className="sidebar-brand__line" />
+                                    <p className="sidebar-brand__label">Enterprise DMS</p>
+                                </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
+
+                    {/* Mobile close button */}
+                    {isMobileOpen && (
+                        <button className="sidebar-mobile-close" onClick={onMobileClose}>
+                            <X className="h-5 w-5" />
+                        </button>
+                    )}
                 </div>
 
-                <div className="flex gap-2">
+                {/* Navigation */}
+                <div className={`sidebar-nav ${isCollapsed ? 'sidebar-nav--collapsed' : ''}`}>
+                    <AnimatePresence>
+                        {!isCollapsed && (
+                            <motion.p
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="sidebar-nav__section-title"
+                            >
+                                <span>{t('sidebar.menu') || 'Navigation'}</span>
+                                <span className="sidebar-nav__section-line" />
+                            </motion.p>
+                        )}
+                    </AnimatePresence>
+
+                    <div className="sidebar-nav__items">
+                        {NAV_ITEMS.map((item, idx) => {
+                            const Icon = iconMap[item.icon] || LayoutDashboard;
+                            const isActive = pathname === item.path || pathname.startsWith(item.path + '/');
+
+                            return (
+                                <motion.div
+                                    key={item.key}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.05 * idx }}
+                                    className="sidebar-nav__item-wrapper"
+                                    onMouseEnter={() => setHoveredItem(item.key)}
+                                    onMouseLeave={() => setHoveredItem(null)}
+                                >
+                                    <Link
+                                        href={item.path}
+                                        onClick={onMobileClose}
+                                        className={`sidebar-nav__link ${isActive ? 'sidebar-nav__link--active' : ''} ${isCollapsed ? 'sidebar-nav__link--collapsed' : ''}`}
+                                    >
+                                        {/* Active background card */}
+                                        {isActive && (
+                                            <motion.div
+                                                layoutId="activeNavBg"
+                                                className="sidebar-nav__active-bg"
+                                                transition={{ type: 'spring', stiffness: 200, damping: 25 }}
+                                            />
+                                        )}
+
+                                        {/* Active side marker */}
+                                        {isActive && (
+                                            <motion.div
+                                                layoutId="activeNavMarker"
+                                                className={`sidebar-nav__active-marker ${isRTL ? 'sidebar-nav__active-marker--rtl' : ''}`}
+                                                transition={{ type: 'spring', stiffness: 200, damping: 25 }}
+                                            />
+                                        )}
+
+                                        {/* Icon */}
+                                        <div className={`sidebar-nav__icon ${isActive ? 'sidebar-nav__icon--active' : ''}`}>
+                                            <Icon
+                                                className="sidebar-nav__icon-svg"
+                                                strokeWidth={isActive ? 2.5 : 1.8}
+                                            />
+                                        </div>
+
+                                        {/* Label */}
+                                        <AnimatePresence>
+                                            {!isCollapsed && (
+                                                <motion.span
+                                                    initial={{ opacity: 0, x: isRTL ? 10 : -10 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    exit={{ opacity: 0, x: isRTL ? 10 : -10 }}
+                                                    className={`sidebar-nav__label ${isActive ? 'sidebar-nav__label--active' : ''}`}
+                                                >
+                                                    {t(`sidebar.${item.key}`)}
+                                                </motion.span>
+                                            )}
+                                        </AnimatePresence>
+                                    </Link>
+
+                                    {/* Tooltip for collapsed state */}
+                                    <AnimatePresence>
+                                        {isCollapsed && hoveredItem === item.key && (
+                                            <motion.div
+                                                initial={{ opacity: 0, x: isRTL ? 10 : -10, scale: 0.9 }}
+                                                animate={{ opacity: 1, x: 0, scale: 1 }}
+                                                exit={{ opacity: 0, x: isRTL ? 10 : -10, scale: 0.9 }}
+                                                transition={{ duration: 0.15 }}
+                                                className={`sidebar-tooltip ${isRTL ? 'sidebar-tooltip--rtl' : ''}`}
+                                            >
+                                                {t(`sidebar.${item.key}`)}
+                                                <span className={`sidebar-tooltip__arrow ${isRTL ? 'sidebar-tooltip__arrow--rtl' : ''}`} />
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </motion.div>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Bottom Profile & Logout Section */}
+                <div className={`sidebar-footer ${isCollapsed ? 'sidebar-footer--collapsed' : ''}`}>
+                    {/* User Profile Card */}
+                    <motion.div
+                        whileHover={{ y: -2 }}
+                        className={`sidebar-profile ${isCollapsed ? 'sidebar-profile--collapsed' : ''}`}
+                    >
+                        <div className="sidebar-profile__avatar-wrapper">
+                            <div className="sidebar-profile__avatar">
+                                {user?.fullName?.charAt(0) || 'U'}
+                            </div>
+                            <div className="sidebar-profile__status" />
+                        </div>
+
+                        <AnimatePresence>
+                            {!isCollapsed && (
+                                <motion.div
+                                    initial={{ opacity: 0, width: 0 }}
+                                    animate={{ opacity: 1, width: 'auto' }}
+                                    exit={{ opacity: 0, width: 0 }}
+                                    className="sidebar-profile__info"
+                                >
+                                    <p className="sidebar-profile__name">
+                                        {user?.fullName || 'User'}
+                                    </p>
+                                    <p className="sidebar-profile__role">
+                                        <span className="sidebar-profile__role-dot" />
+                                        {user?.role || 'Administrator'}
+                                    </p>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </motion.div>
+
+                    {/* Logout Button */}
                     <button
                         onClick={logout}
-                        className={`flex flex-1 items-center gap-3 rounded-xl px-3 py-3 text-slate-400 transition-all hover:bg-rose-500/10 hover:text-rose-400 ${isCollapsed ? 'justify-center' : ''}`}
+                        className={`sidebar-logout ${isCollapsed ? 'sidebar-logout--collapsed' : ''}`}
                     >
-                        <LogOut className="h-5 w-5" />
-                        {!isCollapsed && <span className="text-sm font-bold tracking-tight">{t('navbar.logout')}</span>}
-                    </button>
-
-                    <button
-                        onClick={onToggle}
-                        className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/5 text-slate-500 hover:text-white hover:bg-white/10 transition-all"
-                    >
-                        <CollapseIcon className="h-5 w-5" />
+                        <LogOut className="sidebar-logout__icon" />
+                        <AnimatePresence>
+                            {!isCollapsed && (
+                                <motion.span
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="sidebar-logout__text"
+                                >
+                                    {t('navbar.logout')}
+                                </motion.span>
+                            )}
+                        </AnimatePresence>
                     </button>
                 </div>
-            </div>
-        </motion.aside>
+            </motion.aside>
+        </>
     );
 }

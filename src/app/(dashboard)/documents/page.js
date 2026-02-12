@@ -96,25 +96,25 @@ export default function DocumentsPage() {
             )}
 
             {/* Filters Bar */}
-            <div className="bg-slate-900 shadow-xl rounded-2xl border border-white/5 p-4">
+            <div className="bg-white shadow-sm rounded-2xl border border-slate-200 p-4">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                     <div className="relative md:col-span-2">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                         <input
                             type="text"
                             placeholder={t('documents.search_placeholder')}
                             value={filters.search}
                             onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                            className="w-full pl-10 h-11 bg-slate-800/50 border border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 ring-offset-slate-900"
+                            className="w-full pl-10 h-11 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-slate-400"
                         />
                     </div>
 
                     <div className="relative">
-                        <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+                        <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                         <select
                             value={filters.status}
                             onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                            className="w-full pl-10 h-11 bg-slate-800/50 border border-white/10 rounded-xl text-sm appearance-none"
+                            className="w-full pl-10 h-11 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 appearance-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all cursor-pointer"
                         >
                             <option value="">{t('documents.all_statuses')}</option>
                             {Object.keys(STATUS_COLORS).map((s) => (
@@ -124,11 +124,11 @@ export default function DocumentsPage() {
                     </div>
 
                     <div className="relative">
-                        <SlidersHorizontal className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+                        <SlidersHorizontal className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                         <select
                             value={filters.discipline}
                             onChange={(e) => setFilters({ ...filters, discipline: e.target.value })}
-                            className="w-full pl-10 h-11 bg-slate-800/50 border border-white/10 rounded-xl text-sm appearance-none"
+                            className="w-full pl-10 h-11 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 appearance-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all cursor-pointer"
                         >
                             <option value="">{t('documents.all_disciplines')}</option>
                             {data?.meta?.disciplines?.map((d) => (
@@ -140,57 +140,69 @@ export default function DocumentsPage() {
             </div>
 
             {/* Documents Table */}
-            <div className="bg-slate-900 shadow-2xl rounded-2xl border border-white/5 overflow-hidden">
+            <div className="bg-white shadow-sm rounded-2xl border border-slate-200 overflow-hidden">
                 {data?.docs?.length > 0 ? (
                     <>
                         <div className="overflow-x-auto">
-                            <table className="w-full text-right rtl:text-right ltr:text-left">
+                            <table className="w-full text-right rtl:text-right ltr:text-left whitespace-nowrap">
                                 <thead>
-                                    <tr className="border-b border-white/5 bg-white/5">
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">{t('documents.name')}</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">{t('documents.title_head')}</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">{t('documents.discipline')}</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">{t('documents.status')}</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-center">{t('common.actions')}</th>
+                                    <tr className="border-b border-slate-200 bg-slate-50/50">
+                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{t('documents.id')}</th>
+                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{t('documents.type')}</th>
+                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{t('documents.discipline')}</th>
+                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{t('documents.status')}</th>
+                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{t('documents.stage')}</th>
+                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{t('documents.date')}</th>
+                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">{t('common.actions')}</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-white/5">
+                                <tbody className="divide-y divide-slate-100">
                                     {data.docs.map((doc, idx) => (
                                         <motion.tr
                                             key={doc.name}
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: idx * 0.05 }}
-                                            className="hover:bg-white/[0.02] transition-colors group"
+                                            className="hover:bg-slate-50/80 transition-colors group"
                                         >
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all">
-                                                        <FileText className="h-4 w-4" />
+                                            <td className="px-4 py-3">
+                                                <div className="flex items-center gap-2 max-w-[180px]">
+                                                    <div className="p-1.5 bg-indigo-50 rounded-lg text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm shrink-0">
+                                                        <FileText className="h-3.5 w-3.5" />
                                                     </div>
-                                                    <span className="text-sm font-bold text-white">{doc.name}</span>
+                                                    <span className="text-sm font-bold text-slate-900 truncate" title={doc.name}>{doc.name}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <p className="text-sm text-slate-400 max-w-xs truncate">
-                                                    {doc.custom_document_title || '-'}
-                                                </p>
+                                            <td className="px-4 py-3">
+                                                <span className="text-sm font-bold text-slate-600 truncate max-w-[120px] block" title={doc.document_type}>
+                                                    {doc.document_type || '-'}
+                                                </span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className="text-xs font-medium text-slate-500 bg-slate-800/50 px-2 py-1 rounded-md border border-white/5">
+                                            <td className="px-4 py-3">
+                                                <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200 truncate max-w-[100px] block text-center" title={doc.discipline}>
                                                     {doc.discipline || '-'}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
+                                            <td className="px-4 py-3">
                                                 <StatusBadge status={doc.status_category} />
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                                            <td className="px-4 py-3">
+                                                <span className="text-xs font-bold text-slate-500 truncate max-w-[150px] block" title={doc.workflow_state}>
+                                                    {doc.workflow_state || '-'}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <span className="text-xs font-bold text-slate-500 dir-ltr text-right">
+                                                    {doc.creation ? doc.creation.split(' ')[0] : '-'}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3 text-center">
                                                 <div className="flex items-center justify-center gap-1">
-                                                    <button className="p-2 hover:bg-white/5 rounded-lg text-slate-500 hover:text-white transition-all">
-                                                        <Download className="h-4 w-4" />
+                                                    <button className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-indigo-600 transition-all">
+                                                        <Download className="h-3.5 w-3.5" />
                                                     </button>
-                                                    <button className="p-2 hover:bg-white/5 rounded-lg text-slate-500 hover:text-white transition-all">
-                                                        <MoreVertical className="h-4 w-4" />
+                                                    <button className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-indigo-600 transition-all">
+                                                        <MoreVertical className="h-3.5 w-3.5" />
                                                     </button>
                                                 </div>
                                             </td>
@@ -201,26 +213,26 @@ export default function DocumentsPage() {
                         </div>
 
                         {/* Pagination */}
-                        <div className="px-6 py-4 border-t border-white/5 bg-slate-900/50 flex items-center justify-between">
+                        <div className="px-6 py-4 border-t border-slate-200 bg-slate-50/50 flex items-center justify-between">
                             <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                                {t('common.showing')} {data.start + 1}-{data.start + data.docs.length}
+                                {t('common.showing')} {(page - 1) * pageLength + 1}-{Math.min(page * pageLength, (page - 1) * pageLength + data.docs.length)}
                             </span>
                             <div className="flex items-center gap-4">
                                 <button
                                     disabled={!data.has_previous}
                                     onClick={() => setPage(page - 1)}
-                                    className="flex items-center gap-2 px-4 py-2 bg-slate-800 border border-white/5 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-700 disabled:opacity-30 disabled:pointer-events-none transition-all"
+                                    className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-sm disabled:opacity-50 disabled:pointer-events-none transition-all shadow-sm"
                                 >
                                     <ChevronLeft className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />
                                     {t('common.previous')}
                                 </button>
                                 <div className="flex items-center gap-1">
-                                    <span className="h-8 w-8 flex items-center justify-center rounded-lg bg-indigo-600 text-xs font-bold text-white shadow-lg shadow-indigo-500/20">{page}</span>
+                                    <span className="h-8 w-8 flex items-center justify-center rounded-lg bg-indigo-600 text-xs font-bold text-white shadow-lg shadow-indigo-500/30">{page}</span>
                                 </div>
                                 <button
                                     disabled={!data.has_next}
                                     onClick={() => setPage(page + 1)}
-                                    className="flex items-center gap-2 px-4 py-2 bg-slate-800 border border-white/5 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-700 disabled:opacity-30 disabled:pointer-events-none transition-all"
+                                    className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-sm disabled:opacity-50 disabled:pointer-events-none transition-all shadow-sm"
                                 >
                                     {t('common.next')}
                                     <ChevronRight className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />

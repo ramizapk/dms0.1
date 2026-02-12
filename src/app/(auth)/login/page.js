@@ -31,130 +31,113 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="login-bg relative flex min-h-screen items-center justify-center px-4">
-            {/* Floating particles */}
+        <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-slate-50 px-4">
+            {/* Abstract Background Shapes - Professional & Subtle */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {[...Array(6)].map((_, i) => (
-                    <motion.div
-                        key={i}
-                        className="absolute rounded-full bg-violet-500/10"
-                        style={{
-                            width: Math.random() * 200 + 50,
-                            height: Math.random() * 200 + 50,
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                        }}
-                        animate={{
-                            y: [0, -30, 0],
-                            x: [0, Math.random() * 20 - 10, 0],
-                            scale: [1, 1.1, 1],
-                            opacity: [0.3, 0.6, 0.3],
-                        }}
-                        transition={{
-                            duration: 5 + Math.random() * 5,
-                            repeat: Infinity,
-                            delay: Math.random() * 3,
-                        }}
-                    />
-                ))}
+                <div className="absolute top-[-10%] start-[-5%] h-[500px] w-[500px] rounded-full bg-violet-200/20 blur-[100px]" />
+                <div className="absolute bottom-[-10%] end-[-5%] h-[500px] w-[500px] rounded-full bg-indigo-200/20 blur-[100px]" />
+                <div className="absolute top-[20%] end-[10%] h-[300px] w-[300px] rounded-full bg-slate-200/30 blur-[80px]" />
             </div>
 
-            {/* Language Toggle */}
+            {/* Language Toggle - Top Corner */}
             <motion.button
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleLocale}
-                className="absolute top-6 end-6 z-10 flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 backdrop-blur-sm transition-all hover:bg-white/10 hover:text-white"
+                className="absolute top-6 end-6 z-20 flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-5 py-2.5 text-sm font-medium text-slate-600 shadow-sm backdrop-blur-sm transition-all hover:bg-white hover:text-slate-900 hover:shadow-md"
             >
                 <Globe className="h-4 w-4" />
                 {locale === 'ar' ? 'English' : 'العربية'}
             </motion.button>
 
-            {/* Login Card */}
+            {/* Login Card - Clean, Spacious, Professional */}
             <motion.div
-                initial={{ opacity: 0, y: 40, scale: 0.95 }}
+                initial={{ opacity: 0, y: 20, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.6, ease: 'easeOut' }}
-                className="relative z-10 w-full max-w-md"
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+                className="relative z-10 w-full max-w-[480px]"
             >
-                {/* Card glow */}
-                <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-violet-600/20 via-indigo-600/20 to-teal-600/20 blur-xl" />
+                <div className="relative overflow-hidden rounded-[32px] bg-white p-10 shadow-2xl ring-1 ring-slate-900/5 sm:p-12">
 
-                <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/80 p-8 shadow-2xl backdrop-blur-xl">
-                    {/* Top gradient line */}
-                    <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-violet-500 via-indigo-500 to-teal-500" />
+                    {/* Brand Header */}
+                    <div className="mb-10 text-center">
+                        <motion.div
+                            initial={{ scale: 0.5, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ type: 'spring', stiffness: 200, delay: 0.1 }}
+                            className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/20"
+                        >
+                            <FileStack className="h-10 w-10 text-white" />
+                        </motion.div>
+                        <motion.h1
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="text-3xl font-bold tracking-tight text-slate-900"
+                        >
+                            {t('login.title')}
+                        </motion.h1>
+                        <motion.p
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="mt-3 text-base text-slate-500"
+                        >
+                            {t('login.subtitle')}
+                        </motion.p>
+                    </div>
 
-                    {/* Logo */}
-                    <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
-                        className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/30 animate-pulse-glow"
-                    >
-                        <FileStack className="h-8 w-8 text-white" />
-                    </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="text-center mb-8"
-                    >
-                        <h1 className="text-2xl font-bold text-white">{t('login.title')}</h1>
-                        <p className="mt-2 text-sm text-slate-400">{t('login.subtitle')}</p>
-                    </motion.div>
-
-                    {/* Error message */}
+                    {/* Error Alert */}
                     {error && (
                         <motion.div
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: 'auto' }}
-                            className="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-400"
+                            className="mb-8 overflow-hidden rounded-xl border border-rose-100 bg-rose-50 px-4 py-3"
                         >
-                            {t('login.error')}
+                            <div className="flex items-center gap-3 text-sm font-medium text-rose-600">
+                                <div className="h-2 w-2 rounded-full bg-rose-500" />
+                                {t('login.error')}
+                            </div>
                         </motion.div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                        {/* Username */}
+                    {/* Login Form */}
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Username Field */}
                         <motion.div
                             initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.4 }}
                         >
-                            <label className="mb-2 block text-sm font-medium text-slate-300">
+                            <label className="mb-2 block text-sm font-semibold text-slate-700">
                                 {t('login.username')}
                             </label>
                             <input
                                 type="text"
                                 value={username}
                                 onChange={(e) => { setUsername(e.target.value); setFieldErrors(f => ({ ...f, username: undefined })); setError(null); }}
-                                className={`w-full rounded-xl border bg-slate-800/50 px-4 py-3 text-white placeholder-slate-500 outline-none transition-all focus:ring-2 ${fieldErrors.username
-                                        ? 'border-rose-500/50 focus:border-rose-500 focus:ring-rose-500/25'
-                                        : 'border-slate-700/50 focus:border-violet-500/50 focus:ring-violet-500/25'
+                                className={`w-full rounded-xl border px-4 py-3.5 text-slate-900 placeholder-slate-400 outline-none transition-all focus:ring-4 ${fieldErrors.username
+                                    ? 'border-rose-300 bg-rose-50 focus:border-rose-500 focus:ring-rose-100'
+                                    : 'border-slate-200 bg-slate-50/50 hover:bg-slate-50 focus:border-violet-500 focus:bg-white focus:ring-violet-100'
                                     }`}
                                 placeholder={t('login.username')}
                             />
                             {fieldErrors.username && (
-                                <motion.p
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    className="mt-1.5 text-xs text-rose-400"
-                                >
+                                <p className="mt-2 text-xs font-medium text-rose-500">
                                     {fieldErrors.username}
-                                </motion.p>
+                                </p>
                             )}
                         </motion.div>
 
-                        {/* Password */}
+                        {/* Password Field */}
                         <motion.div
                             initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.5 }}
                         >
-                            <label className="mb-2 block text-sm font-medium text-slate-300">
+                            <label className="mb-2 block text-sm font-semibold text-slate-700">
                                 {t('login.password')}
                             </label>
                             <div className="relative">
@@ -162,45 +145,41 @@ export default function LoginPage() {
                                     type={showPassword ? 'text' : 'password'}
                                     value={password}
                                     onChange={(e) => { setPassword(e.target.value); setFieldErrors(f => ({ ...f, password: undefined })); setError(null); }}
-                                    className={`w-full rounded-xl border bg-slate-800/50 px-4 py-3 text-white placeholder-slate-500 outline-none transition-all focus:ring-2 ${fieldErrors.password
-                                            ? 'border-rose-500/50 focus:border-rose-500 focus:ring-rose-500/25'
-                                            : 'border-slate-700/50 focus:border-violet-500/50 focus:ring-violet-500/25'
+                                    className={`w-full rounded-xl border px-4 py-3.5 text-slate-900 placeholder-slate-400 outline-none transition-all focus:ring-4 ${fieldErrors.password
+                                        ? 'border-rose-300 bg-rose-50 focus:border-rose-500 focus:ring-rose-100'
+                                        : 'border-slate-200 bg-slate-50/50 hover:bg-slate-50 focus:border-violet-500 focus:bg-white focus:ring-violet-100'
                                         }`}
                                     placeholder={t('login.password')}
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className={`absolute top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors ${isRTL ? 'left-3' : 'right-3'}`}
+                                    className={`absolute top-1/2 -translate-y-1/2 p-2 text-slate-400 transition-colors hover:text-slate-600 ${isRTL ? 'left-2' : 'right-2'}`}
                                 >
                                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                 </button>
                             </div>
                             {fieldErrors.password && (
-                                <motion.p
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    className="mt-1.5 text-xs text-rose-400"
-                                >
+                                <p className="mt-2 text-xs font-medium text-rose-500">
                                     {fieldErrors.password}
-                                </motion.p>
+                                </p>
                             )}
                         </motion.div>
 
                         {/* Submit Button */}
                         <motion.div
-                            initial={{ opacity: 0, y: 10 }}
+                            initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.6 }}
+                            className="pt-2"
                         >
                             <motion.button
                                 type="submit"
                                 disabled={isLoading}
-                                whileHover={{ scale: isLoading ? 1 : 1.02 }}
-                                whileTap={{ scale: isLoading ? 1 : 0.98 }}
-                                className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-violet-500/25 transition-all hover:shadow-xl hover:shadow-violet-500/30 disabled:opacity-70 disabled:cursor-not-allowed"
+                                whileHover={{ scale: isLoading ? 1 : 1.01 }}
+                                whileTap={{ scale: isLoading ? 1 : 0.99 }}
+                                className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 py-4 text-base font-bold text-white shadow-lg shadow-violet-500/25 transition-all hover:shadow-xl hover:shadow-violet-500/40 disabled:opacity-70 disabled:cursor-not-allowed"
                             >
-                                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-indigo-500 opacity-0 transition-opacity group-hover:opacity-100" />
                                 <span className="relative flex items-center justify-center gap-2">
                                     {isLoading ? (
                                         <>
@@ -210,7 +189,7 @@ export default function LoginPage() {
                                     ) : (
                                         <>
                                             {t('login.submit')}
-                                            <ArrowRight className={`h-4 w-4 transition-transform group-hover:translate-x-1 ${isRTL ? 'rotate-180 group-hover:-translate-x-1' : ''}`} />
+                                            <ArrowRight className={`h-5 w-5 transition-transform group-hover:translate-x-1 ${isRTL ? 'rotate-180 group-hover:-translate-x-1' : ''}`} />
                                         </>
                                     )}
                                 </span>
@@ -218,17 +197,9 @@ export default function LoginPage() {
                         </motion.div>
                     </form>
 
-                    {/* Bottom decoration */}
-                    <div className="mt-8 flex items-center justify-center gap-1.5">
-                        {[...Array(3)].map((_, i) => (
-                            <motion.div
-                                key={i}
-                                className="h-1.5 rounded-full bg-gradient-to-r from-violet-500 to-indigo-500"
-                                initial={{ width: 6 }}
-                                animate={{ width: i === 1 ? 24 : 6 }}
-                                transition={{ duration: 1, repeat: Infinity, repeatType: 'reverse', delay: i * 0.3 }}
-                            />
-                        ))}
+                    {/* Footer / Copyright */}
+                    <div className="mt-10 text-center text-xs text-slate-400">
+                        &copy; {new Date().getFullYear()} DMS System. All rights reserved.
                     </div>
                 </div>
             </motion.div>
