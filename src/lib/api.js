@@ -73,17 +73,15 @@ export const api = {
 
     getDashboardData: (params = {}) => {
         const { start = 0, page_length = 20, filters = {}, fetch_meta = 1 } = params;
-        const queryParams = new URLSearchParams({
-            start: start.toString(),
-            page_length: page_length.toString(),
-            fetch_meta: fetch_meta.toString(),
+        return apiRequest('dms.api.dashboard.get_dashboard_data', {
+            method: 'POST',
+            body: {
+                start,
+                page_length,
+                filters,
+                fetch_meta
+            }
         });
-
-        if (Object.keys(filters).length > 0) {
-            queryParams.set('filters', JSON.stringify(filters));
-        }
-
-        return apiRequest(`dms.api.dashboard.get_dashboard_data?${queryParams.toString()}`);
     },
 
     getProjectsDashboard: () =>

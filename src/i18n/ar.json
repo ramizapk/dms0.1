@@ -47,7 +47,10 @@
     "view_all": "عرض الكل",
     "no_documents": "لا توجد مستندات",
     "no_activities": "لا توجد أنشطة",
-    "no_projects": "لا توجد مشاريع"
+    "no_projects": "لا توجد مشاريع",
+    "live_feed": "متابعة فورية",
+    "portfolio_tracking": "متابعة أداء المشاريع",
+    "activity_log": "سجل الأحداث"
   },
   "documents": {
     "title": "إدارة المستندات",
@@ -57,11 +60,14 @@
     "all_disciplines": "كل التخصصات",
     "id": "رقم المستند",
     "name": "اسم المستند",
+    "document_type": "نوع المستند",
     "type": "النوع",
     "discipline": "التخصص",
     "status": "الحالة",
     "stage": "المرحلة الحالية",
+    "workflow_state": "مرحلة سير العمل",
     "date": "التاريخ",
+    "creation_date": "تاريخ الإنشاء",
     "filter_by_discipline": "تصفية حسب التخصص",
     "filter_by_type": "تصفية حسب النوع",
     "all_types": "جميع الأنواع",
@@ -138,7 +144,9 @@
     "status_open": "مفتوح",
     "status_closed": "مغلق",
     "no_projects": "لا توجد مشاريع",
-    "not_specified": "غير محدد"
+    "not_specified": "غير محدد",
+    "create_project": "إنشاء مشروع جديد",
+    "manager": "مدير المشروع"
   },
   "settings": {
     "title": "الإعدادات",
@@ -167,7 +175,6 @@
     "confirm": "تأكيد",
     "delete": "حذف",
     "edit": "تعديل",
-    "view": "عرض",
     "view": "عرض",
     "close": "إغلاق",
     "showing": "عرض",

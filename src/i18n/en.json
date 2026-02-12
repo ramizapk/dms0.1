@@ -47,7 +47,10 @@
         "view_all": "View All",
         "no_documents": "No documents found",
         "no_activities": "No activities found",
-        "no_projects": "No projects found"
+        "no_projects": "No projects found",
+        "live_feed": "Live Updates",
+        "portfolio_tracking": "Project Insights",
+        "activity_log": "System Events"
     },
     "documents": {
         "title": "Documents Management",
@@ -57,11 +60,14 @@
         "all_disciplines": "All Disciplines",
         "id": "Document ID",
         "name": "Document Name",
+        "document_type": "Document Type",
         "type": "Type",
         "discipline": "Discipline",
         "status": "Status",
         "stage": "Current Stage",
+        "workflow_state": "Workflow Phase",
         "date": "Date",
+        "creation_date": "Creation Date",
         "filter_by_discipline": "Filter by Discipline",
         "filter_by_type": "Filter by Type",
         "all_types": "All Types",
@@ -138,7 +144,9 @@
         "status_open": "Open",
         "status_closed": "Closed",
         "no_projects": "No projects found",
-        "not_specified": "Not Specified"
+        "not_specified": "Not Specified",
+        "create_project": "Create New Project",
+        "manager": "Project Manager"
     },
     "settings": {
         "title": "Settings",
@@ -167,7 +175,6 @@
         "confirm": "Confirm",
         "delete": "Delete",
         "edit": "Edit",
-        "view": "View",
         "view": "View",
         "close": "Close",
         "showing": "Showing",

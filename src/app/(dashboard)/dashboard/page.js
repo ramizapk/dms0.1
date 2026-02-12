@@ -125,7 +125,7 @@ export default function DashboardPage() {
                                 <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-none">{t('dashboard.recent_documents')}</h2>
                                 <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mt-2 flex items-center gap-2">
                                     <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-                                    Live Feed
+                                    {t('dashboard.live_feed')}
                                 </p>
                             </div>
                         </div>
@@ -217,7 +217,7 @@ export default function DashboardPage() {
                         </div>
                         <div>
                             <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-none">{t('dashboard.recent_activities')}</h2>
-                            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mt-2">{t('sidebar.menu') || 'Navigation'}</p>
+                            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mt-2">{t('dashboard.activity_log')}</p>
                         </div>
                     </div>
 
@@ -287,7 +287,7 @@ export default function DashboardPage() {
                         </div>
                         <div>
                             <h2 className="text-3xl font-black text-slate-900 tracking-tight leading-none">{t('dashboard.projects_overview')}</h2>
-                            <p className="text-[11px] font-black text-indigo-600 uppercase tracking-[0.3em] mt-3">Portfolio Tracking</p>
+                            <p className="text-[11px] font-black text-indigo-600 uppercase tracking-[0.3em] mt-3">{t('dashboard.portfolio_tracking')}</p>
                         </div>
                     </div>
                     <Link

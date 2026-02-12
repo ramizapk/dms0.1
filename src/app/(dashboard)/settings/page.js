@@ -18,8 +18,7 @@ export default function SettingsPage() {
     const tabs = [
         { id: 'profile', label: t('settings.profile') || 'My Profile', icon: User },
         { id: 'preferences', label: t('settings.preferences') || 'Preferences', icon: Palette },
-        { id: 'security', label: t('settings.security') || 'Security', icon: Lock },
-        { id: 'notifications', label: t('settings.notifications') || 'Notifications', icon: Bell },
+
     ];
 
     return (
