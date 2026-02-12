@@ -76,7 +76,42 @@
     "page": "صفحة",
     "of": "من",
     "no_documents": "لا توجد مستندات",
-    "total_records": "إجمالي السجلات"
+    "total_records": "إجمالي السجلات",
+    "add_document": "إضافة مستند",
+    "new_document": "مستند جديد",
+    "form_description": "إنشاء مستند جديد لمشروع",
+    "success_create": "تم إنشاء المستند بنجاح",
+    "fields": {
+      "project_name": "اسم المشروع",
+      "custom_consultant": "الاستشاري",
+      "custom_owner": "المالك",
+      "custom_contractor": "المقاول",
+      "submittal_type": "نوع التقديم",
+      "discipline": "التخصص",
+      "document_type": "نوع المستند",
+      "description": "الوصف"
+    },
+    "placeholders": {
+      "select_project": "اختر المشروع",
+      "select_type": "اختر النوع",
+      "select_discipline": "اختر التخصص",
+      "select_doc_type": "اختر نوع المستند",
+      "enter_description": "أدخل وصف المستند",
+      "enter_custom_consultant": "الاستشاري",
+      "enter_custom_owner": "المالك",
+      "enter_custom_contractor": "المقاول",
+      "enter_submittal_type": "نوع التقديم",
+      "enter_discipline": "التخصص"
+    },
+    "steps": {
+      "step1": "بيانات المستند",
+      "step2": "رفع الملفات"
+    },
+    "upload_files": "رفع المستندات",
+    "upload_description": "أرفق الملفات ذات الصلة بهذا المستند. يمكنك رفع ملفات متعددة.",
+    "success_complete": "تم الانتهاء!",
+    "success_message": "تم إنشاء المستند ورفع الملفات بنجاح.",
+    "back_to_list": "العودة للمستندات"
   },
   "archive": {
     "title": "الأرشيف",
@@ -100,6 +135,7 @@
     "status": "الحالة",
     "enabled": "نشط",
     "disabled": "غير نشط",
+    "generate_password": "توليد كلمة مرور",
     "fields": {
       "first_name": "الاسم الأول",
       "middle_name": "اسم الأب",
@@ -110,6 +146,7 @@
       "role_profile": "ملف الدور",
       "department": "القسم",
       "designation": "المسمى الوظيفي",
+      "password": "كلمة المرور",
       "user_image": "صورة المستخدم",
       "digital_signature": "التوقيع الرقمي",
       "digital_stamp": "الختم الرقمي"
@@ -120,6 +157,7 @@
       "last_name": "أدخل اسم العائلة",
       "email": "name@example.com",
       "mobile": "05xxxxxxxx",
+      "password": "أدخل كلمة المرور",
       "select": "اختر..."
     },
     "success_create": "تم إنشاء المستخدم بنجاح"
@@ -146,7 +184,30 @@
     "no_projects": "لا توجد مشاريع",
     "not_specified": "غير محدد",
     "create_project": "إنشاء مشروع جديد",
-    "manager": "مدير المشروع"
+    "form_description": "يرجى تقديم التفاصيل اللازمة لإنشاء سجل مشروع جديد.",
+    "manager": "مدير المشروع",
+    "create_new_project": "إنشاء مشروع جديد",
+    "new_project_details": "بيانات المشروع الجديد",
+    "fill_details": "أدخل تفاصيل المشروع الجديد.",
+    "success_create": "تم إنشاء المشروع بنجاح",
+    "fields": {
+      "project_name": "اسم المشروع (عربي)",
+      "custom_project_code": "كود المشروع",
+      "custom_project_name_en": "اسم المشروع (إنجليزي)",
+      "custom_location": "الموقع",
+      "custom_project_manager": "مدير المشروع",
+      "custom_description": "الوصف",
+      "expected_start_date": "تاريخ البدء المتوقع",
+      "expected_end_date": "تاريخ الانتهاء المتوقع"
+    },
+    "placeholders": {
+      "enter_project_name": "أدخل اسم المشروع بالعربية",
+      "enter_custom_project_code": "مثال: PROJ-2024-001",
+      "enter_custom_project_name_en": "أدخل اسم المشروع بالإنجليزية",
+      "enter_custom_location": "مثال: الرياض",
+      "select_manager": "اختر مدير المشروع",
+      "enter_description": "أدخل وصف المشروع"
+    }
   },
   "settings": {
     "title": "الإعدادات",
@@ -167,6 +228,7 @@
   },
   "common": {
     "loading": "جاري التحميل...",
+    "saving": "جاري الحفظ...",
     "error": "حدث خطأ",
     "retry": "إعادة المحاولة",
     "no_data": "لا توجد بيانات",

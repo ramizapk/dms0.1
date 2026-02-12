@@ -10,7 +10,10 @@ import {
     UserPlus,
     Save,
     X,
-    Loader2
+    Loader2,
+    Eye,
+    EyeOff,
+    Wand2
 } from 'lucide-react';
 import Link from 'next/link';
 import ImageUpload from '@/components/ui/ImageUpload';
@@ -22,6 +25,7 @@ export default function AddUserPage() {
     const { showToast } = useToast();
     const [submitting, setSubmitting] = useState(false);
     const [loadingOptions, setLoadingOptions] = useState(true);
+    const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
 
     // Dynamic Options
     const [roleProfiles, setRoleProfiles] = useState([]);
@@ -34,6 +38,7 @@ export default function AddUserPage() {
         middle_name: '',
         last_name: '',
         email: '',
+        password: '', // Added password field
         mobile_no: '',
         party: '',
         role_profile_name: '',
@@ -75,6 +80,19 @@ export default function AddUserPage() {
         // Clear error when user types
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: null }));
+        }
+    };
+
+    const generatePassword = () => {
+        const length = 12;
+        const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+        let newPassword = "";
+        for (let i = 0, n = charset.length; i < length; ++i) {
+            newPassword += charset.charAt(Math.floor(Math.random() * n));
+        }
+        setFormData(prev => ({ ...prev, password: newPassword }));
+        if (errors.password) {
+            setErrors(prev => ({ ...prev, password: null }));
         }
     };
 
@@ -136,23 +154,48 @@ export default function AddUserPage() {
     // Helper to render input with error
     const renderInput = (name, type = 'text', required = false, labelKey = null) => {
         const key = labelKey || name;
+        const isPassword = name === 'password';
+        const inputType = isPassword ? (showPassword ? 'text' : 'password') : type;
+
         return (
             <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">
                     {t(`users.fields.${key}`)}
                 </label>
-                <input
-                    type={type}
-                    name={name}
-                    value={formData[name]}
-                    onChange={handleChange}
-                    required={required}
-                    className={`w-full rounded-xl border-slate-200 bg-slate-50/50 p-3 text-sm font-bold text-slate-700 outline-none focus:ring-4 transition-all ${errors[name]
-                        ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10'
-                        : 'focus:border-indigo-500 focus:ring-indigo-500/10'
-                        }`}
-                    placeholder={t(`users.placeholders.${key.replace('_no', '')}`) || ''}
-                />
+                <div className="relative">
+                    <input
+                        type={inputType}
+                        name={name}
+                        value={formData[name]}
+                        onChange={handleChange}
+                        required={required}
+                        className={`w-full rounded-xl border-slate-200 bg-slate-50/50 p-3 text-sm font-bold text-slate-700 outline-none focus:ring-4 transition-all ${isPassword ? 'pr-24' : ''} ${errors[name]
+                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10'
+                            : 'focus:border-indigo-500 focus:ring-indigo-500/10'
+                            }`}
+                        placeholder={t(`users.placeholders.${key.replace('_no', '')}`) || ''}
+                    />
+                    {isPassword && (
+                        <div className={`absolute top-1/2 -translate-y-1/2 flex items-center gap-1 ${isRTL ? 'left-2' : 'right-2'}`}>
+                            <button
+                                type="button"
+                                onClick={generatePassword}
+                                className="p-1.5 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors"
+                                title={t('users.generate_password')}
+                            >
+                                <Wand2 className="h-4 w-4" />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                                title={showPassword ? 'Hide password' : 'Show password'}
+                            >
+                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                        </div>
+                    )}
+                </div>
                 {errors[name] && (
                     <p className="text-xs text-red-600 font-black flex items-center gap-1 animate-in slide-in-from-top-1 pr-1">
                         <X className="w-3.5 h-3.5" />
@@ -234,6 +277,7 @@ export default function AddUserPage() {
                         {renderInput('last_name', 'text', true)}
 
                         {renderInput('email', 'email', true)}
+                        {renderInput('password', 'password', true)}
                         {renderInput('mobile_no', 'tel', false, 'mobile')}
                         {renderSelect('party', parties, false)}
 

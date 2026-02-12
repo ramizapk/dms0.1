@@ -178,13 +178,7 @@ p {
 }
 
 .sidebar-brand__logo-glow {
-  position: absolute;
-  inset: -6px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
-  opacity: 0.15;
-  filter: blur(10px);
-  transition: opacity 0.4s;
+  display: none;
 }
 
 .sidebar-brand__logo-wrapper:hover .sidebar-brand__logo-glow {
@@ -194,15 +188,12 @@ p {
 .sidebar-brand__logo {
   position: relative;
   display: flex;
-  height: 44px;
-  width: 44px;
+  height: 50px;
+  width: 50px;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #4f46e5, #6366f1);
-  color: white;
-  box-shadow: 0 8px 16px -4px rgba(79, 70, 229, 0.3);
+  background: transparent;
   transition: transform 0.4s ease;
 }
 

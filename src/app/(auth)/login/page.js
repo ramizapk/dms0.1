@@ -1,10 +1,11 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/provider';
 import { useAuth } from '@/hooks/useAuth';
-import { FileStack, Eye, EyeOff, Globe, ArrowRight, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Globe, ArrowRight, Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
     const { t, toggleLocale, locale, isRTL } = useI18n();
@@ -67,9 +68,17 @@ export default function LoginPage() {
                             initial={{ scale: 0.5, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             transition={{ type: 'spring', stiffness: 200, delay: 0.1 }}
-                            className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/20"
+                            className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-3xl bg-white shadow-xl shadow-slate-200 p-4 border border-slate-100"
                         >
-                            <FileStack className="h-10 w-10 text-white" />
+                            <div className="relative w-full h-full">
+                                <Image
+                                    src="/logo.png"
+                                    alt="DMS Logo"
+                                    fill
+                                    className="object-contain"
+                                    priority
+                                />
+                            </div>
                         </motion.div>
                         <motion.h1
                             initial={{ opacity: 0, y: 10 }}

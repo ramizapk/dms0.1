@@ -13,8 +13,9 @@ import EmptyState from '@/components/ui/EmptyState';
 import PageHeader from '@/components/ui/PageHeader';
 import {
     Search, Filter, ChevronLeft, ChevronRight,
-    FileText, Download, MoreVertical, SlidersHorizontal
+    FileText, Download, MoreVertical, SlidersHorizontal, Plus
 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function DocumentsPage() {
     const { t, isRTL } = useI18n();
@@ -89,10 +90,20 @@ export default function DocumentsPage() {
 
     return (
         <div className="space-y-8">
-            <PageHeader
-                title={t('documents.title')}
-                subtitle={t('documents.subtitle')}
-            />
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <PageHeader
+                    title={t('documents.title')}
+                    subtitle={t('documents.subtitle')}
+                />
+                <Link
+                    href="/documents/add"
+                    className="group flex items-center gap-2 px-6 py-3 rounded-2xl bg-indigo-600 text-white font-bold shadow-lg shadow-indigo-500/30 hover:bg-indigo-500 hover:scale-[1.02] active:scale-95 transition-all"
+                >
+                    <Plus className="h-5 w-5" />
+                    {t('documents.add_document')}
+                </Link>
+            </div>
 
             {/* Stats Cards Row */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -103,13 +114,15 @@ export default function DocumentsPage() {
             </div>
 
             {/* Mini Stats Row */}
-            {data?.stats?.by_type && (
-                <div className="flex items-center justify-center gap-3 overflow-x-auto flex-wrap pb-2 scrollbar-hide">
-                    {data.stats.by_type.map((item, idx) => (
-                        <MiniStatBadge key={`${item.abbr}-${idx}`} abbr={item.abbr} count={item.count} />
-                    ))}
-                </div>
-            )}
+            {
+                data?.stats?.by_type && (
+                    <div className="flex items-center justify-center gap-3 overflow-x-auto flex-wrap pb-2 scrollbar-hide">
+                        {data.stats.by_type.map((item, idx) => (
+                            <MiniStatBadge key={`${item.abbr}-${idx}`} abbr={item.abbr} count={item.count} />
+                        ))}
+                    </div>
+                )
+            }
 
             {/* Filters Bar */}
             <div className="bg-white shadow-sm rounded-2xl border border-slate-200 p-4">
@@ -271,6 +284,6 @@ export default function DocumentsPage() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }

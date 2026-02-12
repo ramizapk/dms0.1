@@ -8,8 +8,8 @@ async function apiRequest(endpoint, options = {}) {
         ...headers,
     };
 
-    // Only add JSON content type if it's not FormData and not explicitly removed
-    if (!(body instanceof FormData) && !headers['Content-Type']) {
+    // Only add JSON content type if it's not FormData, not explicitly removed, and not a GET request
+    if (!(body instanceof FormData) && !headers['Content-Type'] && method.toUpperCase() !== 'GET') {
         defaultHeaders['Content-Type'] = 'application/json';
     }
 
@@ -136,6 +136,53 @@ export const api = {
             body: formData,
         });
     },
+
+    // Documents
+    getProjects: () => apiRequest('api/resource/Project'),
+
+    getProjectManagers: async () => {
+        try {
+            // Try standard Employee resource first as a robust fallback
+            const fields = JSON.stringify(["name", "employee_name"]);
+            const response = await apiRequest(`api/resource/Employee?fields=${encodeURIComponent(fields)}&limit_page_length=100`);
+
+            // Transform standard API response to match custom API expected format
+            if (response.data) {
+                return {
+                    message: {
+                        success: true,
+                        data: response.data.map(emp => ({
+                            value: emp.name,
+                            label: emp.employee_name || emp.name,
+                            employee_id: emp.name,
+                            employee_name: emp.employee_name
+                        }))
+                    }
+                };
+            }
+            return response;
+        } catch (error) {
+            console.warn('Failed to fetch employees, trying custom endpoint as backup...');
+            return apiRequest('dms.api.project.get_project_managers_list');
+        }
+    },
+
+    createProject: (data) =>
+        apiRequest('api/method/dms.api.project.create_project', {
+            method: 'POST',
+            body: data
+        }),
+
+    getProjectParties: (projectName) =>
+        apiRequest(`dms.api.documents.get_project_parties?project_name=${encodeURIComponent(projectName)}`),
+
+    getDocumentTypes: () => apiRequest('api/resource/Masar Document Type'),
+
+    createDocument: (data) =>
+        apiRequest('api/method/dms.api.documents.create_document', {
+            method: 'POST',
+            body: data
+        }),
 };
 
 export default api;

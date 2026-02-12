@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useI18n } from '@/i18n/provider';
 import { NAV_ITEMS } from '@/lib/constants';
@@ -65,32 +66,15 @@ export default function Sidebar({ isCollapsed, onToggle, isMobileOpen, onMobileC
                     className={`sidebar-brand ${isCollapsed ? 'sidebar-brand--collapsed' : ''}`}
                     style={{ height: 'var(--navbar-height)' }}
                 >
-                    <div className="sidebar-brand__logo-wrapper">
-                        <div className="sidebar-brand__logo-glow" />
-                        <div className="sidebar-brand__logo">
-                            <FileStack className="h-6 w-6" />
-                        </div>
+                    <div className={`relative transition-all duration-300 ${isCollapsed ? 'h-10 w-10' : 'h-24 -mt-2 w-full'}`}>
+                        <Image
+                            src="/logo.png"
+                            alt="Multi Business Logo"
+                            fill
+                            className="object-contain"
+                            priority
+                        />
                     </div>
-
-                    <AnimatePresence>
-                        {!isCollapsed && (
-                            <motion.div
-                                initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: isRTL ? 20 : -20 }}
-                                transition={{ duration: 0.3 }}
-                                className="sidebar-brand__text"
-                            >
-                                <h1 className="sidebar-brand__title">
-                                    SALASAH<span className="sidebar-brand__dot">.</span>
-                                </h1>
-                                <div className="sidebar-brand__subtitle">
-                                    <span className="sidebar-brand__line" />
-                                    <p className="sidebar-brand__label">Enterprise DMS</p>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
 
                     {/* Mobile close button */}
                     {isMobileOpen && (

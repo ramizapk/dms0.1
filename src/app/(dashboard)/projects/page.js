@@ -13,6 +13,7 @@ import {
     MapPin, UserCircle, Calendar, ChevronRight, TrendingUp,
     FileText, CheckCircle2, XCircle, Clock, Plus
 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function ProjectsPage() {
     const { t, isRTL } = useI18n();
@@ -73,10 +74,13 @@ export default function ProjectsPage() {
                 title={t('projects.title')}
                 subtitle={t('projects.subtitle')}
                 actions={
-                    <button className="flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-indigo-700 shadow-md shadow-indigo-500/20 transition-all active:scale-95 group">
+                    <Link
+                        href="/projects/add"
+                        className="flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-indigo-700 shadow-md shadow-indigo-500/20 transition-all active:scale-95 group"
+                    >
                         <Plus className="h-4 w-4 group-hover:rotate-90 transition-transform" />
                         {t('projects.create_project') || 'Create Project'}
-                    </button>
+                    </Link>
                 }
             />
 
