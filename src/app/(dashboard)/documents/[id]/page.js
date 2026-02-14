@@ -878,7 +878,8 @@ export default function DocumentDetailsPage() {
                     </div>
 
                     {/* Reverse Submittals (Static for now as requested design) */}
-                    <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
+                    {/*
+     <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
                         <h3 className="text-lg font-black text-indigo-900 mb-4">{t('documents.reverse_submittals')}</h3>
                         <div className="space-y-3">
                             {['036-R00', '036-R01', '036-R02'].map((rev, i) => (
@@ -888,6 +889,7 @@ export default function DocumentDetailsPage() {
                             ))}
                         </div>
                     </div>
+*/ }
 
                     {/* History */}
                     <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
