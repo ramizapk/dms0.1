@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Navbar({ isSidebarCollapsed, onToggleSidebar, onMobileMenuOpen }) {
     const { t, locale, setLocale, isRTL } = useI18n();
@@ -136,8 +137,17 @@ export default function Navbar({ isSidebarCollapsed, onToggleSidebar, onMobileMe
                                 <p className="navbar__user-name">{user?.fullName || 'User'}</p>
                                 <p className="navbar__user-role">Administrator</p>
                             </div>
-                            <div className="navbar__user-avatar">
-                                {user?.fullName?.charAt(0) || 'U'}
+                            <div className="navbar__user-avatar relative overflow-hidden">
+                                {user?.userImage ? (
+                                    <Image
+                                        src={user.userImage.startsWith('http') ? user.userImage : `https://dms.salasah.sa${user.userImage}`}
+                                        alt={user?.fullName || 'User'}
+                                        fill
+                                        className="object-cover"
+                                    />
+                                ) : (
+                                    user?.fullName?.charAt(0) || 'U'
+                                )}
                             </div>
                             <ChevronDown className={`navbar__user-chevron ${isUserMenuOpen ? 'navbar__user-chevron--open' : ''}`} />
                         </button>
@@ -154,8 +164,17 @@ export default function Navbar({ isSidebarCollapsed, onToggleSidebar, onMobileMe
                                 >
                                     {/* Dropdown user card */}
                                     <div className="navbar__dropdown-user">
-                                        <div className="navbar__dropdown-user-avatar">
-                                            {user?.fullName?.charAt(0) || 'U'}
+                                        <div className="navbar__dropdown-user-avatar relative overflow-hidden">
+                                            {user?.userImage ? (
+                                                <Image
+                                                    src={user.userImage.startsWith('http') ? user.userImage : `https://dms.salasah.sa${user.userImage}`}
+                                                    alt={user?.fullName || 'User'}
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                            ) : (
+                                                user?.fullName?.charAt(0) || 'U'
+                                            )}
                                         </div>
                                         <div>
                                             <p className="navbar__dropdown-user-name">{user?.fullName || 'User'}</p>

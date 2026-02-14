@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useI18n } from '@/i18n/provider';
-import { NAV_ITEMS } from '@/lib/constants';
+import { NAV_ITEMS, WORKSPACE_MAPPING } from '@/lib/constants';
 import {
     LayoutDashboard,
     FileText,
@@ -32,6 +32,18 @@ export default function Sidebar({ isCollapsed, onToggle, isMobileOpen, onMobileC
     const { t, isRTL } = useI18n();
     const { logout, user } = useAuth();
     const [hoveredItem, setHoveredItem] = useState(null);
+
+    // Filter navigation items based on user workspaces
+    const filteredNavItems = NAV_ITEMS.filter(item => {
+        if (item.key === 'settings') return true; // Always show settings
+
+        // If no workspaces defined yet (loading or error), maybe show all or none?
+        // Assuming we should hide if not explicitly allowed.
+        if (!user || !user.workspaces || user.workspaces.length === 0) return false;
+
+        // Check if any of the user's workspaces map to this item's key
+        return user.workspaces.some(ws => WORKSPACE_MAPPING[ws] === item.key);
+    });
 
     return (
         <>
@@ -101,7 +113,7 @@ export default function Sidebar({ isCollapsed, onToggle, isMobileOpen, onMobileC
                     </AnimatePresence>
 
                     <div className="sidebar-nav__items">
-                        {NAV_ITEMS.map((item, idx) => {
+                        {filteredNavItems.map((item, idx) => {
                             const Icon = iconMap[item.icon] || LayoutDashboard;
                             const isActive = pathname === item.path || pathname.startsWith(item.path + '/');
 
@@ -190,8 +202,17 @@ export default function Sidebar({ isCollapsed, onToggle, isMobileOpen, onMobileC
                         className={`sidebar-profile ${isCollapsed ? 'sidebar-profile--collapsed' : ''}`}
                     >
                         <div className="sidebar-profile__avatar-wrapper">
-                            <div className="sidebar-profile__avatar">
-                                {user?.fullName?.charAt(0) || 'U'}
+                            <div className="sidebar-profile__avatar relative overflow-hidden">
+                                {user?.userImage ? (
+                                    <Image
+                                        src={user.userImage.startsWith('http') ? user.userImage : `https://dms.salasah.sa${user.userImage}`}
+                                        alt={user?.fullName || 'User'}
+                                        fill
+                                        className="object-cover"
+                                    />
+                                ) : (
+                                    user?.fullName?.charAt(0) || 'U'
+                                )}
                             </div>
                             <div className="sidebar-profile__status" />
                         </div>

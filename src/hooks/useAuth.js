@@ -14,6 +14,9 @@ export function useAuth() {
         fullName: Cookies.get('full_name') || null,
         userId: Cookies.get('user_id') || null,
         isSystemUser: Cookies.get('system_user') === 'yes',
+        userImage: Cookies.get('user_image') || null,
+        workspaces: Cookies.get('workspaces') ? JSON.parse(Cookies.get('workspaces')) : [],
+        permissions: Cookies.get('permissions') ? JSON.parse(Cookies.get('permissions')) : {},
     } : null;
 
     const isAuthenticated = !!Cookies.get('sid') && Cookies.get('sid') !== 'Guest';
@@ -24,6 +27,12 @@ export function useAuth() {
         try {
             const data = await api.login(usr, pwd);
             if (data.message === 'Logged In') {
+                if (data.workspaces) {
+                    Cookies.set('workspaces', JSON.stringify(data.workspaces), { expires: 1 }); // Expires in 1 day
+                }
+                if (data.permissions) {
+                    Cookies.set('permissions', JSON.stringify(data.permissions), { expires: 1 });
+                }
                 router.push('/dashboard');
                 return true;
             }
@@ -48,6 +57,8 @@ export function useAuth() {
         Cookies.remove('user_id');
         Cookies.remove('system_user');
         Cookies.remove('user_image');
+        Cookies.remove('workspaces');
+        Cookies.remove('permissions');
         router.push('/login');
     }, [router]);
 

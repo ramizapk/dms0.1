@@ -70,3 +70,13 @@ export const NAV_ITEMS = [
     { key: 'archive', path: '/archive', icon: 'Archive' },
     { key: 'settings', path: '/settings', icon: 'Settings' },
 ];
+
+export const WORKSPACE_MAPPING = {
+    'Modules Launcher': 'dashboard',
+    'لوحة التحكم': 'dashboard',
+    'Welcome Workspace': 'dashboard',
+    'المستندات': 'documents',
+    'المشاريع': 'projects',
+    'إدارة المستخدمين': 'users',
+    'الأرشيف': 'archive',
+};
