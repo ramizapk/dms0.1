@@ -164,7 +164,13 @@
     "select_action": "اختر إجراء لتنفيذه على هذا المستند.",
     "action_success": "تم تنفيذ الإجراء بنجاح",
     "apply": "تطبيق",
-    "no_actions": "لا توجد إجراءات متاحة",
+    "no_actions": "عذراً، لا تمتلك الصلاحية للقيام بأي إجراء على هذا المستند حالياً",
+    "select_specialist_engineer": "اختيار المهندس المختص",
+    "select_engineer_required": "يرجى اختيار المهندس المختص",
+    "confirm_action_details": "يرجى تأكيد تفاصيل الإجراء أدناه",
+    "action_approve": "موافقة",
+    "action_approve_with_notes": "موافقة مع ملاحظات",
+    "notes": "الملاحظات",
     "enter_notes": "أدخل الملاحظات",
     "notes_placeholder": "يرجى تقديم ملاحظاتك أو تعليقاتك هنا..."
   },
@@ -317,6 +323,7 @@
     "of": "من",
     "total_records": "إجمالي السجلات",
     "not_specified": "غير محدد",
+    "select": "اختر...",
     "skip_finish": "تخطي وإنهاء"
   },
   "status": {

@@ -218,6 +218,9 @@ export const api = {
     getAvailableActions: (doctype, name) =>
         apiRequest(`api/method/dms.api.workflow.get_available_actions?doctype=${encodeURIComponent(doctype)}&name=${encodeURIComponent(name)}`),
 
+    getConsultantSpecialistEngineers: () =>
+        apiRequest('api/method/dms.api.workflow.get_consultant_specialist_engineers'),
+
     applyAction: (data) =>
         apiRequest('api/method/dms.api.workflow.apply_action', {
             method: 'POST',
