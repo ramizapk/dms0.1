@@ -306,7 +306,8 @@
     "update_password": "تحديث كلمة المرور",
     "password_mismatch": "كلمات المرور غير متطابقة",
     "password_too_short": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
-    "password_updated": "تم تحديث كلمة المرور بنجاح"
+    "password_updated": "تم تحديث كلمة المرور بنجاح",
+    "transparent_images_note": "يرجى استخدام صور مفرغة الخلفية (PNG) للتوقيع والختم للحصول على أفضل نتيجة."
   },
   "common": {
     "loading": "جاري التحميل...",

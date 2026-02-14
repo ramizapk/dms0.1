@@ -59,9 +59,9 @@ export default function NotificationItem({ notification, onRead, onDelete }) {
                     </p>
                 )}
 
-                {notification.document_link && (
+                {(notification.document_name || notification.document_link) && (
                     <Link
-                        href={notification.document_link}
+                        href={notification.document_name ? `/documents/${notification.document_name}` : notification.document_link}
                         className="notification-item__link"
                         onClick={(e) => {
                             e.stopPropagation();

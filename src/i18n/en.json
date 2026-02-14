@@ -301,7 +301,8 @@
         "update_password": "Update Password",
         "password_mismatch": "Passwords do not match",
         "password_too_short": "Password must be at least 6 characters",
-        "password_updated": "Password updated successfully"
+        "password_updated": "Password updated successfully",
+        "transparent_images_note": "Please ensure that signature and stamp images are transparent (PNG) for best results."
     },
     "common": {
         "loading": "Loading...",

@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/provider';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
-import { STATS_CARDS } from '@/lib/constants';
+import { STATS_CARDS, WORKSPACE_MAPPING } from '@/lib/constants';
 import StatsCard from '@/components/ui/StatsCard';
 import StatusBadge from '@/components/ui/StatusBadge';
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
@@ -25,6 +25,12 @@ export default function DashboardPage() {
     const [loading, setLoading] = useState(true);
     const [todoLoading, setTodoLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // Permission Helper
+    const hasAccess = (key) => {
+        if (!user || !user.workspaces) return false;
+        return user.workspaces.some(ws => WORKSPACE_MAPPING[ws] === key);
+    };
 
     useEffect(() => {
         async function fetchData() {
@@ -168,15 +174,18 @@ export default function DashboardPage() {
                             <span className="text-xs font-bold text-slate-700 text-center">{t('dashboard.action_todo')}</span>
                         </button>
 
-                        <Link
-                            href="/projects"
-                            className="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-violet-50 hover:border-violet-100 hover:-translate-y-1 transition-all group h-full"
-                        >
-                            <div className="h-10 w-10 rounded-xl bg-white text-violet-600 flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform">
-                                <FolderKanban className="h-5 w-5" />
-                            </div>
-                            <span className="text-xs font-bold text-slate-700 group-hover:text-violet-700 text-center">{t('dashboard.action_projects')}</span>
-                        </Link>
+
+                        {hasAccess('projects') && (
+                            <Link
+                                href="/projects"
+                                className="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-violet-50 hover:border-violet-100 hover:-translate-y-1 transition-all group h-full"
+                            >
+                                <div className="h-10 w-10 rounded-xl bg-white text-violet-600 flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform">
+                                    <FolderKanban className="h-5 w-5" />
+                                </div>
+                                <span className="text-xs font-bold text-slate-700 group-hover:text-violet-700 text-center">{t('dashboard.action_projects')}</span>
+                            </Link>
+                        )}
                     </div>
                 </div>
 
@@ -423,95 +432,98 @@ export default function DashboardPage() {
                 </motion.div>
             </div>
 
+
             {/* Projects Showcase Area - Light Mode Redesign */}
-            <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.6 }}
-                className="rounded-[32px] border border-slate-200 bg-slate-50/50 p-8 sm:p-12"
-            >
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
-                    <div className="flex items-center gap-6">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white border border-slate-200 shadow-xl shadow-indigo-100 ring-4 ring-indigo-50">
-                            <FolderKanban className="h-8 w-8 text-indigo-600" />
+            {hasAccess('projects') && (
+                <motion.div
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6, duration: 0.6 }}
+                    className="rounded-[32px] border border-slate-200 bg-slate-50/50 p-8 sm:p-12"
+                >
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
+                        <div className="flex items-center gap-6">
+                            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white border border-slate-200 shadow-xl shadow-indigo-100 ring-4 ring-indigo-50">
+                                <FolderKanban className="h-8 w-8 text-indigo-600" />
+                            </div>
+                            <div>
+                                <h2 className="text-3xl font-black text-slate-900 tracking-tight leading-none">{t('dashboard.projects_overview')}</h2>
+                                <p className="text-[11px] font-black text-indigo-600 uppercase tracking-[0.3em] mt-3">{t('dashboard.portfolio_tracking')}</p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 className="text-3xl font-black text-slate-900 tracking-tight leading-none">{t('dashboard.projects_overview')}</h2>
-                            <p className="text-[11px] font-black text-indigo-600 uppercase tracking-[0.3em] mt-3">{t('dashboard.portfolio_tracking')}</p>
-                        </div>
+                        <Link
+                            href="/projects"
+                            className="group flex items-center justify-center gap-4 text-sm font-black text-indigo-600 hover:text-white transition-all px-8 py-4 rounded-2xl bg-white hover:bg-indigo-600 border border-slate-200 hover:border-indigo-600 shadow-sm hover:shadow-xl hover:shadow-indigo-500/30 active:scale-95 whitespace-nowrap"
+                        >
+                            {t('dashboard.view_all')}
+                            <ArrowUpRight className="h-5 w-5 transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                        </Link>
                     </div>
-                    <Link
-                        href="/projects"
-                        className="group flex items-center justify-center gap-4 text-sm font-black text-indigo-600 hover:text-white transition-all px-8 py-4 rounded-2xl bg-white hover:bg-indigo-600 border border-slate-200 hover:border-indigo-600 shadow-sm hover:shadow-xl hover:shadow-indigo-500/30 active:scale-95 whitespace-nowrap"
-                    >
-                        {t('dashboard.view_all')}
-                        <ArrowUpRight className="h-5 w-5 transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                    </Link>
-                </div>
 
-                <div className="relative z-10">
-                    {data?.projects?.length > 0 ? (
-                        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                            {data.projects.map((project, i) => (
-                                <motion.div
-                                    key={project.name}
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: 0.7 + i * 0.1, duration: 0.5 }}
-                                    className="group relative flex flex-col p-8 rounded-[24px] bg-white border border-slate-100 shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] hover:border-indigo-100 hover:-translate-y-1 transition-all duration-300"
-                                >
-                                    <div className="flex items-center justify-between mb-8">
-                                        <div className="space-y-1.5 min-w-0">
-                                            <h3 className="font-black text-lg text-slate-900 group-hover:text-indigo-600 transition-colors truncate pr-4">{project.project_name}</h3>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{project.name}</p>
-                                        </div>
-                                        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-50 text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 group-hover:shadow-lg group-hover:shadow-indigo-500/30">
-                                            <TrendingUp className="h-5 w-5" />
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-6">
-                                        <div className="flex items-end justify-between">
-                                            <div className="space-y-1">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{t('projects.completion')}</p>
-                                                <p className="text-3xl font-black text-slate-900 leading-none mt-1">{project.percent_complete}%</p>
+                    <div className="relative z-10">
+                        {data?.projects?.length > 0 ? (
+                            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                                {data.projects.map((project, i) => (
+                                    <motion.div
+                                        key={project.name}
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: 0.7 + i * 0.1, duration: 0.5 }}
+                                        className="group relative flex flex-col p-8 rounded-[24px] bg-white border border-slate-100 shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] hover:border-indigo-100 hover:-translate-y-1 transition-all duration-300"
+                                    >
+                                        <div className="flex items-center justify-between mb-8">
+                                            <div className="space-y-1.5 min-w-0">
+                                                <h3 className="font-black text-lg text-slate-900 group-hover:text-indigo-600 transition-colors truncate pr-4">{project.project_name}</h3>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{project.name}</p>
                                             </div>
-                                            <div className="flex -space-x-2 rtl:space-x-reverse">
-                                                {[1, 2, 3].map((u) => (
-                                                    <div key={u} className="h-8 w-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-600 shadow-sm">
-                                                        {u === 1 ? 'JD' : u === 2 ? 'AK' : '+5'}
-                                                    </div>
-                                                ))}
+                                            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-50 text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 group-hover:shadow-lg group-hover:shadow-indigo-500/30">
+                                                <TrendingUp className="h-5 w-5" />
                                             </div>
                                         </div>
 
-                                        <div className="relative h-2.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                                            <motion.div
-                                                initial={{ width: 0 }}
-                                                animate={{ width: `${project.percent_complete}%` }}
-                                                transition={{ duration: 1.5, delay: 1 + i * 0.1, ease: 'easeOut' }}
-                                                className="absolute inset-y-0 left-0 bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-500 rounded-full"
-                                            />
-                                        </div>
-
-                                        <div className="flex items-center justify-between pt-5 border-t border-slate-50 mt-auto">
-                                            <div className="flex items-center gap-2 text-slate-500 text-[10px] font-bold uppercase tracking-widest">
-                                                <Clock className="h-3.5 w-3.5 text-indigo-500" />
-                                                Active Now
+                                        <div className="space-y-6">
+                                            <div className="flex items-end justify-between">
+                                                <div className="space-y-1">
+                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{t('projects.completion')}</p>
+                                                    <p className="text-3xl font-black text-slate-900 leading-none mt-1">{project.percent_complete}%</p>
+                                                </div>
+                                                <div className="flex -space-x-2 rtl:space-x-reverse">
+                                                    {[1, 2, 3].map((u) => (
+                                                        <div key={u} className="h-8 w-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-600 shadow-sm">
+                                                            {u === 1 ? 'JD' : u === 2 ? 'AK' : '+5'}
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             </div>
-                                            <CheckCircle2 className="h-5 w-5 text-emerald-500/20 group-hover:text-emerald-500 transition-colors duration-300" />
+
+                                            <div className="relative h-2.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                                                <motion.div
+                                                    initial={{ width: 0 }}
+                                                    animate={{ width: `${project.percent_complete}%` }}
+                                                    transition={{ duration: 1.5, delay: 1 + i * 0.1, ease: 'easeOut' }}
+                                                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-500 rounded-full"
+                                                />
+                                            </div>
+
+                                            <div className="flex items-center justify-between pt-5 border-t border-slate-50 mt-auto">
+                                                <div className="flex items-center gap-2 text-slate-500 text-[10px] font-bold uppercase tracking-widest">
+                                                    <Clock className="h-3.5 w-3.5 text-indigo-500" />
+                                                    Active Now
+                                                </div>
+                                                <CheckCircle2 className="h-5 w-5 text-emerald-500/20 group-hover:text-emerald-500 transition-colors duration-300" />
+                                            </div>
                                         </div>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="py-24 text-slate-400 bg-white rounded-3xl border border-dashed border-slate-200">
-                            <EmptyState title={t('dashboard.no_projects')} icon={FolderKanban} />
-                        </div>
-                    )}
-                </div>
-            </motion.div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="py-24 text-slate-400 bg-white rounded-3xl border border-dashed border-slate-200">
+                                <EmptyState title={t('dashboard.no_projects')} icon={FolderKanban} />
+                            </div>
+                        )}
+                    </div>
+                </motion.div>
+            )}
         </div>
     );
 }

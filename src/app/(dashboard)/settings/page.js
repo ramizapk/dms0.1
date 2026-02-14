@@ -23,7 +23,8 @@ import {
     EyeOff,
     Shield,
     LogOut,
-    Check
+    Check,
+    AlertCircle
 } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -362,6 +363,11 @@ export default function SettingsPage() {
                                                 onChange={(url) => setProfileData(prev => ({ ...prev, digital_stamp: url }))}
                                                 onRemove={() => setProfileData(prev => ({ ...prev, digital_stamp: '' }))}
                                             />
+                                        </div>
+
+                                        <div className="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-bold flex items-center gap-3">
+                                            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                                            <p>{t('settings.transparent_images_note')}</p>
                                         </div>
 
                                         <div className="pt-8 flex items-center justify-end gap-4 border-t border-white/5">
