@@ -13,7 +13,7 @@ import EmptyState from '@/components/ui/EmptyState';
 import PageHeader from '@/components/ui/PageHeader';
 import {
     FileText, FolderKanban, Clock, Activity, ArrowUpRight,
-    TrendingUp, User, CheckCircle2
+    TrendingUp, User, CheckCircle2, CheckSquare
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -21,7 +21,9 @@ export default function DashboardPage() {
     const { t, isRTL } = useI18n();
     const { user } = useAuth();
     const [data, setData] = useState(null);
+    const [todoData, setTodoData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [todoLoading, setTodoLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -36,8 +38,27 @@ export default function DashboardPage() {
                 setLoading(false);
             }
         }
+
+        async function fetchTodo() {
+            if (!user?.userId) return;
+            try {
+                setTodoLoading(true);
+                // Payload as per user request
+                const response = await api.getDashboardData({
+                    owner: user.userId,
+                    workflow_state: 'Draft – Contractor Specialist Engineer'
+                });
+                setTodoData(response.message?.docs || []);
+            } catch (err) {
+                console.error("Failed to fetch To-Do list", err);
+            } finally {
+                setTodoLoading(false);
+            }
+        }
+
         fetchData();
-    }, []);
+        fetchTodo();
+    }, [user?.userId]);
 
     if (loading) {
         return (
@@ -105,6 +126,135 @@ export default function DashboardPage() {
                         index={index}
                     />
                 ))}
+            </div>
+
+            {/* Action Buttons & To-Do List Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                {/* Action Buttons (Left Side) */}
+                <div className="lg:col-span-1 bg-white rounded-3xl border border-slate-200 shadow-sm p-6 flex flex-col justify-between h-[500px]">
+                    <div className="mb-6">
+                        <h3 className="font-black text-lg text-slate-900 leading-none">{t('common.actions')}</h3>
+                        <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider mt-1">{t('documents.available_actions')}</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 flex-1">
+                        <Link
+                            href="/documents"
+                            className="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-indigo-50 hover:border-indigo-100 hover:-translate-y-1 transition-all group h-full"
+                        >
+                            <div className="h-10 w-10 rounded-xl bg-white text-indigo-600 flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform">
+                                <FileText className="h-5 w-5" />
+                            </div>
+                            <span className="text-xs font-bold text-slate-700 group-hover:text-indigo-700 text-center">{t('dashboard.action_submittals')}</span>
+                        </Link>
+
+                        <Link
+                            href="/documents/add"
+                            className="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-emerald-50 hover:border-emerald-100 hover:-translate-y-1 transition-all group h-full"
+                        >
+                            <div className="h-10 w-10 rounded-xl bg-white text-emerald-600 flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform">
+                                <ArrowUpRight className="h-5 w-5" />
+                            </div>
+                            <span className="text-xs font-bold text-slate-700 group-hover:text-emerald-700 text-center">{t('dashboard.action_new_submittal')}</span>
+                        </Link>
+
+                        <button
+                            className="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-2xl border border-slate-100 opacity-50 cursor-not-allowed h-full"
+                            disabled
+                        >
+                            <div className="h-10 w-10 rounded-xl bg-white text-amber-600 flex items-center justify-center mb-3 shadow-sm">
+                                <CheckSquare className="h-5 w-5" />
+                            </div>
+                            <span className="text-xs font-bold text-slate-700 text-center">{t('dashboard.action_todo')}</span>
+                        </button>
+
+                        <Link
+                            href="/projects"
+                            className="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-violet-50 hover:border-violet-100 hover:-translate-y-1 transition-all group h-full"
+                        >
+                            <div className="h-10 w-10 rounded-xl bg-white text-violet-600 flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform">
+                                <FolderKanban className="h-5 w-5" />
+                            </div>
+                            <span className="text-xs font-bold text-slate-700 group-hover:text-violet-700 text-center">{t('dashboard.action_projects')}</span>
+                        </Link>
+                    </div>
+                </div>
+
+                {/* To-Do List (Right Side) */}
+                <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[500px]">
+                    <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 flex-shrink-0">
+                        <div className="flex items-center gap-4">
+                            <div className="h-10 w-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
+                                <CheckSquare className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h3 className="font-black text-lg text-slate-900 leading-none">{t('dashboard.todo_list_title')}</h3>
+                                <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wider mt-1">{t('dashboard.todo_list_subtitle')}</p>
+                            </div>
+                        </div>
+                        <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-bold border border-amber-100">
+                            {todoData?.length || 0} Tasks
+                        </span>
+                    </div>
+
+                    <div className="flex-1 overflow-auto p-4 custom-scrollbar">
+                        {todoLoading ? (
+                            <div className="space-y-4">
+                                {[1, 2, 3].map(i => (
+                                    <div key={i} className="flex items-center gap-4 animate-pulse">
+                                        <div className="h-10 w-10 rounded-lg bg-slate-100" />
+                                        <div className="flex-1 space-y-2">
+                                            <div className="h-4 w-3/4 rounded bg-slate-100" />
+                                            <div className="h-3 w-1/2 rounded bg-slate-100" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : todoData?.length > 0 ? (
+                            <table className="w-full text-left text-sm">
+                                <thead className="bg-white text-slate-500 font-bold text-[10px] uppercase tracking-wider sticky top-0 z-10 shadow-sm">
+                                    <tr>
+                                        <th className="px-4 py-3 bg-slate-50">{t('documents.name')}</th>
+                                        <th className="px-4 py-3 bg-slate-50">{t('documents.type')}</th>
+                                        <th className="px-4 py-3 bg-slate-50">{t('documents.date')}</th>
+                                        <th className="px-4 py-3 bg-slate-50 text-right">{t('common.actions')}</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {todoData.map((doc) => (
+                                        <tr key={doc.name} className="hover:bg-slate-50 transition-colors group">
+                                            <td className="px-4 py-4 max-w-[200px]">
+                                                <div className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors truncate">{doc.name}</div>
+                                                <div className="text-[10px] text-slate-400 font-medium truncate">{doc.discipline}</div>
+                                            </td>
+                                            <td className="px-4 py-4">
+                                                <span className="px-2 py-1 rounded-md bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200 inline-block overflow-hidden text-ellipsis max-w-[150px] whitespace-nowrap">
+                                                    {doc.document_type}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-4 text-slate-500 text-xs font-semibold whitespace-nowrap">
+                                                {new Date(doc.creation).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US')}
+                                            </td>
+                                            <td className="px-4 py-4 text-right">
+                                                <Link
+                                                    href={`/documents/${doc.name}`}
+                                                    className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm hover:shadow-indigo-500/30"
+                                                >
+                                                    <ArrowUpRight className="h-4 w-4" />
+                                                </Link>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center h-full text-slate-400">
+                                <CheckCircle2 className="h-10 w-10 mb-3 opacity-20" />
+                                <p className="text-sm font-medium">No pending tasks</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
 
             {/* Insights & Feed Section */}

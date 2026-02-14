@@ -12,7 +12,7 @@ import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
 import EmptyState from '@/components/ui/EmptyState';
 import PageHeader from '@/components/ui/PageHeader';
 import {
-    Search, Filter, ChevronLeft, ChevronRight, Calendar,
+    Search, Filter, ChevronLeft, ChevronRight,
     FileText, Download, MoreVertical, SlidersHorizontal, Plus, Edit, Eye, CheckCircle, XCircle, AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
@@ -127,7 +127,16 @@ export default function DocumentsPage() {
                 data?.stats?.by_type && (
                     <div className="flex items-center justify-center gap-3 overflow-x-auto flex-wrap pb-2 scrollbar-hide">
                         {data.stats.by_type.map((item, idx) => (
-                            <MiniStatBadge key={`${item.abbr}-${idx}`} abbr={item.abbr} count={item.count} />
+                            <MiniStatBadge
+                                key={`${item.abbr}-${idx}`}
+                                abbr={item.abbr}
+                                count={item.count}
+                                isActive={filters.document_type === item.name}
+                                onClick={() => {
+                                    setFilters({ ...filters, document_type: filters.document_type === item.name ? '' : item.name });
+                                    setPage(1);
+                                }}
+                            />
                         ))}
                     </div>
                 )
@@ -246,29 +255,37 @@ export default function DocumentsPage() {
 
                     {/* Date From Filter */}
                     <div className="relative">
-                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                         <input
-                            type="date"
+                            type="text"
+                            placeholder={t('documents.filter_date_from')}
                             value={filters.date_from}
+                            onFocus={(e) => (e.target.type = 'date')}
+                            onBlur={(e) => {
+                                if (!e.target.value) e.target.type = 'text';
+                            }}
                             onChange={(e) => {
                                 setFilters({ ...filters, date_from: e.target.value });
                                 setPage(1);
                             }}
-                            className="w-full pl-10 h-11 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-slate-400"
+                            className="w-full px-4 h-11 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-slate-400"
                         />
                     </div>
 
                     {/* Date To Filter */}
                     <div className="relative">
-                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                         <input
-                            type="date"
+                            type="text"
+                            placeholder={t('documents.filter_date_to')}
                             value={filters.date_to}
+                            onFocus={(e) => (e.target.type = 'date')}
+                            onBlur={(e) => {
+                                if (!e.target.value) e.target.type = 'text';
+                            }}
                             onChange={(e) => {
                                 setFilters({ ...filters, date_to: e.target.value });
                                 setPage(1);
                             }}
-                            className="w-full pl-10 h-11 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-slate-400"
+                            className="w-full px-4 h-11 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-slate-400"
                         />
                     </div>
                 </div>
