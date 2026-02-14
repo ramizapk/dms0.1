@@ -226,6 +226,26 @@ export const api = {
             method: 'POST',
             body: data
         }),
+
+    // Notifications
+    getNotifications: (page = 1, pageSize = 20) =>
+        apiRequest(`api/method/dms.api.notifications.get_notifications?page=${page}&page_size=${pageSize}`),
+
+    markAsRead: (notificationId) =>
+        apiRequest('api/method/dms.api.notifications.mark_as_read', {
+            method: 'POST',
+            body: { name: notificationId }
+        }),
+
+    markAllAsRead: () =>
+        apiRequest('api/method/dms.api.notifications.mark_all_as_read', { method: 'POST' }),
+
+    deleteNotification: (notificationId) =>
+        apiRequest('api/method/dms.api.notifications.delete_notification', {
+            method: 'POST',
+            body: { name: notificationId }
+        }),
+
     // Files
     getFiles: (attachedToName) => {
         const filters = JSON.stringify([["attached_to_name", "=", attachedToName]]);

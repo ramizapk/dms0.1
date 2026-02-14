@@ -22,7 +22,8 @@ import {
     Eye,
     EyeOff,
     Shield,
-    LogOut
+    LogOut,
+    Check
 } from 'lucide-react';
 
 export default function SettingsPage() {

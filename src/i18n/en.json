@@ -27,9 +27,8 @@
         "search": "Search...",
         "search_placeholder": "Search documents, projects...",
         "welcome": "Welcome back",
-        "notifications": "Notifications",
-        "profile": "Profile",
         "settings": "Settings",
+        "profile": "Profile",
         "logout": "Logout",
         "language": "العربية"
     },
@@ -333,5 +332,10 @@
         "Review": "In Review",
         "Approved": "Approved",
         "Rejected": "Rejected"
+    },
+    "notifications": {
+        "title": "Notifications",
+        "empty": "No notifications",
+        "mark_all_as_read": "Mark all as read"
     }
 }

@@ -27,9 +27,8 @@
     "search": "بحث...",
     "search_placeholder": "البحث في المستندات والمشاريع...",
     "welcome": "أهلاً بعودتك",
-    "notifications": "الإشعارات",
-    "profile": "الملف الشخصي",
     "settings": "الإعدادات",
+    "profile": "الملف الشخصي",
     "logout": "تسجيل الخروج",
     "language": "English"
   },
@@ -338,5 +337,10 @@
     "Review": "قيد المراجعة",
     "Approved": "معتمد",
     "Rejected": "مرفوض"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "empty": "لا توجد إشعارات",
+    "mark_all_as_read": "تحديد الكل كمقروء"
   }
 }

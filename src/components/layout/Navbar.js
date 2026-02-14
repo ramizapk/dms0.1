@@ -16,6 +16,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
+import NotificationDropdown from '@/components/ui/NotificationDropdown';
 
 export default function Navbar({ isSidebarCollapsed, onToggleSidebar, onMobileMenuOpen }) {
     const { t, locale, setLocale, isRTL } = useI18n();
@@ -115,14 +116,7 @@ export default function Navbar({ isSidebarCollapsed, onToggleSidebar, onMobileMe
                     </div>
 
                     {/* Notifications */}
-                    <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="navbar__notification-btn"
-                    >
-                        <Bell className="h-[18px] w-[18px]" />
-                        <span className="navbar__notification-dot" />
-                    </motion.button>
+                    <NotificationDropdown />
 
                     {/* Divider */}
                     <div className="navbar__divider" />
