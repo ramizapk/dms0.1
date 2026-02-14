@@ -65,6 +65,12 @@ export const api = {
             body: { usr, pwd }
         }),
 
+    updatePassword: (data) =>
+        apiRequest('api/method/dms.api.auth.update_password', {
+            method: 'POST',
+            body: data
+        }),
+
     logout: () =>
         apiRequest('logout', { method: 'POST' }),
 
@@ -72,15 +78,15 @@ export const api = {
         apiRequest('dms.api.dashboard.get_dashboard_summary'),
 
     getDashboardData: (params = {}) => {
-        const { start = 0, page_length = 20, filters = {}, fetch_meta = 1 } = params;
+        const body = {
+            start: 0,
+            page_length: 20,
+            fetch_meta: 1,
+            ...params
+        };
         return apiRequest('dms.api.dashboard.get_dashboard_data', {
             method: 'POST',
-            body: {
-                start,
-                page_length,
-                filters,
-                fetch_meta
-            }
+            body: body
         });
     },
 
@@ -140,6 +146,9 @@ export const api = {
     // Documents
     getProjects: () => apiRequest('api/resource/Project'),
 
+    getProject: (name) =>
+        apiRequest(`api/method/dms.api.project.get_project?name=${encodeURIComponent(name)}`),
+
     getProjectManagers: async () => {
         try {
             // Try standard Employee resource first as a robust fallback
@@ -173,6 +182,12 @@ export const api = {
             body: data
         }),
 
+    updateProject: (data) =>
+        apiRequest('api/method/dms.api.project.update_project', {
+            method: 'POST',
+            body: data
+        }),
+
     getProjectParties: (projectName) =>
         apiRequest(`dms.api.documents.get_project_parties?project_name=${encodeURIComponent(projectName)}`),
 
@@ -183,6 +198,37 @@ export const api = {
             method: 'POST',
             body: data
         }),
+
+    getDocument: (name) =>
+        apiRequest(`api/method/dms.api.documents.get_document?name=${encodeURIComponent(name)}`),
+
+    updateDocument: (data) =>
+        apiRequest('api/method/dms.api.documents.update_document', {
+            method: 'POST',
+            body: data
+        }),
+
+    // Workflow
+    getWorkflowHistory: (doctype, name) =>
+        apiRequest(`api/method/dms.api.workflow.get_workflow_history?doctype=${encodeURIComponent(doctype)}&name=${encodeURIComponent(name)}`),
+
+    getAllWorkflowStates: () =>
+        apiRequest('api/method/dms.api.workflow.get_all_states'),
+
+    getAvailableActions: (doctype, name) =>
+        apiRequest(`api/method/dms.api.workflow.get_available_actions?doctype=${encodeURIComponent(doctype)}&name=${encodeURIComponent(name)}`),
+
+    applyAction: (data) =>
+        apiRequest('api/method/dms.api.workflow.apply_action', {
+            method: 'POST',
+            body: data
+        }),
+    // Files
+    getFiles: (attachedToName) => {
+        const filters = JSON.stringify([["attached_to_name", "=", attachedToName]]);
+        const fields = JSON.stringify(["file_url", "file_name", "is_private", "file_type"]); // Added file_type just in case backend supports it, otherwise logic will handle
+        return apiRequest(`api/resource/File?filters=${encodeURIComponent(filters)}&fields=${encodeURIComponent(fields)}`);
+    },
 };
 
 export default api;

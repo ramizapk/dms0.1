@@ -11,7 +11,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import {
     FolderKanban, Building2, FileCheck, ClipboardCheck,
     MapPin, UserCircle, Calendar, ChevronRight, TrendingUp,
-    FileText, CheckCircle2, XCircle, Clock, Plus
+    FileText, CheckCircle2, XCircle, Clock, Plus, Edit
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -128,8 +128,17 @@ export default function ProjectsPage() {
                                             </p>
                                         </div>
                                     </div>
-                                    <div className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider border ${project.status === 'Open' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-500 border-slate-100'}`}>
-                                        {project.status === 'Open' ? t('projects.status_open') : t('projects.status_closed')}
+                                    <div className="flex items-center gap-2">
+                                        <Link
+                                            href={`/projects/${project.name}/edit`}
+                                            className="h-7 w-7 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-100 transition-all active:scale-95"
+                                            title={t('common.edit')}
+                                        >
+                                            <Edit className="h-3.5 w-3.5" />
+                                        </Link>
+                                        <div className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider border ${project.status === 'Open' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-500 border-slate-100'}`}>
+                                            {project.status === 'Open' ? t('projects.status_open') : t('projects.status_closed')}
+                                        </div>
                                     </div>
                                 </div>
 

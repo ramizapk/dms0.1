@@ -1,0 +1,369 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { useI18n } from '@/i18n/provider';
+import api from '@/lib/api';
+import PageHeader from '@/components/ui/PageHeader';
+import {
+    FileEdit,
+    Save,
+    X,
+    Loader2,
+    ArrowRight
+} from 'lucide-react';
+import Link from 'next/link';
+import { useToast } from '@/context/ToastContext';
+import { useAuth } from '@/hooks/useAuth';
+import Stepper from '@/components/ui/Stepper';
+
+export default function EditDocumentPage() {
+    const { t, isRTL } = useI18n();
+    const router = useRouter();
+    const params = useParams();
+    const { showToast } = useToast();
+    const { user } = useAuth();
+
+    const [submitting, setSubmitting] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [loadingOptions, setLoadingOptions] = useState(true);
+
+    const steps = [
+        { label: t('documents.steps.step1') || 'Document Details' },
+        { label: t('documents.steps.step2') || 'Upload Files' }
+    ];
+
+    // Dynamic Options
+    const [projects, setProjects] = useState([]);
+    const [documentTypes, setDocumentTypes] = useState([]);
+
+    // Static Options
+    const submittalTypes = ['New', 'Re-Submittal'];
+    const disciplines = [
+        'Concept Design', 'Schematic Design', 'Detailed Design',
+        'Issued for Construction', 'Civil', 'Architectural',
+        'Structural', 'Electrical', 'Mechanical', 'Plumbing',
+        'HVAC', 'Telecom'
+    ];
+
+    // Form State
+    const initialFormState = {
+        name: '',
+        project_name: '',
+        custom_consultant: '',
+        custom_owner: '',
+        custom_contractor: '',
+        submittal_type: '',
+        discipline: '',
+        document_type: '',
+        description: '',
+    };
+
+    const [formData, setFormData] = useState(initialFormState);
+    const [originalDoc, setOriginalDoc] = useState(null);
+    const [errors, setErrors] = useState({});
+
+    // Fetch Options and Document Data
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const docName = decodeURIComponent(params.id);
+
+                // 1. Fetch Options
+                const [projectsRes, docTypesRes] = await Promise.all([
+                    api.getProjects(),
+                    api.getDocumentTypes()
+                ]);
+
+                setProjects(projectsRes.data || []);
+                setDocumentTypes(docTypesRes.data || []);
+
+                // 2. Fetch Document
+                const docRes = await api.getDocument(docName);
+                if (docRes.message && docRes.message.success) {
+                    const data = docRes.message.data;
+                    setOriginalDoc(data);
+
+                    // Permission Check
+                    const isOwner = user?.userId === data.owner;
+                    const isDraft = data.workflow_state === 'Draft – Contractor Specialist Engineer';
+
+                    if (!isOwner || !isDraft) {
+                        showToast("You do not have permission to edit this document", "error");
+                        router.push('/documents');
+                        return;
+                    }
+
+                    setFormData({
+                        name: data.name,
+                        project_name: data.project_name || '',
+                        custom_consultant: data.custom_consultant || '',
+                        custom_owner: data.custom_owner || '',
+                        custom_contractor: data.custom_contractor || '',
+                        submittal_type: data.submittal_type || '',
+                        discipline: data.discipline || '',
+                        document_type: data.document_type || '',
+                        description: data.description || '',
+                    });
+                } else {
+                    throw new Error("Failed to load document");
+                }
+            } catch (err) {
+                console.error('Failed to fetch data', err);
+                showToast(t('common.error'), 'error');
+                router.push('/documents');
+            } finally {
+                setLoading(false);
+                setLoadingOptions(false);
+            }
+        }
+
+        if (user) {
+            fetchData();
+        }
+    }, [params.id, user, router]);
+
+    // Handle Project Selection to fetch parties
+    useEffect(() => {
+        async function fetchParties() {
+            // Only fetch if project name changes and it's different from the loaded document (or if user manually changes it)
+            // But since project_name is pre-filled, this runs on mount.
+            // We want to ensure we have the latest parties or respect what's in the document?
+            // The document fields for parties are usually snapshots. But in this form they are read-only and derived from Project.
+            // So we should update them based on the project.
+
+            if (!formData.project_name) {
+                setFormData(prev => ({
+                    ...prev,
+                    custom_consultant: '',
+                    custom_owner: '',
+                    custom_contractor: ''
+                }));
+                return;
+            }
+
+            // Optimization: If the project name matches the original doc, we could skip fetching IF we trust the doc's cached parties. 
+            // But fetching ensures we get the latest configuration from the project.
+
+            try {
+                const res = await api.getProjectParties(formData.project_name);
+                if (res.message && res.message.success) {
+                    const { custom_consultant, custom_owner, custom_contractor } = res.message.data;
+                    setFormData(prev => ({
+                        ...prev,
+                        custom_consultant: custom_consultant || '',
+                        custom_owner: custom_owner || '',
+                        custom_contractor: custom_contractor || ''
+                    }));
+                }
+            } catch (err) {
+                console.error('Failed to fetch project parties', err);
+            }
+        }
+
+        if (formData.project_name) {
+            fetchParties();
+        }
+    }, [formData.project_name]);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+        // Clear error when user types
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: null }));
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setSubmitting(true);
+        setErrors({});
+
+        try {
+            const res = await api.updateDocument(formData);
+            if (res.message && res.message.success) {
+                showToast(t('documents.success_update'), 'success');
+                // Redirect to Step 2
+                router.push(`/documents/${params.id}/edit/step-2`); // Use params.id since name might have changed but usually ID stays or we use the new name if returned
+            }
+        } catch (err) {
+            console.error('Failed to update document', err);
+            showToast(err.message || t('common.error'), 'error');
+
+            if (err.serverMessages) {
+                // Handle specific server messages if needed
+            }
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    // Helper to render input
+    const renderInput = (name, type = 'text', required = false, readOnly = false) => {
+        return (
+            <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                    {t(`documents.fields.${name}`)}
+                </label>
+                <input
+                    type={type}
+                    name={name}
+                    value={formData[name]}
+                    onChange={handleChange}
+                    required={required}
+                    readOnly={readOnly}
+                    className={`w-full rounded-xl border-slate-200 bg-slate-50/50 p-3 text-sm font-bold text-slate-700 outline-none focus:ring-4 transition-all ${readOnly ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : ''
+                        } ${errors[name]
+                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10'
+                            : 'focus:border-indigo-500 focus:ring-indigo-500/10'
+                        }`}
+                    placeholder={!readOnly ? t(`documents.placeholders.enter_${name}`) || '' : ''}
+                />
+                {errors[name] && (
+                    <p className="text-xs text-red-600 font-black flex items-center gap-1 animate-in slide-in-from-top-1 pr-1">
+                        <X className="w-3.5 h-3.5" />
+                        {errors[name]}
+                    </p>
+                )}
+            </div>
+        );
+    };
+
+    const renderSelect = (name, options, loading, required = false, placeholderKey) => {
+        return (
+            <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                    {t(`documents.fields.${name}`)}
+                </label>
+                <div className="relative">
+                    <select
+                        name={name}
+                        value={formData[name]}
+                        onChange={handleChange}
+                        disabled={loading}
+                        required={required}
+                        className={`w-full rounded-xl border-slate-200 bg-slate-50/50 p-3 text-sm font-bold text-slate-700 outline-none focus:ring-4 transition-all appearance-none ${errors[name]
+                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10'
+                            : 'focus:border-indigo-500 focus:ring-indigo-500/10'
+                            }`}
+                    >
+                        <option value="">{t(`documents.placeholders.${placeholderKey}`)}</option>
+                        {options.map(opt => (
+                            <option key={opt.name || opt} value={opt.name || opt}>
+                                {opt.name || opt}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                {errors[name] && (
+                    <p className="text-xs text-red-600 font-black flex items-center gap-1 animate-in slide-in-from-top-1 pr-1">
+                        <X className="w-3.5 h-3.5" />
+                        {errors[name]}
+                    </p>
+                )}
+            </div>
+        );
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-96">
+                <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-12 pb-20">
+            {/* Header */}
+            <div className="relative mb-12">
+                <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-screen h-96 bg-gradient-to-b from-indigo-50/20 to-transparent pointer-events-none" />
+                <PageHeader
+                    title={t('documents.edit_document')}
+                    subtitle={t('documents.edit_form_description')}
+                />
+            </div>
+
+            <div className="max-w-4xl mx-auto mb-10">
+                <Stepper steps={steps} currentStep={0} />
+            </div>
+
+            <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.6 }}
+                className="max-w-4xl mx-auto"
+            >
+                <form onSubmit={handleSubmit} className="premium-card p-8 sm:p-12 space-y-8">
+                    <div className="flex items-center gap-4 pb-6 border-b border-slate-100 mb-8">
+                        <div className="h-12 w-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                            <FileEdit className="h-6 w-6" />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-black text-slate-900">{t('documents.edit_document')}</h3>
+                            <p className="text-sm text-slate-500 font-medium">{t('documents.edit_form_description')}</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {renderSelect('project_name', projects, loadingOptions, true, 'select_project')}
+
+                        {/* Auto-filled Parties */}
+                        {renderInput('custom_consultant', 'text', false, true)}
+                        {renderInput('custom_owner', 'text', false, true)}
+                        {renderInput('custom_contractor', 'text', false, true)}
+
+                        {renderSelect('submittal_type', submittalTypes, false, true, 'select_type')}
+                        {renderSelect('discipline', disciplines, false, true, 'select_discipline')}
+
+                        <div className="md:col-span-2">
+                            {renderSelect('document_type', documentTypes, loadingOptions, true, 'select_doc_type')}
+                        </div>
+
+                        <div className="md:col-span-2 space-y-2">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                                {t('documents.fields.description')}
+                            </label>
+                            <textarea
+                                name="description"
+                                value={formData.description}
+                                onChange={handleChange}
+                                rows={4}
+                                className="w-full rounded-xl border-slate-200 bg-slate-50/50 p-3 text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:border-indigo-500 focus:ring-indigo-500/10 transition-all resize-none"
+                                placeholder={t('documents.placeholders.enter_description')}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="pt-8 flex items-center justify-end gap-4 border-t border-slate-100 mt-8">
+                        <Link
+                            href="/documents"
+                            className="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-all"
+                        >
+                            {t('common.cancel')}
+                        </Link>
+                        <button
+                            type="submit"
+                            disabled={submitting}
+                            className="flex items-center gap-2 px-8 py-3 rounded-xl bg-indigo-600 text-white text-sm font-bold shadow-lg shadow-indigo-500/30 hover:bg-indigo-500 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-70 disabled:pointer-events-none"
+                        >
+                            {submitting ? (
+                                <>
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    {t('common.saving')}
+                                </>
+                            ) : (
+                                <>
+                                    {t('common.next')}
+                                    <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                                </>
+                            )}
+                        </button>
+                    </div>
+                </form>
+            </motion.div>
+        </div>
+    );
+}

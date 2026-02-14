@@ -12,19 +12,27 @@ import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
 import EmptyState from '@/components/ui/EmptyState';
 import PageHeader from '@/components/ui/PageHeader';
 import {
-    Search, Filter, ChevronLeft, ChevronRight,
-    FileText, Download, MoreVertical, SlidersHorizontal, Plus
+    Search, Filter, ChevronLeft, ChevronRight, Calendar,
+    FileText, Download, MoreVertical, SlidersHorizontal, Plus, Edit, Eye, CheckCircle, XCircle, AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function DocumentsPage() {
     const { t, isRTL } = useI18n();
+    const { user } = useAuth();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [filters, setFilters] = useState({
         document_type: '',
         discipline: '',
+        status: '',
+        action: '',
+        action: '',
+        approval: '',
+        date_from: '',
+        date_to: '',
         search: '',
     });
     const [start, setStart] = useState(0);
@@ -38,23 +46,24 @@ export default function DocumentsPage() {
                 // API expects 'start' (0-based index)
                 const startParams = (page - 1) * pageLength;
 
-                // Construct filters array: [['field', 'op', 'value'], ...]
-                const activeFilters = [];
-                if (filters.search) {
-                    activeFilters.push(['name', 'like', `%${filters.search}%`]);
-                }
-                if (filters.document_type) {
-                    activeFilters.push(['document_type', '=', filters.document_type]);
-                }
-                if (filters.discipline) {
-                    activeFilters.push(['discipline', '=', filters.discipline]);
-                }
-
-                const response = await api.getDashboardData({
+                // Construct flat parameters object
+                const params = {
                     start: startParams,
                     page_length: pageLength,
-                    filters: activeFilters
-                });
+                    fetch_meta: 1,
+                };
+
+                // Add defined filters
+                if (filters.search) params.search = filters.search;
+                if (filters.document_type) params.document_type = filters.document_type;
+                if (filters.discipline) params.discipline = filters.discipline;
+                if (filters.status) params.status = filters.status;
+                if (filters.action) params.action = filters.action;
+                if (filters.approval) params.approval = filters.approval;
+                if (filters.date_from) params.date_from = filters.date_from;
+                if (filters.date_to) params.date_to = filters.date_to;
+
+                const response = await api.getDashboardData(params);
                 // Response structure: { message: { docs, pagination, stats, meta } }
                 setData(response.message);
             } catch (err) {
@@ -175,6 +184,94 @@ export default function DocumentsPage() {
                         </select>
                     </div>
                 </div>
+
+                {/* Advanced Filters Row */}
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-4 mt-4 pt-4 border-t border-slate-100">
+                    {/* Status Filter */}
+                    <div className="relative">
+                        <CheckCircle className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <select
+                            value={filters.status}
+                            onChange={(e) => {
+                                setFilters({ ...filters, status: e.target.value });
+                                setPage(1);
+                            }}
+                            className="w-full pl-10 h-11 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 appearance-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all cursor-pointer"
+                        >
+                            <option value="">{t('documents.all_statuses')}</option>
+                            <option value="Draft">{t('documents.status_draft')}</option>
+                            <option value="Open">{t('documents.status_open')}</option>
+                            <option value="Close">{t('documents.status_close')}</option>
+                        </select>
+                    </div>
+
+                    {/* Action Filter */}
+                    <div className="relative">
+                        <AlertCircle className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <select
+                            value={filters.action}
+                            onChange={(e) => {
+                                setFilters({ ...filters, action: e.target.value });
+                                setPage(1);
+                            }}
+                            className="w-full pl-10 h-11 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 appearance-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all cursor-pointer"
+                        >
+                            <option value="">{t('documents.all_actions')}</option>
+                            <option value="Accepted">{t('documents.action_accepted')}</option>
+                            <option value="Rejected">{t('documents.action_rejected')}</option>
+                            <option value="No Action">{t('documents.action_no_action')}</option>
+                        </select>
+                    </div>
+
+                    {/* Approval Filter */}
+                    <div className="relative">
+                        <CheckCircle className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <select
+                            value={filters.approval}
+                            onChange={(e) => {
+                                setFilters({ ...filters, approval: e.target.value });
+                                setPage(1);
+                            }}
+                            className="w-full pl-10 h-11 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 appearance-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all cursor-pointer"
+                        >
+                            <option value="">{t('documents.all_approvals')}</option>
+                            <option value="0">0</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                        </select>
+                    </div>
+
+                    {/* Date From Filter */}
+                    <div className="relative">
+                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                        <input
+                            type="date"
+                            value={filters.date_from}
+                            onChange={(e) => {
+                                setFilters({ ...filters, date_from: e.target.value });
+                                setPage(1);
+                            }}
+                            className="w-full pl-10 h-11 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-slate-400"
+                        />
+                    </div>
+
+                    {/* Date To Filter */}
+                    <div className="relative">
+                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                        <input
+                            type="date"
+                            value={filters.date_to}
+                            onChange={(e) => {
+                                setFilters({ ...filters, date_to: e.target.value });
+                                setPage(1);
+                            }}
+                            className="w-full pl-10 h-11 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-slate-400"
+                        />
+                    </div>
+                </div>
             </div>
 
             {/* Documents Table */}
@@ -234,14 +331,34 @@ export default function DocumentsPage() {
                                                     {doc.creation ? doc.creation.split(' ')[0] : '-'}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-3 text-center">
-                                                <div className="flex items-center justify-center gap-1">
-                                                    <button className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-indigo-600 transition-all">
-                                                        <Download className="h-3.5 w-3.5" />
-                                                    </button>
-                                                    <button className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-indigo-600 transition-all">
-                                                        <MoreVertical className="h-3.5 w-3.5" />
-                                                    </button>
+                                            <td className="px-4 py-3">
+                                                <div className="flex items-center gap-2">
+                                                    {(() => {
+                                                        const isEditable = user?.userId === doc.owner && doc.workflow_state === 'Draft – Contractor Specialist Engineer';
+                                                        return isEditable ? (
+                                                            <Link
+                                                                href={`/documents/${doc.name}/edit`}
+                                                                className="h-8 w-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center hover:bg-orange-600 hover:text-white transition-all"
+                                                                title={t('common.edit')}
+                                                            >
+                                                                <Edit className="h-4 w-4" />
+                                                            </Link>
+                                                        ) : (
+                                                            <div
+                                                                className="h-8 w-8 rounded-lg bg-slate-50 text-slate-300 flex items-center justify-center cursor-not-allowed"
+                                                                title={t('documents.cannot_edit')}
+                                                            >
+                                                                <Edit className="h-4 w-4" />
+                                                            </div>
+                                                        );
+                                                    })()}
+                                                    <Link
+                                                        href={`/documents/${doc.name}`}
+                                                        className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"
+                                                        title={t('common.view')}
+                                                    >
+                                                        <Eye className="h-4 w-4" />
+                                                    </Link>
                                                 </div>
                                             </td>
                                         </motion.tr>
