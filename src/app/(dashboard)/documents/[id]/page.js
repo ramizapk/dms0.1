@@ -425,14 +425,16 @@ export default function DocumentDetailsPage() {
                 </div>
                 <div className="flex items-center gap-3 self-end md:self-auto">
                     {/* Action Button */}
-                    <button
-                        onClick={handleOpenActions}
-                        disabled={actionLoading}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
-                    >
-                        {actionLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Gavel className="w-5 h-5" />}
-                        {t('documents.action_title')}
-                    </button>
+                    {doc.has_workflow_action_permission === 1 && (
+                        <button
+                            onClick={handleOpenActions}
+                            disabled={actionLoading}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                        >
+                            {actionLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Gavel className="w-5 h-5" />}
+                            {t('documents.action_title')}
+                        </button>
+                    )}
 
                     {/* Print Button */}
                     <button

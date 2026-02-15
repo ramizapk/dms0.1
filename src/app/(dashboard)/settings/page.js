@@ -538,7 +538,8 @@ export default function SettingsPage() {
                                         ))}
                                     </div>
                                 </div>
-                                <div className="h-px bg-white/5" />
+                                {/* 
+  <div className="h-px bg-white/5" />
                                 <div className="space-y-8">
                                     <h3 className="text-xl font-black text-white flex items-center gap-4"><div className="p-3 rounded-2xl bg-violet-500/10 border border-violet-500/20"><Eye className="h-6 w-6 text-violet-400" /></div>{t('settings.theme')}</h3>
                                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -546,6 +547,7 @@ export default function SettingsPage() {
                                         <button className="flex items-center gap-5 rounded-3xl bg-white/[0.03] border-2 border-white/5 p-6 text-slate-600 cursor-not-allowed opacity-30"><div className="flex h-14 w-14 items-center justify-center rounded-[1.25rem] bg-slate-800"><Sun className="h-7 w-7" /></div><div className="text-left rtl:text-right"><span className="block text-lg font-black">{t('settings.light')}</span><span className="text-[10px] font-bold uppercase tracking-widest">Coming Soon</span></div></button>
                                     </div>
                                 </div>
+*/}
                             </motion.div>
                         )}
                     </AnimatePresence>

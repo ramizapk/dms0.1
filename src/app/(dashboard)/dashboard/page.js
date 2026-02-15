@@ -114,7 +114,7 @@ export default function DashboardPage() {
             <div className="relative mb-12">
                 <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-screen h-96 bg-gradient-to-b from-indigo-50/20 to-transparent pointer-events-none" />
                 <PageHeader
-                    title={`${t('dashboard.welcome')}، ${user?.fullName || ''} 👋`}
+                    title={`${t('dashboard.welcome')}، ${user?.fullName || ''} `}
                     subtitle={t('dashboard.title')}
                 />
             </div>

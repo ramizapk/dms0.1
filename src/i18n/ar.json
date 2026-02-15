@@ -56,7 +56,11 @@
     "no_projects": "لا توجد مشاريع",
     "live_feed": "متابعة فورية",
     "portfolio_tracking": "متابعة أداء المشاريع",
-    "activity_log": "سجل الأحداث"
+    "activity_log": "سجل الأحداث",
+    "stat_closed": "مغلقة",
+    "stat_initiated": "تم البدء",
+    "stat_my_submittals": "اعتماداتي",
+    "stat_received": "مستلمة"
   },
   "documents": {
     "title": "إدارة المستندات",
@@ -111,6 +115,9 @@
       "submittal_type": "نوع التقديم",
       "discipline": "التخصص",
       "document_type": "نوع المستند",
+      "building_name": "اسم المبنى",
+      "floor": "الدور",
+      "room": "الغرفة",
       "description": "الوصف"
     },
     "placeholders": {
@@ -123,7 +130,10 @@
       "enter_custom_owner": "المالك",
       "enter_custom_contractor": "المقاول",
       "enter_submittal_type": "نوع التقديم",
-      "enter_discipline": "التخصص"
+      "enter_discipline": "التخصص",
+      "enter_building_name": "اسم المبنى",
+      "enter_floor": "الدور",
+      "enter_room": "الغرفة"
     },
     "steps": {
       "step1": "بيانات المستند",
@@ -192,6 +202,8 @@
     "title": "إدارة المستخدمين",
     "subtitle": "إدارة الوصول وأدوار المستخدمين",
     "add_user": "إضافة مستخدم جديد",
+    "delete_user": "حذف المستخدم",
+    "delete_confirmation": "هل أنت متأكد أنك تريد حذف هذا المستخدم؟ هذا الإجراء لا يمكن التراجع عنه.",
     "edit_title": "تعديل المستخدم",
     "edit_description": "تحديث بيانات المستخدم",
     "form_description": "قم بتعبئة التفاصيل لإنشاء مستخدم نظام جديد",
@@ -315,6 +327,7 @@
     "save": "حفظ",
     "error": "حدث خطأ",
     "retry": "إعادة المحاولة",
+    "confirm_delete": "هل أنت متأكد أنك تريد حذف هذا المستخدم؟",
     "no_data": "لا توجد بيانات",
     "actions": "الإجراءات",
     "cancel": "إلغاء",

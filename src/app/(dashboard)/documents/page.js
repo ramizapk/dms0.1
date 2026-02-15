@@ -13,7 +13,8 @@ import EmptyState from '@/components/ui/EmptyState';
 import PageHeader from '@/components/ui/PageHeader';
 import {
     Search, Filter, ChevronLeft, ChevronRight,
-    FileText, Download, MoreVertical, SlidersHorizontal, Plus, Edit, Eye, CheckCircle, XCircle, AlertCircle
+    FileText, Download, MoreVertical, SlidersHorizontal, Plus, Edit, Eye, CheckCircle, XCircle, AlertCircle,
+    CheckCircle2, Send, Inbox, FileCheck
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
@@ -112,6 +113,58 @@ export default function DocumentsPage() {
                     <Plus className="h-5 w-5" />
                     {t('documents.add_document')}
                 </Link>
+            </div>
+
+            {/* Quick Stats Grid - Fixed Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                    {
+                        key: 'closed',
+                        label: t('dashboard.stat_closed'),
+                        value: data?.fixed_cards?.closed || 0,
+                        icon: CheckCircle2,
+                        color: 'text-emerald-600',
+                        bg: 'bg-emerald-50',
+                        border: 'border-emerald-100'
+                    },
+                    {
+                        key: 'initiated',
+                        label: t('dashboard.stat_initiated'),
+                        value: data?.fixed_cards?.initiated || 0,
+                        icon: Send,
+                        color: 'text-blue-600',
+                        bg: 'bg-blue-50',
+                        border: 'border-blue-100'
+                    },
+                    {
+                        key: 'my_submittals',
+                        label: t('dashboard.stat_my_submittals'),
+                        value: data?.fixed_cards?.my_submittals || 0,
+                        icon: FileCheck,
+                        color: 'text-violet-600',
+                        bg: 'bg-violet-50',
+                        border: 'border-violet-100'
+                    },
+                    {
+                        key: 'received',
+                        label: t('dashboard.stat_received'),
+                        value: data?.fixed_cards?.received || 0,
+                        icon: Inbox,
+                        color: 'text-amber-600',
+                        bg: 'bg-amber-50',
+                        border: 'border-amber-100'
+                    },
+                ].map((stat) => (
+                    <div key={stat.key} className={`flex items-center justify-between p-4 rounded-2xl border ${stat.border} bg-white shadow-sm hover:shadow-md transition-all group cursor-default`}>
+                        <div className="flex items-center gap-3">
+                            <div className={`p-2.5 rounded-xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform`}>
+                                <stat.icon className="h-5 w-5" />
+                            </div>
+                            <span className="text-xs font-bold text-slate-600 group-hover:text-slate-800 transition-colors">{stat.label}</span>
+                        </div>
+                        <span className={`text-xl font-black ${stat.color}`}>{stat.value}</span>
+                    </div>
+                ))}
             </div>
 
             {/* Stats Cards Row */}

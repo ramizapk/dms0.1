@@ -14,8 +14,10 @@ import {
     Calendar,
     CheckCircle2,
     Filter,
-    Search
+    Search,
+    Eye
 } from 'lucide-react';
+import Link from 'next/link';
 import StatusBadge from '@/components/ui/StatusBadge';
 
 const ARCHIVE_STATS = [
@@ -155,6 +157,7 @@ export default function ArchivePage() {
                                         <th>{t('documents.discipline')}</th>
                                         <th>{t('documents.workflow_state')}</th>
                                         <th>{t('documents.creation_date')}</th>
+                                        <th>{t('common.actions')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
@@ -206,6 +209,17 @@ export default function ArchivePage() {
                                                             year: 'numeric'
                                                         })}
                                                     </span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="flex items-center gap-2">
+                                                    <Link
+                                                        href={`/documents/${doc.name}`}
+                                                        className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"
+                                                        title={t('common.view')}
+                                                    >
+                                                        <Eye className="h-4 w-4" />
+                                                    </Link>
                                                 </div>
                                             </td>
                                         </motion.tr>

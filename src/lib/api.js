@@ -113,7 +113,8 @@ export const api = {
             "designation", "role_profile_name", "enabled", "user_type",
             "creation", "owner", "user_image"
         ]);
-        return apiRequest(`api/resource/User?fields=${encodeURIComponent(fields)}`);
+        const filters = JSON.stringify([["enabled", "=", "1"]]);
+        return apiRequest(`api/resource/User?fields=${encodeURIComponent(fields)}&filters=${encodeURIComponent(filters)}`);
     },
 
     getUser: (userId) => apiRequest(`api/resource/User/${encodeURIComponent(userId)}`),
@@ -130,6 +131,11 @@ export const api = {
             body: userData
         }),
 
+    disableUser: (email) =>
+        apiRequest(`api/method/dms.api.users.disable_user?name=${encodeURIComponent(email)}`, {
+            method: 'GET'
+        }),
+
     getRoleProfiles: () => apiRequest('api/resource/Role Profile'),
 
     getDepartments: () => apiRequest('api/resource/Department'),
@@ -144,7 +150,7 @@ export const api = {
     },
 
     // Documents
-    getProjects: () => apiRequest('api/resource/Project'),
+    getProjects: () => apiRequest('api/resource/Project?fields=["name","project_name"]'),
 
     getProject: (name) =>
         apiRequest(`api/method/dms.api.project.get_project?name=${encodeURIComponent(name)}`),

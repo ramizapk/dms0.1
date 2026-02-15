@@ -13,15 +13,51 @@ import {
     Search,
     UserCheck,
     UserX,
-    Edit // Import Edit icon
+    Edit,
+    Trash2
 } from 'lucide-react';
 import Link from 'next/link';
+import { useToast } from '@/context/ToastContext';
+import DeleteConfirmationModal from '@/components/ui/DeleteConfirmationModal';
 
 export default function UsersPage() {
     const { t, isRTL } = useI18n();
+    const { showToast } = useToast();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // Delete Modal State
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [userToDelete, setUserToDelete] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const handleDeleteClick = (user) => {
+        setUserToDelete(user);
+        setDeleteModalOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!userToDelete) return;
+
+        setIsDeleting(true);
+        try {
+            // The API requires the email to be passed as the 'name' parameter
+            const userEmail = userToDelete.email || userToDelete.name;
+            const res = await api.disableUser(userEmail);
+            if (res.message && res.message.success) {
+                showToast(isRTL ? (res.message.message_ar || 'تم حذف المستخدم بنجاح') : (res.message.message || 'User deleted successfully'), 'success');
+                setUsers(users.filter(u => u.name !== userToDelete.name));
+                setDeleteModalOpen(false);
+                setUserToDelete(null);
+            }
+        } catch (err) {
+            console.error(err);
+            showToast(err.message || t('common.error'), 'error');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     useEffect(() => {
         async function fetchUsers() {
@@ -173,6 +209,13 @@ export default function UsersPage() {
                                                     >
                                                         <Edit className="h-4 w-4" />
                                                     </Link>
+                                                    <button
+                                                        onClick={() => handleDeleteClick(user)}
+                                                        className="p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
+                                                        title={t('common.delete')}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </button>
                                                 </div>
                                             </td>
                                         </motion.tr>
@@ -187,6 +230,15 @@ export default function UsersPage() {
                     )}
                 </div>
             </motion.div>
+
+            <DeleteConfirmationModal
+                isOpen={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                onConfirm={handleConfirmDelete}
+                title={t('users.delete_user')}
+                message={t('users.delete_confirmation')}
+                isDeleting={isDeleting}
+            />
         </div>
     );
 }

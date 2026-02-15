@@ -57,6 +57,9 @@ export default function EditDocumentPage() {
         submittal_type: '',
         discipline: '',
         document_type: '',
+        building_name: '',
+        floor: '',
+        room: '',
         description: '',
     };
 
@@ -104,6 +107,9 @@ export default function EditDocumentPage() {
                         submittal_type: data.submittal_type || '',
                         discipline: data.discipline || '',
                         document_type: data.document_type || '',
+                        building_name: data.building_name || '',
+                        floor: data.floor || '',
+                        room: data.room || '',
                         description: data.description || '',
                     });
                 } else {
@@ -250,11 +256,24 @@ export default function EditDocumentPage() {
                             }`}
                     >
                         <option value="">{t(`documents.placeholders.${placeholderKey}`)}</option>
-                        {options.map(opt => (
-                            <option key={opt.name || opt} value={opt.name || opt}>
-                                {opt.name || opt}
-                            </option>
-                        ))}
+                        {options.map(opt => {
+                            const isObject = typeof opt === 'object' && opt !== null;
+                            const value = isObject ? opt.name : opt;
+                            let label = value;
+
+                            // Enhanced display for projects: "ID - Project Name"
+                            if (isObject && opt.project_name) {
+                                label = `${opt.name} - ${opt.project_name}`;
+                            } else if (isObject && opt.label) {
+                                label = opt.label;
+                            }
+
+                            return (
+                                <option key={value} value={value}>
+                                    {label}
+                                </option>
+                            );
+                        })}
                     </select>
                 </div>
                 {errors[name] && (
@@ -320,6 +339,13 @@ export default function EditDocumentPage() {
 
                         <div className="md:col-span-2">
                             {renderSelect('document_type', documentTypes, loadingOptions, true, 'select_doc_type')}
+                        </div>
+
+                        {/* Location Details */}
+                        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {renderInput('building_name', 'text')}
+                            {renderInput('floor', 'text')}
+                            {renderInput('room', 'text')}
                         </div>
 
                         <div className="md:col-span-2 space-y-2">
