@@ -101,7 +101,7 @@ export default function Sidebar({ isCollapsed, onToggle, isMobileOpen, onMobileC
                 {/* Navigation */}
                 <div className={`sidebar-nav ${isCollapsed ? 'sidebar-nav--collapsed' : ''}`}>
                     <AnimatePresence>
-                        {!isCollapsed && (
+                        {(!isCollapsed || isMobileOpen) && (
                             <motion.p
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
@@ -132,7 +132,7 @@ export default function Sidebar({ isCollapsed, onToggle, isMobileOpen, onMobileC
                                     <Link
                                         href={item.path}
                                         onClick={onMobileClose}
-                                        className={`sidebar-nav__link ${isActive ? 'sidebar-nav__link--active' : ''} ${isCollapsed ? 'sidebar-nav__link--collapsed' : ''}`}
+                                        className={`sidebar-nav__link ${isActive ? 'sidebar-nav__link--active' : ''} ${isCollapsed && !isMobileOpen ? 'sidebar-nav__link--collapsed' : ''}`}
                                     >
                                         {/* Active background card */}
                                         {isActive && (
@@ -162,7 +162,7 @@ export default function Sidebar({ isCollapsed, onToggle, isMobileOpen, onMobileC
 
                                         {/* Label */}
                                         <AnimatePresence>
-                                            {!isCollapsed && (
+                                            {(!isCollapsed || isMobileOpen) && (
                                                 <motion.span
                                                     initial={{ opacity: 0, x: isRTL ? 10 : -10 }}
                                                     animate={{ opacity: 1, x: 0 }}
@@ -177,7 +177,7 @@ export default function Sidebar({ isCollapsed, onToggle, isMobileOpen, onMobileC
 
                                     {/* Tooltip for collapsed state */}
                                     <AnimatePresence>
-                                        {isCollapsed && hoveredItem === item.key && (
+                                        {isCollapsed && !isMobileOpen && hoveredItem === item.key && (
                                             <motion.div
                                                 initial={{ opacity: 0, x: isRTL ? 10 : -10, scale: 0.9 }}
                                                 animate={{ opacity: 1, x: 0, scale: 1 }}
@@ -201,7 +201,7 @@ export default function Sidebar({ isCollapsed, onToggle, isMobileOpen, onMobileC
                     {/* User Profile Card */}
                     <motion.div
                         whileHover={{ y: -2 }}
-                        className={`sidebar-profile ${isCollapsed ? 'sidebar-profile--collapsed' : ''}`}
+                        className={`sidebar-profile ${isCollapsed && !isMobileOpen ? 'sidebar-profile--collapsed' : ''}`}
                     >
                         <div className="sidebar-profile__avatar-wrapper">
                             <div className="sidebar-profile__avatar relative overflow-hidden">
@@ -220,7 +220,7 @@ export default function Sidebar({ isCollapsed, onToggle, isMobileOpen, onMobileC
                         </div>
 
                         <AnimatePresence>
-                            {!isCollapsed && (
+                            {(!isCollapsed || isMobileOpen) && (
                                 <motion.div
                                     initial={{ opacity: 0, width: 0 }}
                                     animate={{ opacity: 1, width: 'auto' }}
@@ -242,11 +242,11 @@ export default function Sidebar({ isCollapsed, onToggle, isMobileOpen, onMobileC
                     {/* Logout Button */}
                     <button
                         onClick={logout}
-                        className={`sidebar-logout ${isCollapsed ? 'sidebar-logout--collapsed' : ''}`}
+                        className={`sidebar-logout ${isCollapsed && !isMobileOpen ? 'sidebar-logout--collapsed' : ''}`}
                     >
                         <LogOut className="sidebar-logout__icon" />
                         <AnimatePresence>
-                            {!isCollapsed && (
+                            {(!isCollapsed || isMobileOpen) && (
                                 <motion.span
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}

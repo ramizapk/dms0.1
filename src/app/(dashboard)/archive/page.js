@@ -148,56 +148,142 @@ export default function ArchivePage() {
 
                 <div className="flex-1">
                     {data?.docs?.length > 0 ? (
-                        <div className="luxury-table-container">
-                            <table className="luxury-table">
-                                <thead>
-                                    <tr>
-                                        <th>{t('documents.name')}</th>
-                                        <th>{t('documents.document_type')}</th>
-                                        <th>{t('documents.discipline')}</th>
-                                        <th>{t('documents.workflow_state')}</th>
-                                        <th>{t('documents.creation_date')}</th>
-                                        <th>{t('common.actions')}</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-50">
-                                    {data.docs.map((doc, i) => (
-                                        <motion.tr
-                                            key={doc.name}
-                                            initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.5 + i * 0.05 }}
-                                            className="group"
-                                        >
-                                            <td>
-                                                <div className="flex flex-col gap-1">
-                                                    <span className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{doc.name}</span>
-                                                    {doc.project_no && (
-                                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{doc.project_no}</span>
-                                                    )}
+                        <>
+                            {/* Desktop Table View */}
+                            <div className="hidden md:block luxury-table-container">
+                                <table className="luxury-table">
+                                    <thead>
+                                        <tr>
+                                            <th>{t('documents.name')}</th>
+                                            <th>{t('documents.document_type')}</th>
+                                            <th>{t('documents.discipline')}</th>
+                                            <th>{t('documents.workflow_state')}</th>
+                                            <th>{t('documents.creation_date')}</th>
+                                            <th>{t('common.actions')}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-50">
+                                        {data.docs.map((doc, i) => (
+                                            <motion.tr
+                                                key={doc.name}
+                                                initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: 0.5 + i * 0.05 }}
+                                                className="group"
+                                            >
+                                                <td>
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{doc.name}</span>
+                                                        {doc.project_no && (
+                                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{doc.project_no}</span>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="text-sm font-bold text-slate-700">{isRTL ? doc.document_type_ar : doc.document_type}</span>
+                                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{doc.submittal_type}</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-[11px] font-bold border border-slate-200">
+                                                        {doc.discipline}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                                                        <span className="text-xs font-bold text-slate-500 italic">
+                                                            {doc.workflow_state}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="text-[11px] font-black text-slate-700 uppercase tracking-tighter">
+                                                            {new Date(doc.creation).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US', {
+                                                                month: 'short',
+                                                                day: 'numeric',
+                                                            })}
+                                                        </span>
+                                                        <span className="text-[9px] font-bold text-slate-400">
+                                                            {new Date(doc.creation).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US', {
+                                                                year: 'numeric'
+                                                            })}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div className="flex items-center gap-2">
+                                                        <Link
+                                                            href={`/documents/${doc.name}`}
+                                                            className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"
+                                                            title={t('common.view')}
+                                                        >
+                                                            <Eye className="h-4 w-4" />
+                                                        </Link>
+                                                    </div>
+                                                </td>
+                                            </motion.tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Mobile Card View */}
+                            <div className="md:hidden grid grid-cols-1 gap-4">
+                                {data.docs.map((doc, i) => (
+                                    <motion.div
+                                        key={doc.name}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.5 + i * 0.05 }}
+                                        className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100"
+                                    >
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div className="flex flex-col gap-1">
+                                                <span className="font-bold text-slate-900 text-lg">{doc.name}</span>
+                                                {doc.project_no && (
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{doc.project_no}</span>
+                                                )}
+                                            </div>
+                                            <Link
+                                                href={`/documents/${doc.name}`}
+                                                className="h-9 w-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                                            >
+                                                <Eye className="h-4.5 w-4.5" />
+                                            </Link>
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            <div className="flex justify-between items-center py-2 border-b border-slate-50">
+                                                <span className="text-xs font-bold text-slate-400 uppercase">{t('documents.document_type')}</span>
+                                                <div className="text-right">
+                                                    <p className="text-sm font-bold text-slate-700">{isRTL ? doc.document_type_ar : doc.document_type}</p>
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{doc.submittal_type}</p>
                                                 </div>
-                                            </td>
-                                            <td>
-                                                <div className="flex flex-col gap-1">
-                                                    <span className="text-sm font-bold text-slate-700">{isRTL ? doc.document_type_ar : doc.document_type}</span>
-                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{doc.submittal_type}</span>
-                                                </div>
-                                            </td>
-                                            <td>
+                                            </div>
+
+                                            <div className="flex justify-between items-center py-2 border-b border-slate-50">
+                                                <span className="text-xs font-bold text-slate-400 uppercase">{t('documents.discipline')}</span>
                                                 <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-[11px] font-bold border border-slate-200">
                                                     {doc.discipline}
                                                 </span>
-                                            </td>
-                                            <td>
+                                            </div>
+
+                                            <div className="flex justify-between items-center py-2 border-b border-slate-50">
+                                                <span className="text-xs font-bold text-slate-400 uppercase">{t('documents.workflow_state')}</span>
                                                 <div className="flex items-center gap-2">
                                                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                                                     <span className="text-xs font-bold text-slate-500 italic">
                                                         {doc.workflow_state}
                                                     </span>
                                                 </div>
-                                            </td>
-                                            <td>
-                                                <div className="flex flex-col gap-1">
+                                            </div>
+
+                                            <div className="flex justify-between items-center pt-2">
+                                                <span className="text-xs font-bold text-slate-400 uppercase">{t('documents.creation_date')}</span>
+                                                <div className="flex flex-col items-end gap-0.5">
                                                     <span className="text-[11px] font-black text-slate-700 uppercase tracking-tighter">
                                                         {new Date(doc.creation).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US', {
                                                             month: 'short',
@@ -210,23 +296,12 @@ export default function ArchivePage() {
                                                         })}
                                                     </span>
                                                 </div>
-                                            </td>
-                                            <td>
-                                                <div className="flex items-center gap-2">
-                                                    <Link
-                                                        href={`/documents/${doc.name}`}
-                                                        className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"
-                                                        title={t('common.view')}
-                                                    >
-                                                        <Eye className="h-4 w-4" />
-                                                    </Link>
-                                                </div>
-                                            </td>
-                                        </motion.tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </>
                     ) : (
                         <div className="py-24">
                             <EmptyState title={t('archive.no_documents')} icon={Archive} />
