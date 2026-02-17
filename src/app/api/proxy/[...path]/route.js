@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const BASE_URL = 'https://dms.salasah.sa';
+const BASE_URL = 'https://app.dms.salasah.sa';
 
 function getBackendUrl(endpoint) {
     if (endpoint.startsWith('api/')) {

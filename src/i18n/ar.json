@@ -279,6 +279,9 @@
       "custom_project_name_en": "اسم المشروع (إنجليزي)",
       "custom_location": "الموقع",
       "custom_project_manager": "مدير المشروع",
+      "custom_consultant": "الاستشاري",
+      "custom_owner": "المالك",
+      "custom_contractor": "المقاول",
       "custom_description": "الوصف",
       "expected_start_date": "تاريخ البدء المتوقع",
       "expected_end_date": "تاريخ الانتهاء المتوقع"
@@ -289,6 +292,9 @@
       "enter_custom_project_name_en": "أدخل اسم المشروع بالإنجليزية",
       "enter_custom_location": "مثال: الرياض",
       "select_manager": "اختر مدير المشروع",
+      "select_consultant": "اختر الاستشاري",
+      "select_owner": "اختر المالك",
+      "select_contractor": "اختر المقاول",
       "enter_description": "أدخل وصف المشروع"
     }
   },

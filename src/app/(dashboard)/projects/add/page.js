@@ -30,6 +30,9 @@ export default function AddProjectPage() {
 
     // Options
     const [projectManagers, setProjectManagers] = useState([]);
+    const [contractors, setContractors] = useState([]);
+    const [owners, setOwners] = useState([]);
+    const [consultants, setConsultants] = useState([]);
 
     // Form State
     const initialFormState = {
@@ -38,6 +41,9 @@ export default function AddProjectPage() {
         custom_project_name_en: '',
         custom_location: '',
         custom_project_manager: '',
+        custom_consultant: '',
+        custom_owner: '',
+        custom_contractor: '',
         custom_description: '',
         expected_start_date: '',
         expected_end_date: ''
@@ -49,12 +55,47 @@ export default function AddProjectPage() {
     useEffect(() => {
         async function fetchOptions() {
             try {
-                const res = await api.getProjectManagers();
-                if (res.message && res.message.success) {
-                    setProjectManagers(res.message.data || []);
+                const results = await Promise.allSettled([
+                    api.getProjectManagers(),
+                    api.getContractors(),
+                    api.getOwners(),
+                    api.getConsultants()
+                ]);
+
+                const [projectManagersRes, contractorsRes, ownersRes, consultantsRes] = results;
+
+                const processOptions = (result, name) => {
+                    if (result.status === 'fulfilled') {
+                        const res = result.value;
+                        if (res.message && res.message.success && Array.isArray(res.message.data)) {
+                            return res.message.data.map(item => ({
+                                value: item.value,
+                                label: `${item.label || item.full_name} (${item.email || item.value})`
+                            }));
+                        }
+                    } else {
+                        console.error(`Failed to fetch ${name}`, result.reason);
+                    }
+                    return [];
+                };
+
+                setProjectManagers(processOptions(projectManagersRes, 'project managers'));
+                setContractors(processOptions(contractorsRes, 'contractors'));
+                setOwners(processOptions(ownersRes, 'owners'));
+                setConsultants(processOptions(consultantsRes, 'consultants'));
+
+                // Show a generic warning if any failed, but don't block the UI
+                if (results.some(r => r.status === 'rejected')) {
+                    // specific check for owner failure to address user query
+                    if (ownersRes.status === 'rejected') {
+                        console.error('Owner fetch failed:', ownersRes.reason);
+                    }
+                    // We don't necessarily want to show a toast for every background failure to avoid annoyance,
+                    // but we log it.
                 }
+
             } catch (err) {
-                console.error('Failed to fetch project managers', err);
+                console.error('Critical failure in fetching options', err);
                 showToast(t('common.error'), 'error');
             } finally {
                 setLoadingOptions(false);
@@ -81,11 +122,19 @@ export default function AddProjectPage() {
             const res = await api.createProject(formData);
             if (res.message && res.message.success) {
                 showToast(t('projects.success_create'), 'success');
-                router.push('/projects');
+                // Wait for toast to appear before navigating
+                setTimeout(() => {
+                    router.push('/projects');
+                }, 1500);
+            } else {
+                // Handle logical failure even if HTTP status was 200
+                const errorMessage = res.message?.message || t('common.error');
+                showToast(errorMessage, 'error');
             }
         } catch (err) {
             console.error('Failed to create project', err);
-            showToast(err.message || t('common.error'), 'error');
+            const errorMessage = err.message || (err.data && err.data.message) || t('common.error');
+            showToast(errorMessage, 'error');
 
             if (err.serverMessages) {
                 // Handle specific server messages if needed
@@ -199,6 +248,16 @@ export default function AddProjectPage() {
 
                         <div className="md:col-span-2">
                             {renderSelect('custom_project_manager', projectManagers, loadingOptions, <UserCircle className="w-4 h-4" />, true, 'select_manager')}
+                        </div>
+
+                        <div className="md:col-span-2">
+                            {renderSelect('custom_consultant', consultants, loadingOptions, <UserCircle className="w-4 h-4" />, false, 'select_consultant')}
+                        </div>
+                        <div className="md:col-span-2">
+                            {renderSelect('custom_owner', owners, loadingOptions, <UserCircle className="w-4 h-4" />, false, 'select_owner')}
+                        </div>
+                        <div className="md:col-span-2">
+                            {renderSelect('custom_contractor', contractors, loadingOptions, <UserCircle className="w-4 h-4" />, false, 'select_contractor')}
                         </div>
 
                         {renderInput('expected_start_date', 'date', <Calendar className="w-4 h-4" />, true)}

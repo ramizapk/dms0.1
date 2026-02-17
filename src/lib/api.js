@@ -157,28 +157,77 @@ export const api = {
 
     getProjectManagers: async () => {
         try {
-            // Try standard Employee resource first as a robust fallback
-            const fields = JSON.stringify(["name", "employee_name"]);
-            const response = await apiRequest(`api/resource/Employee?fields=${encodeURIComponent(fields)}&limit_page_length=100`);
+            return await apiRequest('api/method/dms.api.project.get_project_managers_list');
+        } catch (error) {
+            console.warn('Custom Project Manager API failed, using fallback...');
+            return api.getUsersFallback(['Manager', 'مدير', 'Admin']);
+        }
+    },
 
-            // Transform standard API response to match custom API expected format
+    getContractors: async () => {
+        try {
+            return await apiRequest('api/method/dms.api.project.get_contractors_list');
+        } catch (error) {
+            console.warn('Custom Contractor API failed, using fallback...');
+            return api.getUsersFallback(['Contractor', 'مقاول']);
+        }
+    },
+
+    getOwners: async () => {
+        try {
+            return await apiRequest('api/method/dms.api.project.get_owners_list');
+        } catch (error) {
+            console.warn('Custom Owner API failed, using fallback...');
+            return api.getUsersFallback(['Owner', 'المالك']);
+        }
+    },
+
+    getConsultants: async () => {
+        try {
+            return await apiRequest('api/method/dms.api.project.get_consultants_list');
+        } catch (error) {
+            console.warn('Custom Consultant API failed, using fallback...');
+            return api.getUsersFallback(['Consultant', 'استشاري']);
+        }
+    },
+
+    getUsersFallback: async (keywords = []) => {
+        try {
+            const fields = JSON.stringify(["name", "full_name", "email", "role_profile_name"]);
+            const filters = JSON.stringify([["enabled", "=", "1"]]);
+            const response = await apiRequest(`api/resource/User?fields=${encodeURIComponent(fields)}&filters=${encodeURIComponent(filters)}&limit_page_length=100`);
+
             if (response.data) {
+                // Filter locally if keywords provided
+                let filteredData = response.data;
+                if (keywords.length > 0) {
+                    filteredData = response.data.filter(user => {
+                        const role = (user.role_profile_name || '').toLowerCase();
+                        return keywords.some(k => role.includes(k.toLowerCase()));
+                    });
+
+                    // If filter is too aggressive and returns nothing, return all to be safe (or keep empty)
+                    // For now, let's return all if filter results in 0, to ensure dropdowns aren't empty during dev
+                    if (filteredData.length === 0) filteredData = response.data;
+                }
+
                 return {
                     message: {
                         success: true,
-                        data: response.data.map(emp => ({
-                            value: emp.name,
-                            label: emp.employee_name || emp.name,
-                            employee_id: emp.name,
-                            employee_name: emp.employee_name
+                        data: filteredData.map(user => ({
+                            value: user.email || user.name, // Use email as value based on requirements
+                            label: user.full_name || user.name,
+                            email: user.email,
+                            full_name: user.full_name,
+                            role_profile_name: user.role_profile_name
                         }))
                     }
                 };
             }
             return response;
-        } catch (error) {
-            console.warn('Failed to fetch employees, trying custom endpoint as backup...');
-            return apiRequest('dms.api.project.get_project_managers_list');
+        } catch (e) {
+            console.error('Fallback users fetch failed', e);
+            return { message: { success: false, data: [] } };
         }
     },
 

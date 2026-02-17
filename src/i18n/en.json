@@ -274,6 +274,9 @@
             "custom_project_name_en": "Project Name (English)",
             "custom_location": "Location",
             "custom_project_manager": "Project Manager",
+            "custom_consultant": "Consultant",
+            "custom_owner": "Owner",
+            "custom_contractor": "Contractor",
             "custom_description": "Description",
             "expected_start_date": "Expected Start Date",
             "expected_end_date": "Expected End Date"
@@ -284,6 +287,9 @@
             "enter_custom_project_name_en": "Enter project English name",
             "enter_custom_location": "e.g. Riyadh",
             "select_manager": "Select Project Manager",
+            "select_consultant": "Select Consultant",
+            "select_owner": "Select Owner",
+            "select_contractor": "Select Contractor",
             "enter_description": "Enter project description"
         }
     },
