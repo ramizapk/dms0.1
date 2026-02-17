@@ -14,6 +14,7 @@
   },
   "sidebar": {
     "dashboard": "لوحة التحكم",
+    "tasks": "المهام",
     "documents": "المستندات",
     "projects": "المشاريع",
     "users": "إدارة المستخدمين",
@@ -22,6 +23,11 @@
     "menu": "التنقل",
     "collapse": "طي القائمة",
     "expand": "توسيع القائمة"
+  },
+  "tasks": {
+    "title": "المهام",
+    "subtitle": "إدارة المهام الموكلة إليك",
+    "no_tasks": "لا توجد مهام"
   },
   "navbar": {
     "search": "بحث...",
@@ -263,6 +269,7 @@
     "no_projects": "لا توجد مشاريع",
     "not_specified": "غير محدد",
     "create_project": "إنشاء مشروع جديد",
+    "stakeholders": "فريق المشروع",
     "form_description": "يرجى تقديم التفاصيل اللازمة لإنشاء سجل مشروع جديد.",
     "manager": "مدير المشروع",
     "create_new_project": "إنشاء مشروع جديد",
@@ -286,6 +293,9 @@
       "expected_start_date": "تاريخ البدء المتوقع",
       "expected_end_date": "تاريخ الانتهاء المتوقع"
     },
+    "delete_project": "حذف المشروع",
+    "delete_confirmation": "هل أنت متأكد أنك تريد حذف هذا المشروع؟ هذا الإجراء لا يمكن التراجع عنه.",
+    "success_delete": "تم حذف المشروع بنجاح",
     "placeholders": {
       "enter_project_name": "أدخل اسم المشروع بالعربية",
       "enter_custom_project_code": "مثال: PROJ-2024-001",
@@ -350,7 +360,8 @@
     "total_records": "إجمالي السجلات",
     "not_specified": "غير محدد",
     "select": "اختر...",
-    "skip_finish": "تخطي وإنهاء"
+    "skip_finish": "تخطي وإنهاء",
+    "back_to_list": "العودة للقائمة"
   },
   "status": {
     "Pending": "قيد الانتظار",

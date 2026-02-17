@@ -49,12 +49,8 @@ export default function DashboardPage() {
             if (!user?.userId) return;
             try {
                 setTodoLoading(true);
-                // Payload as per user request
-                const response = await api.getDashboardData({
-                    owner: user.userId,
-                    workflow_state: 'Draft – Contractor Specialist Engineer'
-                });
-                setTodoData(response.message?.docs || []);
+                const response = await api.getTodoList();
+                setTodoData(response.message?.data || []);
             } catch (err) {
                 console.error("Failed to fetch To-Do list", err);
             } finally {
@@ -164,15 +160,15 @@ export default function DashboardPage() {
                             <span className="text-xs font-bold text-slate-700 group-hover:text-emerald-700 text-center">{t('dashboard.action_new_submittal')}</span>
                         </Link>
 
-                        <button
-                            className="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-2xl border border-slate-100 opacity-50 cursor-not-allowed h-full"
-                            disabled
+                        <Link
+                            href="/tasks"
+                            className="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-amber-50 hover:border-amber-100 hover:-translate-y-1 transition-all group h-full"
                         >
-                            <div className="h-10 w-10 rounded-xl bg-white text-amber-600 flex items-center justify-center mb-3 shadow-sm">
+                            <div className="h-10 w-10 rounded-xl bg-white text-amber-600 flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform">
                                 <CheckSquare className="h-5 w-5" />
                             </div>
-                            <span className="text-xs font-bold text-slate-700 text-center">{t('dashboard.action_todo')}</span>
-                        </button>
+                            <span className="text-xs font-bold text-slate-700 group-hover:text-amber-700 text-center">{t('dashboard.action_todo')}</span>
+                        </Link>
 
 
                         {hasAccess('projects') && (

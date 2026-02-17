@@ -77,6 +77,8 @@ export const api = {
     getDashboardSummary: () =>
         apiRequest('dms.api.dashboard.get_dashboard_summary'),
 
+    getTodoList: () => apiRequest('api/method/dms.api.dashboard.get_todo_list', { method: 'POST' }),
+
     getDashboardData: (params = {}) => {
         const body = {
             start: 0,
@@ -84,7 +86,7 @@ export const api = {
             fetch_meta: 1,
             ...params
         };
-        return apiRequest('dms.api.dashboard.get_dashboard_data', {
+        return apiRequest('api/method/dms.api.dashboard.get_dashboard_data', {
             method: 'POST',
             body: body
         });
@@ -106,7 +108,6 @@ export const api = {
 
         return apiRequest(`dms.api.dashboard.get_archive_full?${queryParams.toString()}`);
     },
-
     getUsers: () => {
         const fields = JSON.stringify([
             "name", "full_name", "email", "mobile_no", "department",
@@ -241,6 +242,12 @@ export const api = {
         apiRequest('api/method/dms.api.project.update_project', {
             method: 'POST',
             body: data
+        }),
+
+    deleteProject: (projectName) =>
+        apiRequest('api/method/dms.api.project.delete_project', {
+            method: 'POST',
+            body: { name: projectName }
         }),
 
     getProjectParties: (projectName) =>

@@ -64,6 +64,7 @@ export const STATS_CARDS = [
 
 export const NAV_ITEMS = [
     { key: 'dashboard', path: '/dashboard', icon: 'LayoutDashboard' },
+    { key: 'tasks', path: '/tasks', icon: 'CheckSquare' },
     { key: 'documents', path: '/documents', icon: 'FileText' },
     { key: 'projects', path: '/projects', icon: 'FolderKanban' },
     { key: 'users', path: '/users', icon: 'Users' },

@@ -11,15 +11,50 @@ import PageHeader from '@/components/ui/PageHeader';
 import {
     FolderKanban, Building2, FileCheck, ClipboardCheck,
     MapPin, UserCircle, Calendar, ChevronRight, TrendingUp,
-    FileText, CheckCircle2, XCircle, Clock, Plus, Edit
+    FileText, CheckCircle2, XCircle, Clock, Plus, Edit, Trash2, Eye
 } from 'lucide-react';
 import Link from 'next/link';
+import { useToast } from '@/context/ToastContext';
+import DeleteConfirmationModal from '@/components/ui/DeleteConfirmationModal';
 
 export default function ProjectsPage() {
     const { t, isRTL } = useI18n();
+    const { showToast } = useToast();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // Delete Modal State
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [projectToDelete, setProjectToDelete] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const handleDeleteClick = (project) => {
+        setProjectToDelete(project);
+        setDeleteModalOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!projectToDelete) return;
+
+        setIsDeleting(true);
+        try {
+            const res = await api.deleteProject(projectToDelete.name);
+            if (res.message && res.message.success) {
+                showToast(t('projects.success_delete') || 'Project deleted successfully', 'success');
+                // Optimistically update list or refetch
+                const updatedProjects = data.projects.filter(p => p.name !== projectToDelete.name);
+                setData({ ...data, projects: updatedProjects });
+                setDeleteModalOpen(false);
+                setProjectToDelete(null);
+            }
+        } catch (err) {
+            console.error(err);
+            showToast(err.message || t('common.error'), 'error');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     useEffect(() => {
         async function fetchData() {
@@ -130,12 +165,26 @@ export default function ProjectsPage() {
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <Link
+                                            href={`/projects/${project.name}`}
+                                            className="h-7 w-7 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all active:scale-95"
+                                            title={t('common.view')}
+                                        >
+                                            <Eye className="h-3.5 w-3.5" />
+                                        </Link>
+                                        <Link
                                             href={`/projects/${project.name}/edit`}
                                             className="h-7 w-7 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-100 transition-all active:scale-95"
                                             title={t('common.edit')}
                                         >
                                             <Edit className="h-3.5 w-3.5" />
                                         </Link>
+                                        <button
+                                            onClick={() => handleDeleteClick(project)}
+                                            className="h-7 w-7 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500 hover:bg-rose-100 hover:text-rose-600 hover:border-rose-200 transition-all active:scale-95"
+                                            title={t('common.delete')}
+                                        >
+                                            <Trash2 className="h-3.5 w-3.5" />
+                                        </button>
                                         <div className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider border ${project.status === 'Open' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-500 border-slate-100'}`}>
                                             {project.status === 'Open' ? t('projects.status_open') : t('projects.status_closed')}
                                         </div>
@@ -206,6 +255,15 @@ export default function ProjectsPage() {
                     <EmptyState title={t('projects.no_projects')} icon={FolderKanban} />
                 </div>
             )}
+
+            <DeleteConfirmationModal
+                isOpen={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                onConfirm={handleConfirmDelete}
+                title={t('projects.delete_project')}
+                message={t('projects.delete_confirmation')}
+                isDeleting={isDeleting}
+            />
         </div>
     );
 }

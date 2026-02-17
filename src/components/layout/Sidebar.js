@@ -15,6 +15,7 @@ import {
     LogOut,
     FileStack,
     X,
+    CheckSquare,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
@@ -25,6 +26,7 @@ const iconMap = {
     FolderKanban,
     Settings,
     Archive,
+    CheckSquare,
 };
 
 export default function Sidebar({ isCollapsed, onToggle, isMobileOpen, onMobileClose }) {
@@ -35,7 +37,7 @@ export default function Sidebar({ isCollapsed, onToggle, isMobileOpen, onMobileC
 
     // Filter navigation items based on user workspaces
     const filteredNavItems = NAV_ITEMS.filter(item => {
-        if (item.key === 'settings') return true; // Always show settings
+        if (item.key === 'settings' || item.key === 'tasks') return true; // Always show settings and tasks
 
         // If no workspaces defined yet (loading or error), maybe show all or none?
         // Assuming we should hide if not explicitly allowed.

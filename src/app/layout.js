@@ -4,11 +4,7 @@ import "./globals.css";
 export const metadata = {
   title: "نظام إدارة المستندات | DMS",
   description: "نظام إدارة المستندات للمشاريع - Document Management System",
-  icons: {
-    icon: '/logo.png',
-    shortcut: '/logo.png',
-    apple: '/logo.png',
-  },
+
 };
 
 export default function RootLayout({ children }) {
