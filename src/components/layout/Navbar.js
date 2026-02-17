@@ -71,7 +71,7 @@ export default function Navbar({ isSidebarCollapsed, onToggleSidebar, onMobileMe
                     {/* Page Welcome Text */}
                     <div className="navbar__welcome">
                         <p className="navbar__welcome-greeting">
-                            {t('navbar.welcome') || 'Welcome back'} 👋
+                            {t('navbar.welcome') || 'Welcome back'}
                         </p>
                         <p className="navbar__welcome-name">
                             {user?.fullName || 'User'}
