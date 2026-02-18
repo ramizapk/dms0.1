@@ -207,7 +207,7 @@ export default function Sidebar({ isCollapsed, onToggle, isMobileOpen, onMobileC
                             <div className="sidebar-profile__avatar relative overflow-hidden">
                                 {user?.userImage ? (
                                     <Image
-                                        src={user.userImage.startsWith('http') ? user.userImage : `https://dms.salasah.sa${user.userImage}`}
+                                        src={user.userImage.startsWith('http') ? user.userImage : `https://app.dms.salasah.sa${user.userImage}`}
                                         alt={user?.fullName || 'User'}
                                         fill
                                         className="object-cover"

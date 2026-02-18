@@ -155,6 +155,7 @@ export default function UsersPage() {
                                             <th>{t('users.name')}</th>
                                             <th>{t('users.email')}</th>
                                             <th>{t('users.role')}</th>
+                                            <th>{t('users.fields.user_category') || 'Category'}</th>
                                             <th>{t('users.status')}</th>
                                             <th>{t('common.actions')}</th>
                                         </tr>
@@ -172,7 +173,7 @@ export default function UsersPage() {
                                                     <div className="flex items-center gap-4">
                                                         <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 font-bold border border-slate-200 uppercase">
                                                             {user.user_image ? (
-                                                                <img src={user.user_image.startsWith('http') ? user.user_image : `https://dms.salasah.sa${user.user_image}`} alt={user.full_name} className="h-full w-full object-cover rounded-xl" />
+                                                                <img src={user.user_image.startsWith('http') ? user.user_image : `https://app.dms.salasah.sa${user.user_image}`} alt={user.full_name} className="h-full w-full object-cover rounded-xl" />
                                                             ) : (
                                                                 user.full_name?.charAt(0) || 'U'
                                                             )}
@@ -190,6 +191,9 @@ export default function UsersPage() {
                                                     <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-600 text-[11px] font-bold border border-indigo-100">
                                                         {user.role_profile_name || '-'}
                                                     </span>
+                                                </td>
+                                                <td>
+                                                    <span className="text-sm font-bold text-slate-600">{user.user_category || '-'}</span>
                                                 </td>
                                                 <td>
                                                     <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border w-fit ${user.enabled
@@ -240,7 +244,7 @@ export default function UsersPage() {
                                             <div className="flex items-center gap-3">
                                                 <div className="h-12 w-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 font-bold border border-slate-200 uppercase flex-shrink-0">
                                                     {user.user_image ? (
-                                                        <img src={user.user_image.startsWith('http') ? user.user_image : `https://dms.salasah.sa${user.user_image}`} alt={user.full_name} className="h-full w-full object-cover rounded-xl" />
+                                                        <img src={user.user_image.startsWith('http') ? user.user_image : `https://app.dms.salasah.sa${user.user_image}`} alt={user.full_name} className="h-full w-full object-cover rounded-xl" />
                                                     ) : (
                                                         user.full_name?.charAt(0) || 'U'
                                                     )}
@@ -279,6 +283,11 @@ export default function UsersPage() {
                                                 <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-600 text-[11px] font-bold border border-indigo-100">
                                                     {user.role_profile_name || '-'}
                                                 </span>
+                                            </div>
+
+                                            <div className="flex justify-between items-center py-2 border-b border-slate-50">
+                                                <span className="text-xs font-bold text-slate-400 uppercase">{t('users.fields.user_category') || 'Category'}</span>
+                                                <span className="text-sm font-bold text-slate-600">{user.user_category || '-'}</span>
                                             </div>
 
                                             <div className="flex justify-between items-center pt-2">

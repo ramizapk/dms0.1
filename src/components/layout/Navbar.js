@@ -134,7 +134,7 @@ export default function Navbar({ isSidebarCollapsed, onToggleSidebar, onMobileMe
                             <div className="navbar__user-avatar relative overflow-hidden">
                                 {user?.userImage ? (
                                     <Image
-                                        src={user.userImage.startsWith('http') ? user.userImage : `https://dms.salasah.sa${user.userImage}`}
+                                        src={user.userImage.startsWith('http') ? user.userImage : `https://app.dms.salasah.sa${user.userImage}`}
                                         alt={user?.fullName || 'User'}
                                         fill
                                         className="object-cover"
@@ -161,7 +161,7 @@ export default function Navbar({ isSidebarCollapsed, onToggleSidebar, onMobileMe
                                         <div className="navbar__dropdown-user-avatar relative overflow-hidden">
                                             {user?.userImage ? (
                                                 <Image
-                                                    src={user.userImage.startsWith('http') ? user.userImage : `https://dms.salasah.sa${user.userImage}`}
+                                                    src={user.userImage.startsWith('http') ? user.userImage : `https://app.dms.salasah.sa${user.userImage}`}
                                                     alt={user?.fullName || 'User'}
                                                     fill
                                                     className="object-cover"

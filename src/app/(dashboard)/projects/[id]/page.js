@@ -8,7 +8,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
 import {
     Calendar, MapPin, Building, Building2, UserCircle, Briefcase, FileText,
-    ArrowLeft, Edit, Mail, Info, Clock, Layers, User
+    ArrowLeft, Edit, Mail, Info, Clock, Layers, User, Home
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -167,6 +167,21 @@ export default function ProjectDetailsPage() {
                             icon={Clock}
                             label={t('projects.fields.expected_end_date') || 'End Date'}
                             value={project.expected_end_date}
+                        />
+                        <DetailCard
+                            icon={Building2}
+                            label={t('projects.fields.custom_building') || 'Building'}
+                            value={project.custom_building}
+                        />
+                        <DetailCard
+                            icon={Layers}
+                            label={t('projects.fields.custom_floor') || 'Floor'}
+                            value={project.custom_floor}
+                        />
+                        <DetailCard
+                            icon={Home}
+                            label={t('projects.fields.custom_room') || 'Room'}
+                            value={project.custom_room}
                         />
                     </div>
 

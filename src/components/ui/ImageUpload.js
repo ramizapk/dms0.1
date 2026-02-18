@@ -95,7 +95,7 @@ export default function ImageUpload({
                         className="relative group rounded-xl overflow-hidden border border-slate-200 bg-slate-50 aspect-video flex items-center justify-center"
                     >
                         <img
-                            src={value.startsWith('http') ? value : `https://dms.salasah.sa${value}`}
+                            src={value.startsWith('http') ? value : `https://app.dms.salasah.sa${value}`}
                             alt={label}
                             className="w-full h-full object-cover"
                             onError={(e) => {
@@ -106,7 +106,7 @@ export default function ImageUpload({
 
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-[2px]">
                             <button
-                                onClick={() => window.open(value.startsWith('http') ? value : `https://dms.salasah.sa${value}`, '_blank')}
+                                onClick={() => window.open(value.startsWith('http') ? value : `https://app.dms.salasah.sa${value}`, '_blank')}
                                 className="p-2 rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors"
                                 title="View Image"
                                 type="button"

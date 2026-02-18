@@ -4,7 +4,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'dms.salasah.sa',
+        hostname: 'app.dms.salasah.sa',
         pathname: '/files/**',
       },
     ],

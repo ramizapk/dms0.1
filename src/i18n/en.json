@@ -113,6 +113,8 @@
         "edit_form_description": "Modify existing Submittal details",
         "success_create": "Submittal created successfully",
         "success_update": "Submittal updated successfully",
+        "resubmit": "Re-Submit",
+        "resubmitted_success": "Resubmitted successfully",
         "fields": {
             "project_name": "Project Name",
             "custom_consultant": "Consultant",
@@ -136,6 +138,13 @@
             "enter_room": "Room",
             "enter_description": "Enter document description"
         },
+        "order": "Order",
+        "task": "Task",
+        "creator": "Creator",
+        "assigned": "Assigned",
+        "project": "Project",
+        "submitted": "Submitted",
+        "action": "Action",
         "steps": {
             "step1": "Submittal Details",
             "step2": "Upload Files"
@@ -229,7 +238,8 @@
             "password": "Password",
             "user_image": "User Image",
             "digital_signature": "Digital Signature",
-            "digital_stamp": "Digital Stamp"
+            "digital_stamp": "Digital Stamp",
+            "user_category": "Category"
         },
         "placeholders": {
             "first_name": "Enter first name",
@@ -284,6 +294,9 @@
             "custom_consultant": "Consultant",
             "custom_owner": "Owner",
             "custom_contractor": "Contractor",
+            "custom_building": "Building",
+            "custom_floor": "Floor",
+            "custom_room": "Room",
             "custom_description": "Description",
             "expected_start_date": "Expected Start Date",
             "expected_end_date": "Expected End Date"
@@ -294,6 +307,9 @@
         "placeholders": {
             "enter_project_name": "Enter project Arabic name",
             "enter_custom_project_code": "e.g. PROJ-2024-001",
+            "enter_custom_building": "Enter Building Name",
+            "enter_custom_floor": "Enter Floor",
+            "enter_custom_room": "Enter Room",
             "enter_custom_project_name_en": "Enter project English name",
             "enter_custom_location": "e.g. Riyadh",
             "select_manager": "Select Project Manager",

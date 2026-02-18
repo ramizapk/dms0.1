@@ -630,23 +630,35 @@ export default function DocumentDetailsPage() {
                         <div className="grid grid-cols-3 divide-x-2 divide-indigo-900 border-b-2 border-indigo-900 rtl:divide-x-reverse">
                             {/* Consultant */}
                             <div className="p-4 text-center space-y-2">
-                                {/* Placeholder Logo */}
+                                {/* Logo */}
                                 <div className="h-16 flex items-center justify-center">
-                                    <img src="/consultant-logo.jpg" alt="Consultant Logo" className="max-h-full max-w-full object-contain" />
+                                    {doc.consultant_user_image_url ? (
+                                        <img src={doc.consultant_user_image_url} alt="Consultant Logo" className="max-h-full max-w-full object-contain" />
+                                    ) : (
+                                        <div className="text-xs text-slate-400 italic">No Logo</div>
+                                    )}
                                 </div>
                                 <div className="text-sm font-bold text-indigo-900 uppercase">{t('documents.custom_consultant')}</div>
                             </div>
                             {/* Owner */}
                             <div className="p-4 text-center space-y-2">
                                 <div className="h-16 flex items-center justify-center">
-                                    <img src="/owner-logo.jpg" alt="Owner Logo" className="max-h-full max-w-full object-contain" />
+                                    {doc.owner_user_image_url ? (
+                                        <img src={doc.owner_user_image_url} alt="Owner Logo" className="max-h-full max-w-full object-contain" />
+                                    ) : (
+                                        <div className="text-xs text-slate-400 italic">No Logo</div>
+                                    )}
                                 </div>
                                 <div className="text-sm font-bold text-indigo-900 uppercase">{t('documents.custom_owner')}</div>
                             </div>
                             {/* Contractor */}
                             <div className="p-4 text-center space-y-2">
                                 <div className="h-16 flex items-center justify-center">
-                                    <img src="/contractor-logo.jpg" alt="Contractor Logo" className="max-h-full max-w-full object-contain" />
+                                    {doc.contractor_user_image_url ? (
+                                        <img src={doc.contractor_user_image_url} alt="Contractor Logo" className="max-h-full max-w-full object-contain" />
+                                    ) : (
+                                        <div className="text-xs text-slate-400 italic">No Logo</div>
+                                    )}
                                 </div>
                                 <div className="text-sm font-bold text-indigo-900 uppercase">{t('documents.custom_contractor')}</div>
                             </div>
@@ -722,7 +734,7 @@ export default function DocumentDetailsPage() {
                                 <div className="font-bold text-slate-900">{preparedBy ? (preparedBy.user_full_name || preparedBy.user) : '-'}</div>
                                 <div className="h-12 flex items-end">
                                     {preparedBy?.digital_signature ? (
-                                        <img src={`https://dms.salasah.sa${preparedBy.digital_signature}`} alt="Signature" className="max-h-full max-w-full object-contain" />
+                                        <img src={`https://app.dms.salasah.sa${preparedBy.digital_signature}`} alt="Signature" className="max-h-full max-w-full object-contain" />
                                     ) : (
                                         <div className="text-xs text-slate-400 italic">No Signature</div>
                                     )}
@@ -732,7 +744,7 @@ export default function DocumentDetailsPage() {
                                 <div className="uppercase font-bold text-slate-500 tracking-wider text-[10px]">{t('documents.sign_stamp')}:</div>
                                 <div className="h-16 flex items-center justify-center bg-white border border-slate-200 rounded p-1">
                                     {submittedBy?.digital_stamp ? (
-                                        <img src={`https://dms.salasah.sa${submittedBy.digital_stamp}`} alt="Stamp" className="max-h-full max-w-full object-contain" />
+                                        <img src={`https://app.dms.salasah.sa${submittedBy.digital_stamp}`} alt="Stamp" className="max-h-full max-w-full object-contain" />
                                     ) : (
                                         <div className="text-[9px] text-center text-slate-400 font-bold border-2 border-slate-200 border-dashed p-1 rounded">NO STAMP</div>
                                     )}
@@ -743,7 +755,7 @@ export default function DocumentDetailsPage() {
                                 <div className="font-bold text-slate-900">{submittedBy ? (submittedBy.user_full_name || submittedBy.user) : '-'}</div>
                                 <div className="h-12 flex items-end">
                                     {submittedBy?.digital_signature ? (
-                                        <img src={`https://dms.salasah.sa${submittedBy.digital_signature}`} alt="Signature" className="max-h-full max-w-full object-contain" />
+                                        <img src={`https://app.dms.salasah.sa${submittedBy.digital_signature}`} alt="Signature" className="max-h-full max-w-full object-contain" />
                                     ) : (
                                         <div className="text-xs text-slate-400 italic">No Signature</div>
                                     )}
@@ -787,7 +799,7 @@ export default function DocumentDetailsPage() {
                                     <div className="font-bold text-slate-800">{inspectedBy ? (inspectedBy.user_full_name || inspectedBy.user) : '-'}</div>
                                     {inspectedBy?.digital_signature ? (
                                         <div className="h-16 relative flex items-center justify-center">
-                                            <img src={`https://dms.salasah.sa${inspectedBy.digital_signature}`} alt="Signature" className="max-h-full max-w-full object-contain" />
+                                            <img src={`https://app.dms.salasah.sa${inspectedBy.digital_signature}`} alt="Signature" className="max-h-full max-w-full object-contain" />
                                         </div>
                                     ) : (
                                         <div className="w-32 h-16 border border-slate-200 bg-white opacity-50 relative flex items-center justify-center">
@@ -803,7 +815,7 @@ export default function DocumentDetailsPage() {
                                     <div className="font-bold text-slate-800">{approvedBy ? (approvedBy.user_full_name || approvedBy.user) : '-'}</div>
                                     {approvedBy?.digital_signature ? (
                                         <div className="h-16 relative flex items-center justify-center">
-                                            <img src={`https://dms.salasah.sa${approvedBy.digital_signature}`} alt="Signature" className="max-h-full max-w-full object-contain" />
+                                            <img src={`https://app.dms.salasah.sa${approvedBy.digital_signature}`} alt="Signature" className="max-h-full max-w-full object-contain" />
                                         </div>
                                     ) : (
                                         <div className="w-32 h-16 border border-slate-200 bg-white opacity-50 relative flex items-center justify-center">
@@ -828,7 +840,7 @@ export default function DocumentDetailsPage() {
                     {/* Order Time */}
                     <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
                         <h3 className="text-sm font-bold text-indigo-900 mb-1">{t('documents.order_time')}</h3>
-                        <div className="text-lg font-black text-slate-700">(0) {t('documents.hours')}</div>
+                        <div className="text-lg font-black text-slate-700">{doc.order_time || '-'}</div>
                     </div>
 
                     {/* Order Status (Stepper) */}
@@ -862,7 +874,7 @@ export default function DocumentDetailsPage() {
 
                                         <div className="flex flex-col">
                                             <div className={`text-xs font-bold transition-colors ${isCurrent ? 'text-indigo-700' : isCompleted ? 'text-slate-600' : 'text-slate-400'}`}>
-                                                {state.name}
+                                                {isRTL ? (state.name_ar || state.name) : state.name}
                                             </div>
                                             {/* Try to find matching history timestamp */}
                                             {(() => {
@@ -879,19 +891,25 @@ export default function DocumentDetailsPage() {
                         </div>
                     </div>
 
-                    {/* Reverse Submittals (Static for now as requested design) */}
-                    {/*
-     <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
-                        <h3 className="text-lg font-black text-indigo-900 mb-4">{t('documents.reverse_submittals')}</h3>
-                        <div className="space-y-3">
-                            {['036-R00', '036-R01', '036-R02'].map((rev, i) => (
-                                <div key={rev} className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-600">
-                                    {i + 1}- DCS-GEN-{rev}
-                                </div>
-                            ))}
+                    {/* Reverse Submittals */}
+                    {doc.re_submittals && doc.re_submittals.length > 0 && (
+                        <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
+                            <h3 className="text-lg font-black text-indigo-900 mb-4">{t('documents.reverse_submittals')}</h3>
+                            <div className="space-y-3">
+                                {doc.re_submittals.map((submittal, i) => (
+                                    <a
+                                        key={i}
+                                        href={`/documents/${submittal.name}`}
+                                        className="block p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition-colors"
+                                    >
+                                        {i + 1}- {submittal.name}
+                                        <div className="text-[10px] text-slate-400 font-normal mt-1">{formatDate(submittal.creation)}</div>
+                                    </a>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-*/ }
+                    )}
+
 
                     {/* History */}
                     <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
@@ -953,7 +971,7 @@ export default function DocumentDetailsPage() {
                                     return (
                                         <a
                                             key={idx}
-                                            href={`https://dms.salasah.sa${file.file_url}`}
+                                            href={`https://app.dms.salasah.sa${file.file_url}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 group cursor-pointer hover:border-indigo-200 hover:bg-white hover:shadow-sm transition-all"

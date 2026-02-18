@@ -14,14 +14,16 @@ import PageHeader from '@/components/ui/PageHeader';
 import {
     Search, Filter, ChevronLeft, ChevronRight,
     FileText, Download, MoreVertical, SlidersHorizontal, Plus, Edit, Eye, CheckCircle, XCircle, AlertCircle,
-    CheckCircle2, Send, Inbox, FileCheck
+    CheckCircle2, Send, Inbox, FileCheck, RefreshCw, Loader2
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/context/ToastContext';
 
 export default function DocumentsPage() {
     const { t, isRTL } = useI18n();
     const { user } = useAuth();
+    const { showToast } = useToast();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -38,44 +40,68 @@ export default function DocumentsPage() {
     });
     const [start, setStart] = useState(0);
     const [page, setPage] = useState(1);
+    const [resubmitting, setResubmitting] = useState(null); // Track which doc is being resubmitted
     const pageLength = 20;
 
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                setLoading(true);
-                // API expects 'start' (0-based index)
-                const startParams = (page - 1) * pageLength;
+    async function fetchData() {
+        try {
+            setLoading(true);
+            // API expects 'start' (0-based index)
+            const startParams = (page - 1) * pageLength;
 
-                // Construct flat parameters object
-                const params = {
-                    start: startParams,
-                    page_length: pageLength,
-                    fetch_meta: 1,
-                };
+            // Construct flat parameters object
+            const params = {
+                start: startParams,
+                page_length: pageLength,
+                fetch_meta: 1,
+            };
 
-                // Add defined filters
-                if (filters.search) params.search = filters.search;
-                if (filters.document_type) params.document_type = filters.document_type;
-                if (filters.discipline) params.discipline = filters.discipline;
-                if (filters.status) params.status = filters.status;
-                if (filters.action) params.action = filters.action;
-                if (filters.approval) params.approval = filters.approval;
-                if (filters.date_from) params.date_from = filters.date_from;
-                if (filters.date_to) params.date_to = filters.date_to;
+            // Add defined filters
+            if (filters.search) params.search = filters.search;
+            if (filters.document_type) params.document_type = filters.document_type;
+            if (filters.discipline) params.discipline = filters.discipline;
+            if (filters.status) params.status = filters.status;
+            if (filters.action) params.action = filters.action;
+            if (filters.approval) params.approval = filters.approval;
+            if (filters.date_from) params.date_from = filters.date_from;
+            if (filters.date_to) params.date_to = filters.date_to;
 
-                const response = await api.getDashboardData(params);
-                // Response structure: { message: { docs, pagination, stats, meta } }
-                setData(response.message);
-            } catch (err) {
-                console.error("Error fetching data:", err);
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
+            const response = await api.getDashboardData(params);
+            // Response structure: { message: { docs, pagination, stats, meta } }
+            setData(response.message);
+        } catch (err) {
+            console.error("Error fetching data:", err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
         }
+    }
+
+    useEffect(() => {
         fetchData();
     }, [page, filters]);
+
+    const handleReSubmit = async (doc) => {
+        if (!doc) return;
+
+        // Confirmation could be added here if needed
+
+        setResubmitting(doc.name);
+        try {
+            await api.createDocument({
+                previous_submittal_no: doc.name,
+                submittal_type: 'Re-Submittal'
+            });
+            showToast(t('documents.resubmitted_success') || 'Resubmitted successfully', 'success');
+            // Refresh list
+            fetchData();
+        } catch (err) {
+            console.error('Resubmit failed', err);
+            showToast(err.message || t('common.error'), 'error');
+        } finally {
+            setResubmitting(null);
+        }
+    };
 
     if (loading && !data) {
         return (
@@ -350,16 +376,17 @@ export default function DocumentsPage() {
                     <>
                         {/* Desktop Table View */}
                         <div className="overflow-x-auto hidden md:block">
-                            <table className="w-full text-right rtl:text-right ltr:text-left whitespace-nowrap">
+                            <table className="w-full text-right rtl:text-right ltr:text-left">
                                 <thead>
                                     <tr className="border-b border-slate-200 bg-slate-50/50">
-                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{t('documents.id')}</th>
-                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{t('documents.type')}</th>
-                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{t('documents.discipline')}</th>
-                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{t('documents.status')}</th>
-                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{t('documents.stage')}</th>
-                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{t('documents.date')}</th>
-                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">{t('common.actions')}</th>
+                                        <th className="px-2 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider text-center w-12">{t('documents.id') || 'ID'}</th>
+                                        <th className="px-2 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider ltr:text-left rtl:text-right min-w-[240px]">{t('documents.order') || 'Order'}</th>
+                                        <th className="px-2 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider ltr:text-left rtl:text-right min-w-[200px]">{t('documents.creator') || 'Creator'}</th>
+                                        <th className="px-2 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider ltr:text-left rtl:text-right min-w-[200px]">{t('documents.assigned') || 'Assigned'}</th>
+                                        <th className="px-2 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider ltr:text-left rtl:text-right min-w-[140px]">{t('documents.project') || 'Project'}</th>
+                                        <th className="px-2 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider text-center">{t('documents.submitted') || 'Submitted'}</th>
+                                        <th className="px-2 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider text-center">{t('documents.action') || 'Action'}</th>
+                                        <th className="px-2 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider text-center">{t('documents.actions') || 'Actions'}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
@@ -369,67 +396,146 @@ export default function DocumentsPage() {
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: idx * 0.05 }}
-                                            className="hover:bg-slate-50/80 transition-colors group"
+                                            className="hover:bg-slate-50/50 transition-colors group"
                                         >
-                                            <td className="px-4 py-3">
-                                                <div className="flex items-center gap-2 max-w-[180px]">
-                                                    <div className="p-1.5 bg-indigo-50 rounded-lg text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm shrink-0">
-                                                        <FileText className="h-3.5 w-3.5" />
+                                            {/* ID */}
+                                            <td className="px-2 py-6 text-center align-top">
+                                                <span className="text-xs font-bold text-slate-500">
+                                                    {((page - 1) * pageLength) + idx + 1}
+                                                </span>
+                                            </td>
+
+                                            {/* ORDER (Complex Cell) */}
+                                            <td className="px-2 py-4 align-top">
+                                                <div className="flex flex-col gap-2">
+                                                    <div className="font-bold text-slate-900 text-sm tracking-tight break-words">{doc.name}</div>
+                                                    <div className="flex flex-wrap items-center gap-2">
+                                                        <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider border whitespace-nowrap ${doc.submittal_type === 'Re-Submittal' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                                                            {doc.submittal_type || doc.discipline}
+                                                        </span>
+                                                        <span className="text-[10px] font-bold text-slate-400 whitespace-nowrap">
+                                                            {doc.creation ? new Date(doc.creation).toLocaleString() : '-'}
+                                                        </span>
                                                     </div>
-                                                    <span className="text-sm font-bold text-slate-900 truncate" title={doc.name}>{doc.name}</span>
+                                                    {doc.description && (
+                                                        <div className="text-xs text-slate-500 line-clamp-2 break-words">
+                                                            {doc.description}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-3">
-                                                <span className="text-sm font-bold text-slate-600 truncate max-w-[120px] block" title={doc.document_type}>
-                                                    {doc.document_type || '-'}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200 truncate max-w-[100px] block text-center" title={doc.discipline}>
-                                                    {doc.discipline || '-'}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <StatusBadge status={doc.status_category} />
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <span className="text-xs font-bold text-slate-500 truncate max-w-[150px] block" title={doc.workflow_state}>
-                                                    {doc.workflow_state || '-'}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <span className="text-xs font-bold text-slate-500 dir-ltr text-right">
-                                                    {doc.creation ? doc.creation.split(' ')[0] : '-'}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <div className="flex items-center gap-2">
-                                                    {(() => {
-                                                        const isEditable = user?.userId === doc.owner && doc.workflow_state === 'Draft – Contractor Specialist Engineer';
-                                                        return isEditable ? (
-                                                            <Link
-                                                                href={`/documents/${doc.name}/edit`}
-                                                                className="h-8 w-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center hover:bg-orange-600 hover:text-white transition-all"
-                                                                title={t('common.edit')}
-                                                            >
-                                                                <Edit className="h-4 w-4" />
-                                                            </Link>
+
+                                            {/* CREATOR */}
+                                            <td className="px-2 py-4 align-top">
+                                                <div className="flex items-start gap-3">
+                                                    <div className="h-10 w-10 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                                                        {doc.creator_user_image_url ? (
+                                                            <img src={doc.creator_user_image_url} alt={doc.creator_name} className="h-full w-full object-cover" />
                                                         ) : (
-                                                            <div
-                                                                className="h-8 w-8 rounded-lg bg-slate-50 text-slate-300 flex items-center justify-center cursor-not-allowed"
-                                                                title={t('documents.cannot_edit')}
-                                                            >
-                                                                <Edit className="h-4 w-4" />
+                                                            <div className="h-full w-full flex items-center justify-center text-slate-400 font-bold text-xs">
+                                                                {doc.creator_name?.charAt(0)}
                                                             </div>
-                                                        );
-                                                    })()}
+                                                        )}
+                                                    </div>
+                                                    <div className="flex flex-col overflow-hidden">
+                                                        <span className="text-sm font-bold text-slate-900 leading-tight mb-0.5 break-words">{doc.creator_name}</span>
+                                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{doc?.user_category_abbr}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            {/* ASSIGNED */}
+                                            <td className="px-2 py-4 align-top">
+                                                {doc.assigned ? (
+                                                    <div className="flex items-start gap-3">
+                                                        <div className="h-10 w-10 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                                                            {doc.assigned.user_image_url ? (
+                                                                <img src={doc.assigned.user_image_url} alt={doc.assigned.name} className="h-full w-full object-cover" />
+                                                            ) : (
+                                                                <div className="h-full w-full flex items-center justify-center text-slate-400 font-bold text-xs">
+                                                                    {doc.assigned.name?.charAt(0)}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex flex-col overflow-hidden">
+                                                            <span className="text-sm font-bold text-slate-900 leading-tight mb-0.5 break-words">{doc.assigned.name}</span>
+                                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight truncate max-w-full" title={doc.assigned?.user_category_abbr}>
+                                                                {doc.assigned?.user_category_abbr}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-xs text-slate-400 italic">Unassigned</span>
+                                                )}
+                                            </td>
+
+                                            {/* PROJECT */}
+                                            <td className="px-2 py-4 align-top">
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-sm font-bold text-slate-900 break-words">{doc.project_name}</span>
+                                                    <span className="text-[10px] font-medium text-slate-500">مرحلة التشطيبات</span>
+                                                </div>
+                                            </td>
+
+                                            {/* SUBMITTED */}
+                                            <td className="px-2 py-6 align-top text-center">
+                                                <span className={`text-xs font-bold uppercase ${doc.is_submitted ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                                    {doc.is_submitted ? 'Yes' : 'No'}
+                                                </span>
+                                            </td>
+
+                                            {/* ACTION */}
+                                            <td className="px-2 py-6 align-top text-center">
+                                                <span className="text-xs font-bold text-slate-400 uppercase tracking-tight break-words">
+                                                    {doc.next_workflow_action || '-'}
+                                                </span>
+                                            </td>
+
+                                            {/* ACTIONS Button */}
+                                            {/* ACTIONS Button */}
+                                            <td className="px-2 py-4 align-top">
+                                                <div className="flex items-center justify-center gap-2">
                                                     <Link
                                                         href={`/documents/${doc.name}`}
-                                                        className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"
+                                                        className="h-8 w-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-indigo-50 hover:text-indigo-600 transition-all border border-slate-100"
                                                         title={t('common.view')}
                                                     >
                                                         <Eye className="h-4 w-4" />
                                                     </Link>
+
+                                                    {/* Edit Button */}
+                                                    {(() => {
+                                                        const isEditable = user?.userId === doc.owner && doc.workflow_state === 'Draft – Contractor Specialist Engineer';
+                                                        return (
+                                                            <Link
+                                                                href={isEditable ? `/documents/${doc.name}/edit` : '#'}
+                                                                className={`h-8 w-8 rounded-lg flex items-center justify-center transition-all border ${isEditable
+                                                                    ? 'bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600 border-slate-100'
+                                                                    : 'bg-slate-50/50 text-slate-300 border-slate-50 cursor-not-allowed'}`}
+                                                                title={t('common.edit')}
+                                                                aria-disabled={!isEditable}
+                                                                onClick={(e) => !isEditable && e.preventDefault()}
+                                                            >
+                                                                <Edit className="h-3.5 w-3.5" />
+                                                            </Link>
+                                                        );
+                                                    })()}
+
+                                                    {/* Re-Submit Button */}
+                                                    {doc.can_re_submit === 1 && (
+                                                        <button
+                                                            onClick={() => handleReSubmit(doc)}
+                                                            disabled={resubmitting === doc.name}
+                                                            className="h-8 w-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center hover:bg-amber-100 transition-all border border-amber-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            title={t('documents.resubmit') || 'Re-Submit'}
+                                                        >
+                                                            {resubmitting === doc.name ? (
+                                                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                            ) : (
+                                                                <RefreshCw className="h-3.5 w-3.5" />
+                                                            )}
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                         </motion.tr>
@@ -459,18 +565,39 @@ export default function DocumentsPage() {
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2">
+                                            {/* Mobile Edit Button */}
                                             {(() => {
                                                 const isEditable = user?.userId === doc.owner && doc.workflow_state === 'Draft – Contractor Specialist Engineer';
-                                                return isEditable ? (
+                                                return (
                                                     <Link
-                                                        href={`/documents/${doc.name}/edit`}
-                                                        className="h-9 w-9 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center hover:bg-orange-600 hover:text-white transition-all shadow-sm"
+                                                        href={isEditable ? `/documents/${doc.name}/edit` : '#'}
+                                                        className={`h-9 w-9 rounded-xl flex items-center justify-center transition-all shadow-sm ${isEditable
+                                                            ? 'bg-orange-50 text-orange-600 hover:bg-orange-600 hover:text-white'
+                                                            : 'bg-slate-50 text-slate-300 cursor-not-allowed shadow-none'}`}
                                                         title={t('common.edit')}
+                                                        onClick={(e) => !isEditable && e.preventDefault()}
                                                     >
                                                         <Edit className="h-4.5 w-4.5" />
                                                     </Link>
-                                                ) : null;
+                                                );
                                             })()}
+
+                                            {/* Mobile Re-Submit Button */}
+                                            {doc.can_re_submit === 1 && (
+                                                <button
+                                                    onClick={() => handleReSubmit(doc)}
+                                                    disabled={resubmitting === doc.name}
+                                                    className="h-9 w-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center hover:bg-amber-600 hover:text-white transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    title={t('documents.resubmit') || 'Re-Submit'}
+                                                >
+                                                    {resubmitting === doc.name ? (
+                                                        <Loader2 className="h-4.5 w-4.5 animate-spin" />
+                                                    ) : (
+                                                        <RefreshCw className="h-4.5 w-4.5" />
+                                                    )}
+                                                </button>
+                                            )}
+
                                             <Link
                                                 href={`/documents/${doc.name}`}
                                                 className="h-9 w-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm"

@@ -113,6 +113,8 @@
     "edit_form_description": "تعديل تفاصيل الطلب الحالي",
     "success_create": "تم إنشاء الطلب بنجاح",
     "success_update": "تم تحديث الطلب بنجاح",
+    "resubmit": "إعادة التقديم",
+    "resubmitted_success": "تمت إعادة التقديم بنجاح",
     "fields": {
       "project_name": "اسم المشروع",
       "custom_consultant": "الاستشاري",
@@ -141,6 +143,13 @@
       "enter_floor": "الدور",
       "enter_room": "الغرفة"
     },
+    "order": "الطلب",
+    "task": "المهمة",
+    "creator": "المنشئ",
+    "assigned": "المعين",
+    "project": "المشروع",
+    "submitted": "تم التقديم",
+    "action": "الإجراء",
     "steps": {
       "step1": "بيانات الطلب",
       "step2": "رفع الملفات"
@@ -234,7 +243,8 @@
       "password": "كلمة المرور",
       "user_image": "صورة المستخدم",
       "digital_signature": "التوقيع الرقمي",
-      "digital_stamp": "الختم الرقمي"
+      "digital_stamp": "الختم الرقمي",
+      "user_category": "التصنيف"
     },
     "placeholders": {
       "first_name": "أدخل الاسم الأول",
@@ -289,6 +299,9 @@
       "custom_consultant": "الاستشاري",
       "custom_owner": "المالك",
       "custom_contractor": "المقاول",
+      "custom_building": "المبنى",
+      "custom_floor": "الدور",
+      "custom_room": "الغرفة",
       "custom_description": "الوصف",
       "expected_start_date": "تاريخ البدء المتوقع",
       "expected_end_date": "تاريخ الانتهاء المتوقع"
@@ -305,6 +318,9 @@
       "select_consultant": "اختر الاستشاري",
       "select_owner": "اختر المالك",
       "select_contractor": "اختر المقاول",
+      "enter_custom_building": "أدخل اسم المبنى",
+      "enter_custom_floor": "أدخل الدور",
+      "enter_custom_room": "أدخل الغرفة",
       "enter_description": "أدخل وصف المشروع"
     }
   },

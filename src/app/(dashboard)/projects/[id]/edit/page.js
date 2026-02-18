@@ -16,7 +16,10 @@ import {
     UserCircle,
     Hash,
     Type,
-    FileText
+    FileText,
+    Building2,
+    Layers,
+    Home
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
@@ -32,6 +35,9 @@ export default function EditProjectPage() {
 
     // Options
     const [projectManagers, setProjectManagers] = useState([]);
+    const [contractors, setContractors] = useState([]);
+    const [owners, setOwners] = useState([]);
+    const [consultants, setConsultants] = useState([]);
 
     // Form State
     const initialFormState = {
@@ -40,7 +46,13 @@ export default function EditProjectPage() {
         custom_project_code: '',
         custom_project_name_en: '',
         custom_location: '',
+        custom_building: '',
+        custom_floor: '',
+        custom_room: '',
         custom_project_manager: '',
+        custom_consultant: '',
+        custom_owner: '',
+        custom_contractor: '',
         custom_description: '',
         expected_start_date: '',
         expected_end_date: ''
@@ -53,10 +65,30 @@ export default function EditProjectPage() {
         async function fetchData() {
             try {
                 // Fetch project managers
-                const managersRes = await api.getProjectManagers();
-                if (managersRes.message && managersRes.message.success) {
-                    setProjectManagers(managersRes.message.data || []);
-                }
+                // Fetch Options (Parallel)
+                const optionsResults = await Promise.allSettled([
+                    api.getProjectManagers(),
+                    api.getContractors(),
+                    api.getOwners(),
+                    api.getConsultants()
+                ]);
+
+                const [projectManagersRes, contractorsRes, ownersRes, consultantsRes] = optionsResults;
+
+                const processOptions = (result) => {
+                    if (result.status === 'fulfilled' && result.value.message?.success && Array.isArray(result.value.message.data)) {
+                        return result.value.message.data.map(item => ({
+                            value: item.value,
+                            label: `${item.label || item.full_name} (${item.email || item.value})`
+                        }));
+                    }
+                    return [];
+                };
+
+                setProjectManagers(processOptions(projectManagersRes));
+                setContractors(processOptions(contractorsRes));
+                setOwners(processOptions(ownersRes));
+                setConsultants(processOptions(consultantsRes));
 
                 // Fetch project details
                 if (params.id) {
@@ -69,7 +101,13 @@ export default function EditProjectPage() {
                             custom_project_code: data.custom_project_code || '',
                             custom_project_name_en: data.custom_project_name_en || '',
                             custom_location: data.custom_location || '',
+                            custom_building: data.custom_building || '',
+                            custom_floor: data.custom_floor || '',
+                            custom_room: data.custom_room || '',
                             custom_project_manager: data.custom_project_manager || '',
+                            custom_consultant: data.custom_consultant || '',
+                            custom_owner: data.custom_owner || '',
+                            custom_contractor: data.custom_contractor || '',
                             custom_description: data.custom_description || '',
                             expected_start_date: data.expected_start_date || '',
                             expected_end_date: data.expected_end_date || ''
@@ -229,8 +267,22 @@ export default function EditProjectPage() {
                         {renderInput('custom_project_code', 'text', <Hash className="w-4 h-4" />, true)}
                         {renderInput('custom_location', 'text', <MapPin className="w-4 h-4" />, true)}
 
+                        {renderInput('custom_building', 'text', <Building2 className="w-4 h-4" />)}
+                        {renderInput('custom_floor', 'text', <Layers className="w-4 h-4" />)}
+                        {renderInput('custom_room', 'text', <Home className="w-4 h-4" />)}
+
                         <div className="md:col-span-2">
                             {renderSelect('custom_project_manager', projectManagers, loadingOptions, <UserCircle className="w-4 h-4" />, true, 'select_manager')}
+                        </div>
+
+                        <div className="md:col-span-2">
+                            {renderSelect('custom_consultant', consultants, loadingOptions, <UserCircle className="w-4 h-4" />, false, 'select_consultant')}
+                        </div>
+                        <div className="md:col-span-2">
+                            {renderSelect('custom_owner', owners, loadingOptions, <UserCircle className="w-4 h-4" />, false, 'select_owner')}
+                        </div>
+                        <div className="md:col-span-2">
+                            {renderSelect('custom_contractor', contractors, loadingOptions, <UserCircle className="w-4 h-4" />, false, 'select_contractor')}
                         </div>
 
                         {renderInput('expected_start_date', 'date', <Calendar className="w-4 h-4" />, true)}

@@ -13,7 +13,7 @@ import EmptyState from '@/components/ui/EmptyState';
 import PageHeader from '@/components/ui/PageHeader';
 import {
     FileText, FolderKanban, Clock, Activity, ArrowUpRight,
-    TrendingUp, User, CheckCircle2, CheckSquare
+    TrendingUp, User, CheckCircle2, CheckSquare, Eye
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -219,33 +219,47 @@ export default function DashboardPage() {
                             <table className="w-full text-left text-sm">
                                 <thead className="bg-white text-slate-500 font-bold text-[10px] uppercase tracking-wider sticky top-0 z-10 shadow-sm">
                                     <tr>
-                                        <th className="px-4 py-3 bg-slate-50">{t('documents.name')}</th>
-                                        <th className="px-4 py-3 bg-slate-50">{t('documents.type')}</th>
-                                        <th className="px-4 py-3 bg-slate-50">{t('documents.date')}</th>
+                                        <th className="px-4 py-3 bg-slate-50 text-left ltr:text-left rtl:text-right">{t('documents.task') || 'Task'}</th>
+                                        <th className="px-4 py-3 bg-slate-50 text-right ltr:text-right rtl:text-left">{t('documents.date')}</th>
                                         <th className="px-4 py-3 bg-slate-50 text-right">{t('common.actions')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
                                     {todoData.map((doc) => (
                                         <tr key={doc.name} className="hover:bg-slate-50 transition-colors group">
-                                            <td className="px-4 py-4 max-w-[200px]">
-                                                <div className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors truncate">{doc.name}</div>
-                                                <div className="text-[10px] text-slate-400 font-medium truncate">{doc.discipline}</div>
-                                            </td>
                                             <td className="px-4 py-4">
-                                                <span className="px-2 py-1 rounded-md bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200 inline-block overflow-hidden text-ellipsis max-w-[150px] whitespace-nowrap">
-                                                    {doc.document_type}
-                                                </span>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="h-10 w-10 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                                                        {doc.created_by_image ? (
+                                                            <img src={`https://app.dms.salasah.sa${doc.created_by_image}`} alt={doc.created_by_name} className="h-full w-full object-cover" />
+                                                        ) : (
+                                                            <div className="h-full w-full flex items-center justify-center text-slate-400 font-bold text-xs">
+                                                                {doc.created_by_name?.charAt(0) || 'U'}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <div className="font-bold text-slate-900 text-sm group-hover:text-indigo-600 transition-colors truncate mb-0.5">{doc.name}</div>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">{doc.discipline}</span>
+                                                            <span className="h-1 w-1 rounded-full bg-slate-300"></span>
+                                                            <span className="text-[10px] font-medium text-slate-400 truncate max-w-[100px]">{doc.document_type}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </td>
-                                            <td className="px-4 py-4 text-slate-500 text-xs font-semibold whitespace-nowrap">
-                                                {new Date(doc.creation).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US')}
+                                            <td className="px-4 py-4 text-slate-500 text-xs font-bold whitespace-nowrap">
+                                                <div className="flex flex-col items-end">
+                                                    <span className="text-slate-900">{new Date(doc.creation).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US')}</span>
+                                                    <span className="text-[10px] text-slate-400 font-medium">{new Date(doc.creation).toLocaleTimeString(isRTL ? 'ar-SA' : 'en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                                                </div>
                                             </td>
                                             <td className="px-4 py-4 text-right">
                                                 <Link
                                                     href={`/documents/${doc.name}`}
-                                                    className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm hover:shadow-indigo-500/30"
+                                                    className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-slate-50 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition-all border border-slate-100"
                                                 >
-                                                    <ArrowUpRight className="h-4 w-4" />
+                                                    <Eye className="h-4 w-4" />
                                                 </Link>
                                             </td>
                                         </tr>

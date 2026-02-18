@@ -41,6 +41,7 @@ export default function AddUserPage() {
         password: '', // Added password field
         mobile_no: '',
         party: '',
+        user_category: '',
         role_profile_name: '',
         department: '',
         designation: '',
@@ -150,6 +151,7 @@ export default function AddUserPage() {
     };
 
     const parties = ['Contractor', 'Consultant', 'Owner'];
+    const userCategories = ['Mechanical', 'Civil', 'Architectural', 'Electrical'];
 
     // Helper to render input with error
     const renderInput = (name, type = 'text', required = false, labelKey = null) => {
@@ -280,6 +282,7 @@ export default function AddUserPage() {
                         {renderInput('password', 'password', true)}
                         {renderInput('mobile_no', 'tel', false, 'mobile')}
                         {renderSelect('party', parties, false)}
+                        {renderSelect('user_category', userCategories, false)}
 
                         {renderSelect('role_profile_name', roleProfiles, loadingOptions, 'role_profile')}
                         {renderSelect('department', departments, loadingOptions)}

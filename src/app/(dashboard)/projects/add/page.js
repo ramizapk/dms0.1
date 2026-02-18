@@ -16,7 +16,10 @@ import {
     UserCircle,
     Hash,
     Type,
-    FileText
+    FileText,
+    Building2,
+    Layers,
+    Home
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
@@ -40,6 +43,9 @@ export default function AddProjectPage() {
         custom_project_code: '',
         custom_project_name_en: '',
         custom_location: '',
+        custom_building: '',
+        custom_floor: '',
+        custom_room: '',
         custom_project_manager: '',
         custom_consultant: '',
         custom_owner: '',
@@ -245,6 +251,10 @@ export default function AddProjectPage() {
 
                         {renderInput('custom_project_code', 'text', <Hash className="w-4 h-4" />, true)}
                         {renderInput('custom_location', 'text', <MapPin className="w-4 h-4" />, true)}
+
+                        {renderInput('custom_building', 'text', <Building2 className="w-4 h-4" />)}
+                        {renderInput('custom_floor', 'text', <Layers className="w-4 h-4" />)}
+                        {renderInput('custom_room', 'text', <Home className="w-4 h-4" />)}
 
                         <div className="md:col-span-2">
                             {renderSelect('custom_project_manager', projectManagers, loadingOptions, <UserCircle className="w-4 h-4" />, true, 'select_manager')}

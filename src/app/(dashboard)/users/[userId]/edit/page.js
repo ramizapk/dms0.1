@@ -41,6 +41,7 @@ export default function EditUserPage({ params }) {
         email: '',
         mobile_no: '',
         party: '',
+        user_category: '',
         role_profile_name: '',
         department: '',
         designation: '',
@@ -73,6 +74,7 @@ export default function EditUserPage({ params }) {
                         email: userData.email || '',
                         mobile_no: userData.mobile_no || '',
                         party: userData.party || '',
+                        user_category: userData.user_category || '',
                         role_profile_name: userData.role_profile_name || '',
                         department: userData.department || '',
                         designation: userData.designation || '',
@@ -137,6 +139,7 @@ export default function EditUserPage({ params }) {
     };
 
     const parties = ['Contractor', 'Consultant', 'Owner'];
+    const userCategories = ['Mechanical', 'Civil', 'Architectural', 'Electrical'];
 
     // Helper to render input with error
     const renderInput = (name, type = 'text', required = false, labelKey = null, disabled = false) => {
@@ -254,6 +257,7 @@ export default function EditUserPage({ params }) {
                         {renderInput('email', 'email', true, null, true)} {/* Read Only */}
                         {renderInput('mobile_no', 'tel', false, 'mobile')}
                         {renderSelect('party', parties, false, null, true)} {/* Read Only */}
+                        {renderSelect('user_category', userCategories, false)}
 
                         {renderSelect('role_profile_name', roleProfiles, loadingOptions, 'role_profile')}
                         {renderSelect('department', departments, loadingOptions)}

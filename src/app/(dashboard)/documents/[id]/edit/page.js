@@ -40,12 +40,7 @@ export default function EditDocumentPage() {
 
     // Static Options
     const submittalTypes = ['New', 'Re-Submittal'];
-    const disciplines = [
-        'Concept Design', 'Schematic Design', 'Detailed Design',
-        'Issued for Construction', 'Civil', 'Architectural',
-        'Structural', 'Electrical', 'Mechanical', 'Plumbing',
-        'HVAC', 'Telecom'
-    ];
+    const [disciplines, setDisciplines] = useState([]);
 
     // Form State
     const initialFormState = {
@@ -155,13 +150,31 @@ export default function EditDocumentPage() {
             try {
                 const res = await api.getProjectParties(formData.project_name);
                 if (res.message && res.message.success) {
-                    const { custom_consultant, custom_owner, custom_contractor } = res.message.data;
+                    const {
+                        custom_consultant,
+                        custom_owner,
+                        custom_contractor,
+                        custom_room,
+                        custom_building,
+                        custom_floor,
+                        discipline_options_for_user
+                    } = res.message.data;
+
                     setFormData(prev => ({
                         ...prev,
                         custom_consultant: custom_consultant || '',
                         custom_owner: custom_owner || '',
-                        custom_contractor: custom_contractor || ''
+                        custom_contractor: custom_contractor || '',
+                        // For edit, we might want to preserve existing values if API returns null?
+                        // But user said "filled directly and non-editable", implying API is source of truth.
+                        building_name: custom_building || prev.building_name || '',
+                        floor: custom_floor || prev.floor || '',
+                        room: custom_room || prev.room || ''
                     }));
+
+                    if (discipline_options_for_user && Array.isArray(discipline_options_for_user)) {
+                        setDisciplines(discipline_options_for_user);
+                    }
                 }
             } catch (err) {
                 console.error('Failed to fetch project parties', err);
@@ -334,7 +347,7 @@ export default function EditDocumentPage() {
                         {renderInput('custom_owner', 'text', false, true)}
                         {renderInput('custom_contractor', 'text', false, true)}
 
-                        {renderSelect('submittal_type', submittalTypes, false, true, 'select_type')}
+                        {/* Submittal Type hidden */}
                         {renderSelect('discipline', disciplines, false, true, 'select_discipline')}
 
                         <div className="md:col-span-2">
@@ -343,9 +356,9 @@ export default function EditDocumentPage() {
 
                         {/* Location Details */}
                         <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {renderInput('building_name', 'text')}
-                            {renderInput('floor', 'text')}
-                            {renderInput('room', 'text')}
+                            {renderInput('building_name', 'text', false, true)}
+                            {renderInput('floor', 'text', false, true)}
+                            {renderInput('room', 'text', false, true)}
                         </div>
 
                         <div className="md:col-span-2 space-y-2">
