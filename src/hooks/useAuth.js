@@ -62,5 +62,19 @@ export function useAuth() {
         router.push('/login');
     }, [router]);
 
-    return { user, isAuthenticated, login, logout, isLoading, error, setError };
+    const can = useCallback((resource, action) => {
+        if (!user || !user.permissions) return false;
+        // Check if resource exists in permissions
+        const resourcePerms = user.permissions[resource];
+        if (!resourcePerms) return false;
+        // Check if specific action is allowed
+        return !!resourcePerms[action];
+    }, [user]);
+
+    const hasWorkspace = useCallback((workspaceName) => {
+        if (!user || !user.workspaces) return false;
+        return user.workspaces.includes(workspaceName);
+    }, [user]);
+
+    return { user, isAuthenticated, login, logout, isLoading, error, setError, can, hasWorkspace };
 }

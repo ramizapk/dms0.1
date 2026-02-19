@@ -58,7 +58,7 @@ export default function DashboardLayout({ children }) {
                         : '0px',
                 }}
                 transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                className="flex-1 min-h-screen flex flex-col relative z-10"
+                className="flex-1 min-h-screen flex flex-col relative z-10 min-w-0"
             >
                 <Navbar
                     isSidebarCollapsed={sidebarCollapsed}

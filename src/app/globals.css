@@ -1286,7 +1286,9 @@ p {
 /* Professional Table Enhancement */
 .luxury-table-container {
   border-radius: 20px;
-  overflow: hidden;
+  overflow-y: hidden;
+  overflow-x: auto;
+  max-width: 100%;
   background: white;
   border: 1px solid #f1f5f9;
 }

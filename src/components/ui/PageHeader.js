@@ -25,7 +25,7 @@ export default function PageHeader({ title, subtitle, actions }) {
             </div>
 
             {actions && (
-                <div className="flex items-center gap-4 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm animate-in">
+                <div className="flex items-center gap-4  p-2 rounded-2xl border border-slate-100 shadow-sm animate-in">
                     {actions}
                 </div>
             )}

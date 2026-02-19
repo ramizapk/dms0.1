@@ -9,6 +9,7 @@ import api from '@/lib/api';
 import PageHeader from '@/components/ui/PageHeader';
 import { FileText, Calendar, Building2, UserCircle, Printer, Download, Clock, CheckCircle2, History, Paperclip, XCircle, Gavel, Loader2, X, FileImage, File } from 'lucide-react';
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
+import FileUpload from '@/components/ui/FileUpload';
 import { useToast } from '@/context/ToastContext';
 
 // Portal component for modal
@@ -83,6 +84,21 @@ export default function DocumentDetailsPage() {
     const [pendingAction, setPendingAction] = useState(null);
     const [consultantEngineers, setConsultantEngineers] = useState([]);
     const [selectedEngineer, setSelectedEngineer] = useState(null);
+    const [isAttachmentModalOpen, setIsAttachmentModalOpen] = useState(false);
+
+    const handleAttachmentComplete = async () => {
+        setIsAttachmentModalOpen(false);
+        showToast(t('documents.success_update'), 'success');
+
+        try {
+            const filesRes = await api.getFiles(doc.name);
+            if (filesRes.data) {
+                setFiles(filesRes.data);
+            }
+        } catch (err) {
+            console.error("Failed to refresh files", err);
+        }
+    };
 
     // Fetch Actions
     const handleOpenActions = async () => {
@@ -436,6 +452,17 @@ export default function DocumentDetailsPage() {
                         </button>
                     )}
 
+                    {/* Add Attachments Button */}
+                    {doc.has_workflow_action_permission === 1 && (
+                        <button
+                            onClick={() => setIsAttachmentModalOpen(true)}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl font-bold shadow-sm transition-all active:scale-95"
+                        >
+                            <Paperclip className="w-5 h-5" />
+                            {t('documents.add_attachments')}
+                        </button>
+                    )}
+
                     {/* Print Button */}
                     <button
                         onClick={handlePrint}
@@ -602,6 +629,53 @@ export default function DocumentDetailsPage() {
                                         </div>
                                     </>
                                 )}
+                            </motion.div>
+                        </div>
+                    </Portal>
+                )}
+            </AnimatePresence>
+
+            {/* Attachment Modal */}
+            <AnimatePresence>
+                {isAttachmentModalOpen && (
+                    <Portal>
+                        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                                onClick={() => setIsAttachmentModalOpen(false)}
+                            />
+                            <motion.div
+                                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                                animate={{ scale: 1, opacity: 1, y: 0 }}
+                                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                                className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative z-10 overflow-hidden"
+                            >
+                                <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                                    <h3 className="text-xl font-black text-slate-900 flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                            <Paperclip className="w-5 h-5" />
+                                        </div>
+                                        {t('documents.upload_modal_title')}
+                                    </h3>
+                                    <button
+                                        onClick={() => setIsAttachmentModalOpen(false)}
+                                        className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors"
+                                    >
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                </div>
+
+                                <div className="p-8">
+                                    <FileUpload
+                                        docName={doc.name}
+                                        onAllUploadsComplete={handleAttachmentComplete}
+                                        multiple={true}
+                                        className="w-full"
+                                    />
+                                </div>
                             </motion.div>
                         </div>
                     </Portal>

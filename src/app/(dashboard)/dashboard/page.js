@@ -13,9 +13,10 @@ import EmptyState from '@/components/ui/EmptyState';
 import PageHeader from '@/components/ui/PageHeader';
 import {
     FileText, FolderKanban, Clock, Activity, ArrowUpRight,
-    TrendingUp, User, CheckCircle2, CheckSquare, Eye
+    TrendingUp, User, CheckCircle2, CheckSquare, Eye, Edit, RefreshCw
 } from 'lucide-react';
 import Link from 'next/link';
+import PermissionGate from '@/components/auth/PermissionGate';
 
 export default function DashboardPage() {
     const { t, isRTL } = useI18n();
@@ -277,22 +278,22 @@ export default function DashboardPage() {
             </div>
 
             {/* Insights & Feed Section */}
-            <div className="grid grid-cols-1 gap-12 xl:grid-cols-3">
-                {/* Documents Data Feed */}
+            <div className="flex flex-col gap-8">
+                {/* Documents Data Feed - Full Width */}
                 <motion.div
                     initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4, duration: 0.6 }}
-                    className="xl:col-span-2 premium-card flex flex-col"
+                    className="premium-card flex flex-col"
                 >
-                    <div className="px-10 py-10 flex items-center justify-between bg-slate-50/50">
-                        <div className="flex items-center gap-5">
-                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white border border-slate-200 shadow-xl shadow-indigo-500/5 group">
-                                <FileText className="h-7 w-7 text-indigo-600 transition-transform group-hover:scale-110" />
+                    <div className="px-6 py-5 flex items-center justify-between bg-slate-50/50">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white border border-slate-200 shadow-sm group">
+                                <FileText className="h-5 w-5 text-indigo-600 transition-transform group-hover:scale-110" />
                             </div>
                             <div>
-                                <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-none">{t('dashboard.recent_documents')}</h2>
-                                <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mt-2 flex items-center gap-2">
+                                <h2 className="text-lg font-black text-slate-900 tracking-tight leading-none">{t('dashboard.recent_documents')}</h2>
+                                <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-wide mt-1 flex items-center gap-1.5">
                                     <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
                                     {t('dashboard.live_feed')}
                                 </p>
@@ -300,64 +301,169 @@ export default function DashboardPage() {
                         </div>
                         <Link
                             href="/documents"
-                            className="group flex items-center gap-3 text-xs font-black text-slate-600 hover:text-indigo-600 transition-all px-6 py-3 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md active:scale-95"
+                            className="group flex items-center gap-2 text-[10px] font-black text-slate-600 hover:text-indigo-600 transition-all px-4 py-2 rounded-xl bg-white border border-slate-200 shadow-sm hover:shadow-md active:scale-95"
                         >
                             {t('dashboard.view_all')}
-                            <ArrowUpRight className="h-4 w-4 transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                            <ArrowUpRight className="h-3 w-3 transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                         </Link>
                     </div>
 
                     <div className="flex-1">
                         {data?.docs?.length > 0 ? (
                             <div className="luxury-table-container">
-                                <table className="luxury-table">
+                                <table className="w-full text-right rtl:text-right ltr:text-left">
                                     <thead>
-                                        <tr>
-                                            <th>{t('documents.name')}</th>
-                                            <th>{t('documents.workflow_state')}</th>
-                                            <th>{t('documents.status')}</th>
-                                            <th>{t('documents.creation_date')}</th>
+                                        <tr className="border-b border-slate-200 bg-slate-50/30">
+                                            <th className="px-2 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-tight text-center w-8">{t('documents.id') || 'ID'}</th>
+                                            <th className="px-2 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-tight ltr:text-left rtl:text-right">{t('documents.order') || 'Order'}</th>
+                                            <th className="px-2 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-tight ltr:text-left rtl:text-right">{t('documents.creator') || 'Creator'}</th>
+                                            <th className="px-2 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-tight ltr:text-left rtl:text-right">{t('documents.assigned') || 'Assigned'}</th>
+                                            <th className="px-2 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-tight ltr:text-left rtl:text-right">{t('documents.project') || 'Project'}</th>
+                                            <th className="px-2 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-tight text-center">{t('documents.submitted') || 'Submitted'}</th>
+                                            <th className="px-2 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-tight text-center">{t('documents.action') || 'Action'}</th>
+                                            <th className="px-2 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-tight text-center">{t('documents.actions') || 'Actions'}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-50">
-                                        {data.docs.map((doc, i) => (
+                                        {data.docs.map((doc, idx) => (
                                             <motion.tr
                                                 key={doc.name}
-                                                initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: 0.5 + i * 0.05 }}
-                                                className="group"
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: idx * 0.03 }}
+                                                className="hover:bg-slate-50/50 transition-colors group"
                                             >
-                                                <td>
+                                                {/* ID */}
+                                                <td className="px-2 py-3 text-center align-top">
+                                                    <span className="text-[10px] font-bold text-slate-400">
+                                                        {idx + 1}
+                                                    </span>
+                                                </td>
+
+                                                {/* ORDER */}
+                                                <td className="px-2 py-2 align-top">
                                                     <div className="flex flex-col gap-1">
-                                                        <span className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{doc.name}</span>
-                                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">DMS-{doc.name.split('-').pop()}</span>
+                                                        <div className="font-bold text-slate-900 text-xs tracking-tight break-words">{doc.name}</div>
+                                                        <div className="flex flex-wrap items-center gap-1.5">
+                                                            <span className={`px-1.5 py-0.5 rounded-[4px] text-[9px] uppercase font-bold tracking-wide border whitespace-nowrap ${doc.submittal_type === 'Re-Submittal' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                                                                {doc.submittal_type || doc.discipline}
+                                                            </span>
+                                                            <span className="text-[9px] font-bold text-slate-400 whitespace-nowrap">
+                                                                {doc.creation ? new Date(doc.creation).toLocaleString() : '-'}
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </td>
-                                                <td>
+
+                                                {/* CREATOR */}
+                                                <td className="px-2 py-2 align-top">
                                                     <div className="flex items-center gap-2">
-                                                        <div className="h-1.5 w-1.5 rounded-full bg-slate-300" />
-                                                        <span className="text-xs font-bold text-slate-500 italic">
-                                                            {doc.workflow_state}
-                                                        </span>
+                                                        <div className="h-7 w-7 rounded-lg overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                                                            {doc.creator_user_image_url ? (
+                                                                <img src={doc.creator_user_image_url} alt={doc.creator_name} className="h-full w-full object-cover" />
+                                                            ) : (
+                                                                <div className="h-full w-full flex items-center justify-center text-slate-400 font-bold text-[10px]">
+                                                                    {doc.creator_name?.charAt(0)}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex flex-col overflow-hidden">
+                                                            <span className="text-xs font-bold text-slate-900 leading-tight mb-0.5 break-words">{doc.creator_name}</span>
+                                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-normal">{doc?.user_category_abbr}</span>
+                                                        </div>
                                                     </div>
                                                 </td>
-                                                <td>
-                                                    <StatusBadge status={doc.status_category} />
+
+                                                {/* ASSIGNED */}
+                                                <td className="px-2 py-2 align-top">
+                                                    {doc.assigned ? (
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="h-7 w-7 rounded-lg overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                                                                {doc.assigned.user_image_url ? (
+                                                                    <img src={doc.assigned.user_image_url} alt={doc.assigned.name} className="h-full w-full object-cover" />
+                                                                ) : (
+                                                                    <div className="h-full w-full flex items-center justify-center text-slate-400 font-bold text-[10px]">
+                                                                        {doc.assigned.name?.charAt(0)}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex flex-col overflow-hidden">
+                                                                <span className="text-xs font-bold text-slate-900 leading-tight mb-0.5 break-words">{doc.assigned.name}</span>
+                                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-normal truncate max-w-full" title={doc.assigned?.user_category_abbr}>
+                                                                    {doc.assigned?.user_category_abbr}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-[10px] text-slate-400 italic">Unassigned</span>
+                                                    )}
                                                 </td>
-                                                <td>
-                                                    <div className="flex flex-col gap-1">
-                                                        <span className="text-[11px] font-black text-slate-700 uppercase tracking-tighter">
-                                                            {new Date(doc.creation).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US', {
-                                                                month: 'short',
-                                                                day: 'numeric',
-                                                            })}
-                                                        </span>
-                                                        <span className="text-[9px] font-bold text-slate-400">
-                                                            {new Date(doc.creation).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US', {
-                                                                year: 'numeric'
-                                                            })}
-                                                        </span>
+
+                                                {/* PROJECT */}
+                                                <td className="px-2 py-2 align-top">
+                                                    <div className="flex flex-col gap-0.5">
+                                                        <span className="text-xs font-bold text-slate-900 break-words">{doc.project_name}</span>
+                                                        <span className="text-[9px] font-medium text-slate-500">مرحلة التشطيبات</span>
+                                                    </div>
+                                                </td>
+
+                                                {/* SUBMITTED */}
+                                                <td className="px-2 py-3 align-top text-center">
+                                                    <span className={`text-[10px] font-bold uppercase ${doc.is_submitted ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                                        {doc.is_submitted ? 'Yes' : 'No'}
+                                                    </span>
+                                                </td>
+
+                                                {/* ACTION */}
+                                                <td className="px-2 py-3 align-top text-center">
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight break-words">
+                                                        {doc.next_workflow_action || '-'}
+                                                    </span>
+                                                </td>
+
+                                                {/* ACTIONS Button */}
+                                                <td className="px-2 py-2 align-top">
+                                                    <div className="flex items-center justify-center gap-1.5">
+                                                        <Link
+                                                            href={`/documents/${doc.name}`}
+                                                            className="h-7 w-7 rounded-md bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-indigo-50 hover:text-indigo-600 transition-all border border-slate-100"
+                                                            title={t('common.view')}
+                                                        >
+                                                            <Eye className="h-3.5 w-3.5" />
+                                                        </Link>
+
+                                                        {/* Edit Button */}
+                                                        <PermissionGate resource="Masar Document" action="write">
+                                                            {(() => {
+                                                                const isEditable = user?.userId === doc.owner && doc.workflow_state === 'Draft – Contractor Specialist Engineer';
+                                                                return (
+                                                                    <Link
+                                                                        href={isEditable ? `/documents/${doc.name}/edit` : '#'}
+                                                                        className={`h-7 w-7 rounded-md flex items-center justify-center transition-all border ${isEditable
+                                                                            ? 'bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600 border-slate-100'
+                                                                            : 'bg-slate-50/50 text-slate-300 border-slate-50 cursor-not-allowed'}`}
+                                                                        title={t('common.edit')}
+                                                                        aria-disabled={!isEditable}
+                                                                        onClick={(e) => !isEditable && e.preventDefault()}
+                                                                    >
+                                                                        <Edit className="h-3 w-3" />
+                                                                    </Link>
+                                                                );
+                                                            })()}
+                                                        </PermissionGate>
+
+                                                        {/* Re-Submit Button */}
+                                                        <PermissionGate resource="Masar Document" action="create">
+                                                            {doc.can_re_submit === 1 && (
+                                                                <Link
+                                                                    href={`/documents/${doc.name}/resubmit`}
+                                                                    className="h-7 w-7 rounded-md bg-amber-50 text-amber-600 flex items-center justify-center hover:bg-amber-100 transition-all border border-amber-100"
+                                                                    title={t('documents.resubmit') || 'Re-Submit'}
+                                                                >
+                                                                    <RefreshCw className="h-3 w-3" />
+                                                                </Link>
+                                                            )}
+                                                        </PermissionGate>
                                                     </div>
                                                 </td>
                                             </motion.tr>
@@ -366,7 +472,7 @@ export default function DashboardPage() {
                                 </table>
                             </div>
                         ) : (
-                            <div className="py-24">
+                            <div className="py-12">
                                 <EmptyState title={t('dashboard.no_documents')} icon={FileText} />
                             </div>
                         )}

@@ -115,6 +115,12 @@
     "success_update": "تم تحديث الطلب بنجاح",
     "resubmit": "إعادة التقديم",
     "resubmitted_success": "تمت إعادة التقديم بنجاح",
+    "resubmit_details": "تفاصيل إعادة التقديم",
+    "resubmit_desc": "مراجعة التفاصيل وتحديث الوصف",
+    "resubmit_confirm": "تأكيد إعادة التقديم",
+    "success_resubmit": "تمت إعادة التقديم بنجاح",
+    "resubmit_title": "إعادة تقديم المستند",
+    "resubmitting": "إعادة تقديم للمستند",
     "fields": {
       "project_name": "اسم المشروع",
       "custom_consultant": "الاستشاري",
@@ -203,7 +209,9 @@
     "action_approve_with_notes": "موافقة مع ملاحظات",
     "notes": "الملاحظات",
     "enter_notes": "أدخل الملاحظات",
-    "notes_placeholder": "يرجى تقديم ملاحظاتك أو تعليقاتك هنا..."
+    "notes_placeholder": "يرجى تقديم ملاحظاتك أو تعليقاتك هنا...",
+    "add_attachments": "إضافة مرفقات",
+    "upload_modal_title": "رفع المرفقات"
   },
   "archive": {
     "title": "الأرشيف",
@@ -355,6 +363,7 @@
   },
   "common": {
     "loading": "جاري التحميل...",
+    "processing": "جاري المعالجة...",
     "saving": "جاري الحفظ...",
     "save": "حفظ",
     "error": "حدث خطأ",
@@ -363,6 +372,7 @@
     "no_data": "لا توجد بيانات",
     "actions": "الإجراءات",
     "cancel": "إلغاء",
+    "back": "رجوع",
     "confirm": "تأكيد",
     "delete": "حذف",
     "edit": "تعديل",

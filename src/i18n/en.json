@@ -115,6 +115,12 @@
         "success_update": "Submittal updated successfully",
         "resubmit": "Re-Submit",
         "resubmitted_success": "Resubmitted successfully",
+        "resubmit_details": "Re-Submittal Details",
+        "resubmit_desc": "Review details and update description",
+        "resubmit_confirm": "Re-Submit Document",
+        "success_resubmit": "Re-submitted successfully",
+        "resubmit_title": "Re-Submit Document",
+        "resubmitting": "Re-submitting",
         "fields": {
             "project_name": "Project Name",
             "custom_consultant": "Consultant",
@@ -198,7 +204,9 @@
         "action_approve_with_notes": "Approve with Notes",
         "notes": "Notes",
         "enter_notes": "Enter Notes",
-        "notes_placeholder": "Please provide your notes or remarks here..."
+        "notes_placeholder": "Please provide your notes or remarks here...",
+        "add_attachments": "Add Attachments",
+        "upload_modal_title": "Upload Attachments"
     },
     "archive": {
         "title": "Archive",
@@ -350,6 +358,7 @@
     },
     "common": {
         "loading": "Loading...",
+        "processing": "Processing...",
         "saving": "Saving...",
         "save": "Save",
         "error": "An error occurred",
@@ -358,6 +367,7 @@
         "no_data": "No data available",
         "actions": "Actions",
         "cancel": "Cancel",
+        "back": "Back",
         "confirm": "Confirm",
         "delete": "Delete",
         "edit": "Edit",
