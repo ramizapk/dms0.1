@@ -39,10 +39,33 @@ export default function DocumentsPage() {
         date_from: '',
         date_to: '',
         search: '',
+        project_name: '',
     });
     const [start, setStart] = useState(0);
     const [page, setPage] = useState(1);
     const pageLength = 20;
+
+    const [projects, setProjects] = useState([]);
+
+    useEffect(() => {
+        async function fetchProjects() {
+            try {
+                const response = await api.getProjectsDropdownList();
+                if (response.message && response.message.data) {
+                    setProjects(response.message.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch projects:", error);
+            }
+        }
+        fetchProjects();
+    }, []);
+
+    // Strip HTML tags for table display of rich text content
+    const stripHtml = (html) => {
+        if (!html) return '';
+        return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+    };
 
     async function fetchData() {
         try {
@@ -66,6 +89,7 @@ export default function DocumentsPage() {
             if (filters.approval) params.approval = filters.approval;
             if (filters.date_from) params.date_from = filters.date_from;
             if (filters.date_to) params.date_to = filters.date_to;
+            if (filters.project_name) params.project_name = filters.project_name;
 
             const response = await api.getDashboardData(params);
             // Response structure: { message: { docs, pagination, stats, meta } }
@@ -257,7 +281,27 @@ export default function DocumentsPage() {
                                 ))}
                             </select>
                         </div>
+
+                        <div className="relative">
+                            {/* <Archive className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" /> */}
+                            <select
+                                value={filters.project_name}
+                                onChange={(e) => {
+                                    setFilters({ ...filters, project_name: e.target.value });
+                                    setPage(1);
+                                }}
+                                className="w-full pl-10 h-11 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 appearance-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all cursor-pointer"
+                            >
+                                <option value="">{t('documents.all_projects') || 'All Projects'}</option>
+                                {projects.map((project) => (
+                                    <option key={project.value} value={project.value}>
+                                        {project.project_name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
+
 
                     {/* Advanced Filters Row */}
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-4 mt-4 pt-4 border-t border-slate-100">
@@ -402,9 +446,9 @@ export default function DocumentsPage() {
                                                                 {doc.creation ? new Date(doc.creation).toLocaleString() : '-'}
                                                             </span>
                                                         </div>
-                                                        {doc.description && (
+                                                        {doc.description && stripHtml(doc.description) && (
                                                             <div className="text-xs text-slate-500 line-clamp-2 break-words">
-                                                                {doc.description}
+                                                                {stripHtml(doc.description)}
                                                             </div>
                                                         )}
                                                     </div>
@@ -593,9 +637,9 @@ export default function DocumentsPage() {
                                         </div>
 
                                         {/* Description */}
-                                        {doc.description && (
+                                        {doc.description && stripHtml(doc.description) && (
                                             <div className="mb-4 text-xs font-medium text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                                {doc.description}
+                                                {stripHtml(doc.description)}
                                             </div>
                                         )}
 
@@ -728,8 +772,8 @@ export default function DocumentsPage() {
                             <EmptyState title={t('documents.no_documents')} icon={FileText} />
                         </div>
                     )}
-                </div >
-            </div >
-        </WorkspaceGuard>
+                </div>
+            </div>
+        </WorkspaceGuard >
     );
 }

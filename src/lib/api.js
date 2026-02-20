@@ -151,6 +151,8 @@ export const api = {
     },
 
     // Documents
+    getProjectsDropdownList: () => apiRequest('api/method/dms.api.project.get_projects_dropdown_list'),
+
     getProjects: () => apiRequest('api/resource/Project?fields=["name","project_name"]'),
 
     getProject: (name) =>

@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/provider';
 import api from '@/lib/api';
 import PageHeader from '@/components/ui/PageHeader';
+import RichTextEditor from '@/components/ui/RichTextEditor';
 import {
     FilePlus,
     Save,
@@ -234,7 +235,20 @@ export default function ReSubmitPage() {
                         </div>
 
                         {/* Description - Editable */}
-                        {renderInput('description', null, true)}
+                        <div className="md:col-span-2">
+                            <RichTextEditor
+                                value={formData.description}
+                                onChange={(val) => {
+                                    setFormData(prev => ({ ...prev, description: val }));
+                                    if (errors.description) {
+                                        setErrors(prev => ({ ...prev, description: null }));
+                                    }
+                                }}
+                                label={t('documents.fields.description')}
+                                placeholder={t('documents.placeholders.enter_description')}
+                                error={errors.description}
+                            />
+                        </div>
                     </div>
 
                     <div className="pt-8 flex items-center justify-end gap-4 border-t border-slate-100 mt-8 relative z-10">

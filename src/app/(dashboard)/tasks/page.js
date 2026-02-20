@@ -5,17 +5,21 @@ import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/provider';
 import api from '@/lib/api';
 import StatusBadge from '@/components/ui/StatusBadge';
+import { useAuth } from '@/hooks/useAuth';
+import PermissionGate from '@/components/auth/PermissionGate';
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
 import EmptyState from '@/components/ui/EmptyState';
 import PageHeader from '@/components/ui/PageHeader';
 import {
     FileText, Eye, CheckSquare, ArrowUpRight, Filter, Search, ChevronLeft, ChevronRight,
-    SlidersHorizontal, Calendar, User, Briefcase, Clock, Activity, CheckCircle2, AlertCircle
+    SlidersHorizontal, Calendar, User, Briefcase, Clock, Activity, CheckCircle2, AlertCircle,
+    Edit, RefreshCw
 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function TasksPage() {
     const { t, isRTL } = useI18n();
+    const { user } = useAuth();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -52,7 +56,13 @@ export default function TasksPage() {
     // If apiRequest returns the JSON body, then `response.message` is the inner object.
     // So `response.message.data` is the array.
 
-    const taskList = data?.data || [];
+    const taskList = data?.docs || [];
+
+    // Strip HTML tags for table display of rich text content
+    const stripHtml = (html) => {
+        if (!html) return '';
+        return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+    };
 
     // Use meta if available for simple info, but we won't implement full server-side pagination unless we know params
     const meta = data?.meta || {};
@@ -79,9 +89,10 @@ export default function TasksPage() {
                                         <th className="px-2 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider text-center w-12">{t('documents.id') || '#'}</th>
                                         <th className="px-2 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider ltr:text-left rtl:text-right min-w-[240px]">{t('documents.order') || 'Order'}</th>
                                         <th className="px-2 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider ltr:text-left rtl:text-right min-w-[200px]">{t('documents.creator') || 'Creator'}</th>
+                                        <th className="px-2 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider ltr:text-left rtl:text-right min-w-[200px]">{t('documents.assigned') || 'Assigned'}</th>
                                         <th className="px-2 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider ltr:text-left rtl:text-right min-w-[140px]">{t('documents.project') || 'Project'}</th>
-                                        <th className="px-2 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider text-center">{t('documents.status') || 'Status'}</th>
-                                        <th className="px-2 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider ltr:text-left rtl:text-right">{t('documents.stage') || 'Stage'}</th>
+                                        <th className="px-2 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider text-center">{t('documents.submitted') || 'Submitted'}</th>
+                                        <th className="px-2 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider text-center">{t('documents.action') || 'Action'}</th>
                                         <th className="px-2 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider text-center">{t('common.actions')}</th>
                                     </tr>
                                 </thead>
@@ -113,9 +124,9 @@ export default function TasksPage() {
                                                             {task.creation ? new Date(task.creation).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US') : '-'}
                                                         </span>
                                                     </div>
-                                                    {task.description && (
+                                                    {task.description && stripHtml(task.description) && (
                                                         <div className="text-xs text-slate-500 line-clamp-2">
-                                                            {task.description}
+                                                            {stripHtml(task.description)}
                                                         </div>
                                                     )}
                                                 </div>
@@ -125,19 +136,46 @@ export default function TasksPage() {
                                             <td className="px-2 py-4 align-top">
                                                 <div className="flex items-start gap-3">
                                                     <div className="h-10 w-10 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
-                                                        {task.created_by_image ? (
-                                                            <img src={`https://app.dms.salasah.sa${task.created_by_image}`} alt={task.created_by_name} className="h-full w-full object-cover" />
+                                                        {task.creator_user_image_url ? (
+                                                            <img src={task.creator_user_image_url} alt={task.creator_name || task.created_by_name} className="h-full w-full object-cover" />
+                                                        ) : task.created_by_image ? (
+                                                            <img src={`https://app.dms.salasah.sa${task.created_by_image}`} alt={task.creator_name || task.created_by_name} className="h-full w-full object-cover" />
                                                         ) : (
                                                             <div className="h-full w-full flex items-center justify-center text-slate-400 font-bold text-xs">
-                                                                {task.created_by_name?.charAt(0)}
+                                                                {(task.creator_name || task.created_by_name)?.charAt(0)}
                                                             </div>
                                                         )}
                                                     </div>
                                                     <div className="flex flex-col overflow-hidden">
-                                                        <span className="text-sm font-bold text-slate-900 leading-tight mb-0.5">{task.created_by_name}</span>
+                                                        <span className="text-sm font-bold text-slate-900 leading-tight mb-0.5">{task.creator_name || task.created_by_name}</span>
                                                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Initiator</span>
                                                     </div>
                                                 </div>
+                                            </td>
+
+                                            {/* ASSIGNED */}
+                                            <td className="px-2 py-4 align-top">
+                                                {task.assigned ? (
+                                                    <div className="flex items-start gap-3">
+                                                        <div className="h-10 w-10 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                                                            {task.assigned.user_image_url ? (
+                                                                <img src={task.assigned.user_image_url} alt={task.assigned.name} className="h-full w-full object-cover" />
+                                                            ) : (
+                                                                <div className="h-full w-full flex items-center justify-center text-slate-400 font-bold text-xs">
+                                                                    {task.assigned.name?.charAt(0)}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex flex-col overflow-hidden">
+                                                            <span className="text-sm font-bold text-slate-900 leading-tight mb-0.5 break-words">{task.assigned.name}</span>
+                                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight truncate max-w-full" title={task.assigned?.user_category_abbr}>
+                                                                {task.assigned?.user_category_abbr}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-xs text-slate-400 italic">Unassigned</span>
+                                                )}
                                             </td>
 
                                             {/* PROJECT */}
@@ -148,15 +186,17 @@ export default function TasksPage() {
                                                 </div>
                                             </td>
 
-                                            {/* STATUS */}
+                                            {/* SUBMITTED */}
                                             <td className="px-2 py-6 align-top text-center">
-                                                <StatusBadge status={task.status_category} />
+                                                <span className={`text-xs font-bold uppercase ${task.is_submitted ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                                    {task.is_submitted ? 'Yes' : 'No'}
+                                                </span>
                                             </td>
 
-                                            {/* STAGE */}
-                                            <td className="px-2 py-4 align-top">
-                                                <span className="text-xs font-bold text-slate-500 leading-tight block max-w-[200px]">
-                                                    {task.workflow_state || '-'}
+                                            {/* ACTION */}
+                                            <td className="px-2 py-6 align-top text-center">
+                                                <span className="text-xs font-bold text-slate-400 uppercase tracking-tight break-words">
+                                                    {task.next_workflow_action || '-'}
                                                 </span>
                                             </td>
 
@@ -170,6 +210,39 @@ export default function TasksPage() {
                                                     >
                                                         <Eye className="h-4 w-4" />
                                                     </Link>
+
+                                                    {/* Edit Button */}
+                                                    <PermissionGate resource="Masar Document" action="write">
+                                                        {(() => {
+                                                            const isEditable = user?.userId === task.owner && task.workflow_state === 'Draft – Contractor Specialist Engineer';
+                                                            return (
+                                                                <Link
+                                                                    href={isEditable ? `/documents/${task.name}/edit` : '#'}
+                                                                    className={`h-8 w-8 rounded-lg flex items-center justify-center transition-all border ${isEditable
+                                                                        ? 'bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600 border-slate-100'
+                                                                        : 'bg-slate-50/50 text-slate-300 border-slate-50 cursor-not-allowed'}`}
+                                                                    title={t('common.edit')}
+                                                                    aria-disabled={!isEditable}
+                                                                    onClick={(e) => !isEditable && e.preventDefault()}
+                                                                >
+                                                                    <Edit className="h-3.5 w-3.5" />
+                                                                </Link>
+                                                            );
+                                                        })()}
+                                                    </PermissionGate>
+
+                                                    {/* Re-Submit Button */}
+                                                    <PermissionGate resource="Masar Document" action="create">
+                                                        {task.can_re_submit === 1 && (
+                                                            <Link
+                                                                href={`/documents/${task.name}/resubmit`}
+                                                                className="h-8 w-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center hover:bg-amber-100 transition-all border border-amber-100"
+                                                                title={t('documents.resubmit') || 'Re-Submit'}
+                                                            >
+                                                                <RefreshCw className="h-3.5 w-3.5" />
+                                                            </Link>
+                                                        )}
+                                                    </PermissionGate>
                                                 </div>
                                             </td>
                                         </motion.tr>
@@ -207,48 +280,85 @@ export default function TasksPage() {
                                         </Link>
                                     </div>
 
-                                    <div className="space-y-3">
-                                        <div className="flex justify-between items-center py-2 border-b border-slate-50">
-                                            <span className="text-xs font-bold text-slate-400 uppercase">{t('documents.creator')}</span>
+                                    {/* User Info Grid */}
+                                    <div className="grid grid-cols-2 gap-4 mb-4">
+                                        {/* Creator */}
+                                        <div className="space-y-2">
+                                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t('documents.creator')}</div>
                                             <div className="flex items-center gap-2">
-                                                <div className="h-6 w-6 rounded-full bg-slate-100 overflow-hidden">
-                                                    {task.created_by_image ? (
-                                                        <img src={`https://app.dms.salasah.sa${task.created_by_image}`} alt={task.created_by_name} className="h-full w-full object-cover" />
+                                                <div className="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-[10px] border border-slate-200">
+                                                    {task.creator_user_image_url ? (
+                                                        <img src={task.creator_user_image_url} alt={task.creator_name} className="h-full w-full object-cover rounded-lg" />
+                                                    ) : task.created_by_image ? (
+                                                        <img src={`https://app.dms.salasah.sa${task.created_by_image}`} alt={task.created_by_name || task.creator_name} className="h-full w-full object-cover rounded-lg" />
                                                     ) : (
-                                                        <div className="h-full w-full flex items-center justify-center text-[9px] text-slate-500 font-bold">
-                                                            {task.created_by_name?.charAt(0)}
-                                                        </div>
+                                                        (task.creator_name || task.created_by_name)?.charAt(0)
                                                     )}
                                                 </div>
-                                                <span className="text-xs font-bold text-slate-700">{task.created_by_name}</span>
+                                                <div className="flex flex-col min-w-0">
+                                                    <span className="text-xs font-bold text-slate-900 truncate">{task.creator_name || task.created_by_name}</span>
+                                                    <span className="text-[9px] font-bold text-slate-400 uppercase truncate">{task?.user_category_abbr}</span>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <div className="flex justify-between items-center py-2 border-b border-slate-50">
+                                        {/* Assigned */}
+                                        <div className="space-y-2">
+                                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t('documents.assigned')}</div>
+                                            {task.assigned ? (
+                                                <div className="flex items-center gap-2">
+                                                    <div className="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-[10px] border border-slate-200">
+                                                        {task.assigned.user_image_url ? (
+                                                            <img src={task.assigned.user_image_url} alt={task.assigned.name} className="h-full w-full object-cover rounded-lg" />
+                                                        ) : (
+                                                            task.assigned.name?.charAt(0)
+                                                        )}
+                                                    </div>
+                                                    <div className="flex flex-col min-w-0">
+                                                        <span className="text-xs font-bold text-slate-900 truncate">{task.assigned.name}</span>
+                                                        <span className="text-[9px] font-bold text-slate-400 uppercase truncate">{task.assigned?.user_category_abbr}</span>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <span className="text-xs text-slate-400 italic">Unassigned</span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Info List */}
+                                    <div className="space-y-3 pt-3 border-t border-slate-100">
+                                        <div className="flex justify-between items-center py-1">
                                             <span className="text-xs font-bold text-slate-400 uppercase">{t('documents.project')}</span>
                                             <span className="text-xs font-bold text-slate-700">{task.project_name}</span>
                                         </div>
 
-                                        <div className="flex justify-between items-center py-2 border-b border-slate-50">
+                                        <div className="flex justify-between items-center py-1">
                                             <span className="text-xs font-bold text-slate-400 uppercase">{t('documents.discipline')}</span>
                                             <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-[11px] font-bold border border-slate-200">
                                                 {task.discipline || '-'}
                                             </span>
                                         </div>
 
-                                        <div className="flex justify-between items-center py-2 border-b border-slate-50">
+                                        <div className="flex justify-between items-center py-1">
+                                            <span className="text-xs font-bold text-slate-400 uppercase">{t('documents.submitted')}</span>
+                                            <span className={`text-xs font-bold uppercase ${task.is_submitted ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                                {task.is_submitted ? 'Yes' : 'No'}
+                                            </span>
+                                        </div>
+
+                                        <div className="flex justify-between items-center py-1">
                                             <span className="text-xs font-bold text-slate-400 uppercase">{t('documents.status')}</span>
                                             <StatusBadge status={task.status_category} />
                                         </div>
 
-                                        <div className="flex justify-between items-center py-2 border-b border-slate-50">
-                                            <span className="text-xs font-bold text-slate-400 uppercase">{t('documents.stage')}</span>
-                                            <span className="text-xs font-bold text-slate-500 italic text-right max-w-[50%]">
-                                                {task.workflow_state || '-'}
+                                        <div className="flex justify-between items-center py-1">
+                                            <span className="text-xs font-bold text-slate-400 uppercase">{t('documents.action')}</span>
+                                            <span className="text-xs font-bold text-slate-500 uppercase tracking-tight">
+                                                {task.next_workflow_action || '-'}
                                             </span>
                                         </div>
 
-                                        <div className="flex justify-between items-center pt-2">
+                                        <div className="flex justify-between items-center pt-2 border-t border-slate-50 mt-2">
                                             <span className="text-xs font-bold text-slate-400 uppercase">{t('documents.date')}</span>
                                             <span className="text-xs font-bold text-slate-500 dir-ltr">
                                                 {task.creation ? new Date(task.creation).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US') : '-'}

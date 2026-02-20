@@ -209,28 +209,28 @@ export default function ProjectDetailsPage() {
                         <StakeholderCard
                             role={t('projects.fields.custom_project_manager') || 'Project Manager'}
                             name={project.custom_project_manager_name} // API example shows null, might use email as fallback or just email
-                            email={project.custom_project_manager}
+                            email={null}
                             icon={UserCircle}
                             colorClass="bg-indigo-50 text-indigo-600"
                         />
                         <StakeholderCard
                             role={t('projects.fields.custom_consultant') || 'Consultant'}
-                            name={null}
-                            email={project.custom_consultant}
+                            name={project.custom_consultant_name}
+                            email={null}
                             icon={Briefcase}
                             colorClass="bg-emerald-50 text-emerald-600"
                         />
                         <StakeholderCard
                             role={t('projects.fields.custom_contractor') || 'Contractor'}
-                            name={null}
-                            email={project.custom_contractor}
+                            name={project.custom_contractor_name}
+                            email={null}
                             icon={Building}
                             colorClass="bg-amber-50 text-amber-600"
                         />
                         <StakeholderCard
                             role={t('projects.fields.custom_owner') || 'Owner'}
-                            name={null}
-                            email={project.custom_owner}
+                            name={project.custom_owner_name}
+                            email={null}
                             icon={User}
                             colorClass="bg-sky-50 text-sky-600"
                         />

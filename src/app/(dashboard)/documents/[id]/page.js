@@ -11,6 +11,7 @@ import { FileText, Calendar, Building2, UserCircle, Printer, Download, Clock, Ch
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
 import FileUpload from '@/components/ui/FileUpload';
 import { useToast } from '@/context/ToastContext';
+import RichTextDisplay from '@/components/ui/RichTextDisplay';
 
 // Portal component for modal
 const Portal = ({ children }) => {
@@ -740,9 +741,9 @@ export default function DocumentDetailsPage() {
 
                         {/* Company Names Row */}
                         <div className="grid grid-cols-3 divide-x-2 divide-indigo-900 border-b-2 border-indigo-900 bg-slate-50 rtl:divide-x-reverse text-xs font-bold text-slate-700">
-                            <div className="p-2 text-center">{doc.custom_consultant || t('common.not_specified')}</div>
-                            <div className="p-2 text-center">{doc.custom_owner || t('common.not_specified')}</div>
-                            <div className="p-2 text-center">{doc.custom_contractor || t('common.not_specified')}</div>
+                            <div className="p-2 text-center">{doc?.custom_consultant_name || t('common.not_specified')}</div>
+                            <div className="p-2 text-center">{doc?.custom_owner_name || t('common.not_specified')}</div>
+                            <div className="p-2 text-center">{doc?.custom_contractor_name || t('common.not_specified')}</div>
                         </div>
 
                         {/* Project Details Grid */}
@@ -793,8 +794,8 @@ export default function DocumentDetailsPage() {
                             <div className="bg-slate-50 p-2 border-b border-slate-200 font-bold text-slate-900 uppercase text-xs tracking-wider">
                                 {t('documents.work_description')}:
                             </div>
-                            <div className="p-4 min-h-[160px] text-sm font-medium text-slate-700 whitespace-pre-line">
-                                {doc.description}
+                            <div className="p-4 min-h-[160px]">
+                                <RichTextDisplay content={doc.description} />
                             </div>
                         </div>
 
@@ -965,24 +966,38 @@ export default function DocumentDetailsPage() {
                         </div>
                     </div>
 
-                    {/* Reverse Submittals */}
-                    {doc.re_submittals && doc.re_submittals.length > 0 && (
-                        <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
-                            <h3 className="text-lg font-black text-indigo-900 mb-4">{t('documents.reverse_submittals')}</h3>
-                            <div className="space-y-3">
-                                {doc.re_submittals.map((submittal, i) => (
-                                    <a
-                                        key={i}
-                                        href={`/documents/${submittal.name}`}
-                                        className="block p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition-colors"
-                                    >
-                                        {i + 1}- {submittal.name}
-                                        <div className="text-[10px] text-slate-400 font-normal mt-1">{formatDate(submittal.creation)}</div>
-                                    </a>
-                                ))}
+                    {/* Reverse Submittals (Returned Requests) */}
+                    {(() => {
+                        const previous = doc.previous_submittal_document;
+                        const reSubmittals = doc.re_submittals || [];
+                        const allSubmittals = [...reSubmittals];
+                        if (previous) {
+                            allSubmittals.push(previous);
+                        }
+
+                        // Sort by creation date descending (newest first)
+                        allSubmittals.sort((a, b) => new Date(b.creation) - new Date(a.creation));
+
+                        if (allSubmittals.length === 0) return null;
+
+                        return (
+                            <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-6">
+                                <h3 className="text-lg font-black text-indigo-900 mb-4">{t('documents.reverse_submittals')}</h3>
+                                <div className="space-y-3">
+                                    {allSubmittals.map((submittal, i) => (
+                                        <a
+                                            key={i}
+                                            href={`/documents/${submittal.name}`}
+                                            className="block p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition-colors"
+                                        >
+                                            {i + 1}- {submittal.name}
+                                            <div className="text-[10px] text-slate-400 font-normal mt-1">{formatDate(submittal.creation)}</div>
+                                        </a>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        );
+                    })()}
 
 
                     {/* History */}

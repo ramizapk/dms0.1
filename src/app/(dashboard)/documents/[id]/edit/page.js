@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/provider';
 import api from '@/lib/api';
 import PageHeader from '@/components/ui/PageHeader';
+import RichTextEditor from '@/components/ui/RichTextEditor';
 import {
     FileEdit,
     Save,
@@ -28,6 +29,17 @@ export default function EditDocumentPage() {
     const [submitting, setSubmitting] = useState(false);
     const [loading, setLoading] = useState(true);
     const [loadingOptions, setLoadingOptions] = useState(true);
+
+    // Refs to avoid stale closures and infinite loops
+    const routerRef = useRef(router);
+    const showToastRef = useRef(showToast);
+    const userRef = useRef(user);
+    const initialFetchDone = useRef(false);
+
+    // Keep refs updated
+    routerRef.current = router;
+    showToastRef.current = showToast;
+    userRef.current = user;
 
     const steps = [
         { label: t('documents.steps.step1') || 'Document Details' },
@@ -62,7 +74,7 @@ export default function EditDocumentPage() {
     const [originalDoc, setOriginalDoc] = useState(null);
     const [errors, setErrors] = useState({});
 
-    // Fetch Options and Document Data
+    // Fetch Options and Document Data - only depends on params.id and user.userId
     useEffect(() => {
         async function fetchData() {
             try {
@@ -84,12 +96,12 @@ export default function EditDocumentPage() {
                     setOriginalDoc(data);
 
                     // Permission Check
-                    const isOwner = user?.userId === data.owner;
+                    const isOwner = userRef.current?.userId === data.owner;
                     const isDraft = data.workflow_state === 'Draft – Contractor Specialist Engineer';
 
                     if (!isOwner || !isDraft) {
-                        showToast("You do not have permission to edit this document", "error");
-                        router.push('/documents');
+                        showToastRef.current("You do not have permission to edit this document", "error");
+                        routerRef.current.push('/documents');
                         return;
                     }
 
@@ -107,33 +119,63 @@ export default function EditDocumentPage() {
                         room: data.room || '',
                         description: data.description || '',
                     });
+
+                    // 3. Fetch project parties to get disciplines
+                    if (data.project_name) {
+                        try {
+                            const partiesRes = await api.getProjectParties(data.project_name);
+                            if (partiesRes.message && partiesRes.message.success) {
+                                const { discipline_options_for_user } = partiesRes.message.data;
+                                if (discipline_options_for_user && Array.isArray(discipline_options_for_user)) {
+                                    setDisciplines(discipline_options_for_user);
+                                }
+                            }
+                        } catch (err) {
+                            console.error('Failed to fetch disciplines', err);
+                        }
+                    }
+
+                    // Mark initial fetch as done so the parties effect
+                    // knows to skip re-fetching for the initial project_name
+                    initialFetchDone.current = true;
                 } else {
                     throw new Error("Failed to load document");
                 }
             } catch (err) {
                 console.error('Failed to fetch data', err);
-                showToast(t('common.error'), 'error');
-                router.push('/documents');
+                showToastRef.current(t('common.error'), 'error');
+                routerRef.current.push('/documents');
             } finally {
                 setLoading(false);
                 setLoadingOptions(false);
             }
         }
 
-        if (user) {
+        if (user?.userId) {
             fetchData();
         }
-    }, [params.id, user, router]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [params.id, user?.userId]);
 
     // Handle Project Selection to fetch parties
-    useEffect(() => {
-        async function fetchParties() {
-            // Only fetch if project name changes and it's different from the loaded document (or if user manually changes it)
-            // But since project_name is pre-filled, this runs on mount.
-            // We want to ensure we have the latest parties or respect what's in the document?
-            // The document fields for parties are usually snapshots. But in this form they are read-only and derived from Project.
-            // So we should update them based on the project.
+    // Only fetches when the user MANUALLY changes the project (not on initial load)
+    const prevProjectRef = useRef(null);
 
+    useEffect(() => {
+        // Skip if initial data hasn't loaded yet
+        if (!initialFetchDone.current) return;
+
+        // Skip the first run after initial fetch (the project was already set with correct parties)
+        if (prevProjectRef.current === null) {
+            prevProjectRef.current = formData.project_name;
+            return;
+        }
+
+        // Only fetch if project actually changed
+        if (prevProjectRef.current === formData.project_name) return;
+        prevProjectRef.current = formData.project_name;
+
+        async function fetchParties() {
             if (!formData.project_name) {
                 setFormData(prev => ({
                     ...prev,
@@ -143,9 +185,6 @@ export default function EditDocumentPage() {
                 }));
                 return;
             }
-
-            // Optimization: If the project name matches the original doc, we could skip fetching IF we trust the doc's cached parties. 
-            // But fetching ensures we get the latest configuration from the project.
 
             try {
                 const res = await api.getProjectParties(formData.project_name);
@@ -165,8 +204,6 @@ export default function EditDocumentPage() {
                         custom_consultant: custom_consultant || '',
                         custom_owner: custom_owner || '',
                         custom_contractor: custom_contractor || '',
-                        // For edit, we might want to preserve existing values if API returns null?
-                        // But user said "filled directly and non-editable", implying API is source of truth.
                         building_name: custom_building || prev.building_name || '',
                         floor: custom_floor || prev.floor || '',
                         room: custom_room || prev.room || ''
@@ -181,9 +218,7 @@ export default function EditDocumentPage() {
             }
         }
 
-        if (formData.project_name) {
-            fetchParties();
-        }
+        fetchParties();
     }, [formData.project_name]);
 
     const handleChange = (e) => {
@@ -361,17 +396,18 @@ export default function EditDocumentPage() {
                             {renderInput('room', 'text', false, true)}
                         </div>
 
-                        <div className="md:col-span-2 space-y-2">
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                                {t('documents.fields.description')}
-                            </label>
-                            <textarea
-                                name="description"
+                        <div className="md:col-span-2">
+                            <RichTextEditor
                                 value={formData.description}
-                                onChange={handleChange}
-                                rows={4}
-                                className="w-full rounded-xl border-slate-200 bg-slate-50/50 p-3 text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:border-indigo-500 focus:ring-indigo-500/10 transition-all resize-none"
+                                onChange={(val) => {
+                                    setFormData(prev => ({ ...prev, description: val }));
+                                    if (errors.description) {
+                                        setErrors(prev => ({ ...prev, description: null }));
+                                    }
+                                }}
+                                label={t('documents.fields.description')}
                                 placeholder={t('documents.placeholders.enter_description')}
+                                error={errors.description}
                             />
                         </div>
                     </div>

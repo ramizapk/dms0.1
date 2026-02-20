@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/provider';
 import api from '@/lib/api';
 import PageHeader from '@/components/ui/PageHeader';
+import RichTextEditor from '@/components/ui/RichTextEditor';
 import {
     FilePlus,
     Save,
@@ -295,18 +296,18 @@ export default function AddDocumentPage() {
                             {renderInput('room', 'text', false, true)}
                         </div>
 
-                        <div className="md:col-span-2 space-y-2">
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                                {t('documents.fields.description')}
-                            </label>
-                            <textarea
-                                name="description"
+                        <div className="md:col-span-2">
+                            <RichTextEditor
                                 value={formData.description}
-                                onChange={handleChange}
-                                validation="required"
-                                rows={4}
-                                className="w-full rounded-xl border-slate-200 bg-slate-50/50 p-3 text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:border-indigo-500 focus:ring-indigo-500/10 transition-all resize-none"
+                                onChange={(val) => {
+                                    setFormData(prev => ({ ...prev, description: val }));
+                                    if (errors.description) {
+                                        setErrors(prev => ({ ...prev, description: null }));
+                                    }
+                                }}
+                                label={t('documents.fields.description')}
                                 placeholder={t('documents.placeholders.enter_description')}
+                                error={errors.description}
                             />
                         </div>
                     </div>
