@@ -54,6 +54,11 @@ export default function AddDocumentPage() {
     };
 
     const [formData, setFormData] = useState(initialFormState);
+    const [partyDisplayNames, setPartyDisplayNames] = useState({
+        custom_consultant: '',
+        custom_owner: '',
+        custom_contractor: ''
+    });
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
@@ -96,6 +101,9 @@ export default function AddDocumentPage() {
                         custom_consultant,
                         custom_owner,
                         custom_contractor,
+                        custom_consultant_name,
+                        custom_owner_name,
+                        custom_contractor_name,
                         custom_room,
                         custom_building,
                         custom_floor,
@@ -111,6 +119,12 @@ export default function AddDocumentPage() {
                         floor: custom_floor || '',
                         room: custom_room || ''
                     }));
+
+                    setPartyDisplayNames({
+                        custom_consultant: custom_consultant_name || custom_consultant || '',
+                        custom_owner: custom_owner_name || custom_owner || '',
+                        custom_contractor: custom_contractor_name || custom_contractor || ''
+                    });
 
                     if (discipline_options_for_user && Array.isArray(discipline_options_for_user)) {
                         setDisciplines(discipline_options_for_user);
@@ -164,6 +178,9 @@ export default function AddDocumentPage() {
 
     // Helper to render input
     const renderInput = (name, type = 'text', required = false, readOnly = false) => {
+        const isPartyField = ['custom_consultant', 'custom_owner', 'custom_contractor'].includes(name);
+        const displayValue = isPartyField ? (partyDisplayNames[name] || formData[name]) : formData[name];
+
         return (
             <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">
@@ -172,7 +189,7 @@ export default function AddDocumentPage() {
                 <input
                     type={type}
                     name={name}
-                    value={formData[name]}
+                    value={displayValue}
                     onChange={handleChange}
                     required={required}
                     readOnly={readOnly}

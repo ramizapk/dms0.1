@@ -990,7 +990,7 @@ export default function DocumentDetailsPage() {
                                             href={`/documents/${submittal.name}`}
                                             className="block p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition-colors"
                                         >
-                                            {i + 1}- {submittal.name}
+                                            {submittal.name}
                                             <div className="text-[10px] text-slate-400 font-normal mt-1">{formatDate(submittal.creation)}</div>
                                         </a>
                                     ))}

@@ -71,6 +71,11 @@ export default function EditDocumentPage() {
     };
 
     const [formData, setFormData] = useState(initialFormState);
+    const [partyDisplayNames, setPartyDisplayNames] = useState({
+        custom_consultant: '',
+        custom_owner: '',
+        custom_contractor: ''
+    });
     const [originalDoc, setOriginalDoc] = useState(null);
     const [errors, setErrors] = useState({});
 
@@ -118,6 +123,12 @@ export default function EditDocumentPage() {
                         floor: data.floor || '',
                         room: data.room || '',
                         description: data.description || '',
+                    });
+
+                    setPartyDisplayNames({
+                        custom_consultant: data.custom_consultant_name || data.custom_consultant || '',
+                        custom_owner: data.custom_owner_name || data.custom_owner || '',
+                        custom_contractor: data.custom_contractor_name || data.custom_contractor || ''
                     });
 
                     // 3. Fetch project parties to get disciplines
@@ -193,6 +204,9 @@ export default function EditDocumentPage() {
                         custom_consultant,
                         custom_owner,
                         custom_contractor,
+                        custom_consultant_name,
+                        custom_owner_name,
+                        custom_contractor_name,
                         custom_room,
                         custom_building,
                         custom_floor,
@@ -208,6 +222,12 @@ export default function EditDocumentPage() {
                         floor: custom_floor || prev.floor || '',
                         room: custom_room || prev.room || ''
                     }));
+
+                    setPartyDisplayNames({
+                        custom_consultant: custom_consultant_name || custom_consultant || '',
+                        custom_owner: custom_owner_name || custom_owner || '',
+                        custom_contractor: custom_contractor_name || custom_contractor || ''
+                    });
 
                     if (discipline_options_for_user && Array.isArray(discipline_options_for_user)) {
                         setDisciplines(discipline_options_for_user);
@@ -256,6 +276,9 @@ export default function EditDocumentPage() {
 
     // Helper to render input
     const renderInput = (name, type = 'text', required = false, readOnly = false) => {
+        const isPartyField = ['custom_consultant', 'custom_owner', 'custom_contractor'].includes(name);
+        const displayValue = isPartyField ? (partyDisplayNames[name] || formData[name]) : formData[name];
+
         return (
             <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">
@@ -264,7 +287,7 @@ export default function EditDocumentPage() {
                 <input
                     type={type}
                     name={name}
-                    value={formData[name]}
+                    value={displayValue}
                     onChange={handleChange}
                     required={required}
                     readOnly={readOnly}
@@ -375,7 +398,7 @@ export default function EditDocumentPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {renderSelect('project_name', projects, loadingOptions, true, 'select_project')}
+                        {renderSelect('project_name', projects, true, true, 'select_project')}
 
                         {/* Auto-filled Parties */}
                         {renderInput('custom_consultant', 'text', false, true)}

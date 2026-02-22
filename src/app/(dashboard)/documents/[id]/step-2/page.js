@@ -7,7 +7,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import Stepper from '@/components/ui/Stepper';
 import FileUpload from '@/components/ui/FileUpload';
 import { motion } from 'framer-motion';
-import { CheckCircle, ArrowRight } from 'lucide-react';
+import { CheckCircle, ArrowRight, SkipForward } from 'lucide-react';
 
 export default function DocumentStep2Page({ params }) {
     const { t, isRTL } = useI18n();
@@ -22,6 +22,10 @@ export default function DocumentStep2Page({ params }) {
 
     const handleUploadComplete = () => {
         setIsComplete(true);
+    };
+
+    const handleSkip = () => {
+        router.push('/documents');
     };
 
     return (
@@ -57,6 +61,16 @@ export default function DocumentStep2Page({ params }) {
                                 onAllUploadsComplete={handleUploadComplete}
                                 multiple={true}
                             />
+
+                            <div className="flex justify-center pt-8 border-t border-slate-100 mt-8">
+                                <button
+                                    onClick={handleSkip}
+                                    className="text-sm font-bold text-slate-400 hover:text-slate-600 flex items-center gap-2 transition-colors"
+                                >
+                                    {t('common.skip') || 'Skip'}
+                                    <SkipForward className="w-4 h-4" />
+                                </button>
+                            </div>
                         </>
                     ) : (
                         <motion.div

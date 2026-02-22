@@ -382,6 +382,7 @@
         "total_records": "Total Records",
         "not_specified": "Not Specified",
         "select": "Select...",
+        "skip": "Skip",
         "skip_finish": "Skip & Finish",
         "back_to_list": "Back to List"
     },

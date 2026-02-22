@@ -387,6 +387,7 @@
     "total_records": "إجمالي السجلات",
     "not_specified": "غير محدد",
     "select": "اختر...",
+    "skip": "تخطي",
     "skip_finish": "تخطي وإنهاء",
     "back_to_list": "العودة للقائمة"
   },

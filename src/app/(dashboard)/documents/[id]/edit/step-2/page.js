@@ -67,7 +67,7 @@ export default function EditDocumentStep2Page({ params }) {
                                     onClick={handleFinish}
                                     className="text-sm font-bold text-slate-400 hover:text-slate-600 flex items-center gap-2 transition-colors"
                                 >
-                                    {t('common.skip_finish') || 'Skip & Finish'}
+                                    {t('common.skip') || 'Skip'}
                                     <SkipForward className="w-4 h-4" />
                                 </button>
                             </div>
