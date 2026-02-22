@@ -15,6 +15,8 @@ import {
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
 import ImageUpload from '@/components/ui/ImageUpload';
+import PermissionGate from '@/components/auth/PermissionGate';
+import WorkspaceGuard from '@/components/auth/WorkspaceGuard';
 
 export default function EditUserPage({ params }) {
     // Unwrap params using React.use()
@@ -222,96 +224,122 @@ export default function EditUserPage({ params }) {
     }
 
     return (
-        <div className="space-y-12 pb-20">
-            {/* Header */}
-            <div className="relative mb-12">
-                <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-screen h-96 bg-gradient-to-b from-indigo-50/20 to-transparent pointer-events-none" />
-                <PageHeader
-                    title={t('users.edit_title') || "Edit User"} // Fallback title
-                    subtitle={t('users.edit_description') || "Update user details"} // Fallback subtitle
-                />
-            </div>
-
-            <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.6 }}
-                className="max-w-4xl mx-auto"
-            >
-                <form onSubmit={handleSubmit} className="premium-card p-8 sm:p-12 space-y-8">
-                    <div className="flex items-center gap-4 pb-6 border-b border-slate-100 mb-8">
-                        <div className="h-12 w-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600">
-                            <UserCog className="h-6 w-6" />
+        <WorkspaceGuard workspace="إدارة المستخدمين">
+            <PermissionGate
+                resource="User"
+                action="write"
+                fallback={
+                    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
+                        <div className="h-24 w-24 bg-rose-50 rounded-full flex items-center justify-center mb-6">
+                            <svg className="h-10 w-10 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
                         </div>
-                        <div>
-                            <h3 className="text-xl font-black text-slate-900">{t('users.edit_title') || "Edit User"}</h3>
-                            <p className="text-sm text-slate-500 font-medium">{t('users.edit_description') || "Update user details"}</p>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {renderInput('first_name', 'text', true)}
-                        {renderInput('middle_name', 'text')}
-                        {renderInput('last_name', 'text', true)}
-
-                        {renderInput('email', 'email', true, null, true)} {/* Read Only */}
-                        {renderInput('mobile_no', 'tel', false, 'mobile')}
-                        {renderSelect('party', parties, false, null, true)} {/* Read Only */}
-                        {renderSelect('user_category', userCategories, false)}
-
-                        {renderSelect('role_profile_name', roleProfiles, loadingOptions, 'role_profile')}
-                        {renderSelect('department', departments, loadingOptions)}
-                        {renderSelect('designation', designations, loadingOptions)}
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 border-t border-slate-100">
-                        <ImageUpload
-                            label={t('users.fields.user_image')}
-                            value={formData.user_image}
-                            onChange={(url) => setFormData(prev => ({ ...prev, user_image: url }))}
-                            onRemove={() => setFormData(prev => ({ ...prev, user_image: '' }))}
-                        />
-                        <ImageUpload
-                            label={t('users.fields.digital_signature')}
-                            value={formData.digital_signature}
-                            onChange={(url) => setFormData(prev => ({ ...prev, digital_signature: url }))}
-                            onRemove={() => setFormData(prev => ({ ...prev, digital_signature: '' }))}
-                        />
-                        <ImageUpload
-                            label={t('users.fields.digital_stamp')}
-                            value={formData.digital_stamp}
-                            onChange={(url) => setFormData(prev => ({ ...prev, digital_stamp: url }))}
-                            onRemove={() => setFormData(prev => ({ ...prev, digital_stamp: '' }))}
-                        />
-                    </div>
-
-                    <div className="pt-8 flex items-center justify-end gap-4 border-t border-slate-100 mt-8">
+                        <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+                        <p className="text-slate-500 max-w-md mx-auto mb-8">
+                            You do not have permission to edit this user. Please contact your administrator.
+                        </p>
                         <Link
-                            href="/users"
-                            className="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-all"
+                            href="/dashboard"
+                            className="px-6 py-2 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors"
                         >
-                            {t('common.cancel')}
+                            Return to Dashboard
                         </Link>
-                        <button
-                            type="submit"
-                            disabled={submitting}
-                            className="flex items-center gap-2 px-8 py-3 rounded-xl bg-indigo-600 text-white text-sm font-bold shadow-lg shadow-indigo-500/30 hover:bg-indigo-500 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-70 disabled:pointer-events-none"
-                        >
-                            {submitting ? (
-                                <>
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                    Saving...
-                                </>
-                            ) : (
-                                <>
-                                    <Save className="h-4 w-4" />
-                                    {t('common.confirm')}
-                                </>
-                            )}
-                        </button>
                     </div>
-                </form>
-            </motion.div>
-        </div>
+                }
+            >
+                <div className="space-y-12 pb-20">
+                    {/* Header */}
+                    <div className="relative mb-12">
+                        <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-screen h-96 bg-gradient-to-b from-indigo-50/20 to-transparent pointer-events-none" />
+                        <PageHeader
+                            title={t('users.edit_title') || "Edit User"} // Fallback title
+                            subtitle={t('users.edit_description') || "Update user details"} // Fallback subtitle
+                        />
+                    </div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 40 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2, duration: 0.6 }}
+                        className="max-w-4xl mx-auto"
+                    >
+                        <form onSubmit={handleSubmit} className="premium-card p-8 sm:p-12 space-y-8">
+                            <div className="flex items-center gap-4 pb-6 border-b border-slate-100 mb-8">
+                                <div className="h-12 w-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                    <UserCog className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-black text-slate-900">{t('users.edit_title') || "Edit User"}</h3>
+                                    <p className="text-sm text-slate-500 font-medium">{t('users.edit_description') || "Update user details"}</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {renderInput('first_name', 'text', true)}
+                                {renderInput('middle_name', 'text')}
+                                {renderInput('last_name', 'text', true)}
+
+                                {renderInput('email', 'email', true, null, true)} {/* Read Only */}
+                                {renderInput('mobile_no', 'tel', false, 'mobile')}
+                                {renderSelect('party', parties, false, null, true)} {/* Read Only */}
+                                {renderSelect('user_category', userCategories, false)}
+
+                                {renderSelect('role_profile_name', roleProfiles, loadingOptions, 'role_profile')}
+                                {renderSelect('department', departments, loadingOptions)}
+                                {renderSelect('designation', designations, loadingOptions)}
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 border-t border-slate-100">
+                                <ImageUpload
+                                    label={t('users.fields.user_image')}
+                                    value={formData.user_image}
+                                    onChange={(url) => setFormData(prev => ({ ...prev, user_image: url }))}
+                                    onRemove={() => setFormData(prev => ({ ...prev, user_image: '' }))}
+                                />
+                                <ImageUpload
+                                    label={t('users.fields.digital_signature')}
+                                    value={formData.digital_signature}
+                                    onChange={(url) => setFormData(prev => ({ ...prev, digital_signature: url }))}
+                                    onRemove={() => setFormData(prev => ({ ...prev, digital_signature: '' }))}
+                                />
+                                <ImageUpload
+                                    label={t('users.fields.digital_stamp')}
+                                    value={formData.digital_stamp}
+                                    onChange={(url) => setFormData(prev => ({ ...prev, digital_stamp: url }))}
+                                    onRemove={() => setFormData(prev => ({ ...prev, digital_stamp: '' }))}
+                                />
+                            </div>
+
+                            <div className="pt-8 flex items-center justify-end gap-4 border-t border-slate-100 mt-8">
+                                <Link
+                                    href="/users"
+                                    className="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-all"
+                                >
+                                    {t('common.cancel')}
+                                </Link>
+                                <button
+                                    type="submit"
+                                    disabled={submitting}
+                                    className="flex items-center gap-2 px-8 py-3 rounded-xl bg-indigo-600 text-white text-sm font-bold shadow-lg shadow-indigo-500/30 hover:bg-indigo-500 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-70 disabled:pointer-events-none"
+                                >
+                                    {submitting ? (
+                                        <>
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            Saving...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Save className="h-4 w-4" />
+                                            {t('common.confirm')}
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+                    </motion.div>
+                </div>
+            </PermissionGate>
+        </WorkspaceGuard>
     );
 }

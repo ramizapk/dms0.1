@@ -51,7 +51,7 @@ export default function DashboardPage() {
             try {
                 setTodoLoading(true);
                 const response = await api.getTodoList();
-                setTodoData(response.message?.data || []);
+                setTodoData(response.message?.docs || []);
             } catch (err) {
                 console.error("Failed to fetch To-Do list", err);
             } finally {
@@ -141,25 +141,29 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 flex-1">
-                        <Link
-                            href="/documents"
-                            className="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-indigo-50 hover:border-indigo-100 hover:-translate-y-1 transition-all group h-full"
-                        >
-                            <div className="h-10 w-10 rounded-xl bg-white text-indigo-600 flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform">
-                                <FileText className="h-5 w-5" />
-                            </div>
-                            <span className="text-xs font-bold text-slate-700 group-hover:text-indigo-700 text-center">{t('dashboard.action_submittals')}</span>
-                        </Link>
+                        <PermissionGate resource="Masar Document" action="read">
+                            <Link
+                                href="/documents"
+                                className="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-indigo-50 hover:border-indigo-100 hover:-translate-y-1 transition-all group h-full"
+                            >
+                                <div className="h-10 w-10 rounded-xl bg-white text-indigo-600 flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform">
+                                    <FileText className="h-5 w-5" />
+                                </div>
+                                <span className="text-xs font-bold text-slate-700 group-hover:text-indigo-700 text-center">{t('dashboard.action_submittals')}</span>
+                            </Link>
+                        </PermissionGate>
 
-                        <Link
-                            href="/documents/add"
-                            className="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-emerald-50 hover:border-emerald-100 hover:-translate-y-1 transition-all group h-full"
-                        >
-                            <div className="h-10 w-10 rounded-xl bg-white text-emerald-600 flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform">
-                                <ArrowUpRight className="h-5 w-5" />
-                            </div>
-                            <span className="text-xs font-bold text-slate-700 group-hover:text-emerald-700 text-center">{t('dashboard.action_new_submittal')}</span>
-                        </Link>
+                        <PermissionGate resource="Masar Document" action="create">
+                            <Link
+                                href="/documents/add"
+                                className="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-emerald-50 hover:border-emerald-100 hover:-translate-y-1 transition-all group h-full"
+                            >
+                                <div className="h-10 w-10 rounded-xl bg-white text-emerald-600 flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform">
+                                    <ArrowUpRight className="h-5 w-5" />
+                                </div>
+                                <span className="text-xs font-bold text-slate-700 group-hover:text-emerald-700 text-center">{t('dashboard.action_new_submittal')}</span>
+                            </Link>
+                        </PermissionGate>
 
                         <Link
                             href="/tasks"
@@ -173,15 +177,17 @@ export default function DashboardPage() {
 
 
                         {hasAccess('projects') && (
-                            <Link
-                                href="/projects"
-                                className="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-violet-50 hover:border-violet-100 hover:-translate-y-1 transition-all group h-full"
-                            >
-                                <div className="h-10 w-10 rounded-xl bg-white text-violet-600 flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform">
-                                    <FolderKanban className="h-5 w-5" />
-                                </div>
-                                <span className="text-xs font-bold text-slate-700 group-hover:text-violet-700 text-center">{t('dashboard.action_projects')}</span>
-                            </Link>
+                            <PermissionGate resource="Project" action="read">
+                                <Link
+                                    href="/projects"
+                                    className="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-violet-50 hover:border-violet-100 hover:-translate-y-1 transition-all group h-full"
+                                >
+                                    <div className="h-10 w-10 rounded-xl bg-white text-violet-600 flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform">
+                                        <FolderKanban className="h-5 w-5" />
+                                    </div>
+                                    <span className="text-xs font-bold text-slate-700 group-hover:text-violet-700 text-center">{t('dashboard.action_projects')}</span>
+                                </Link>
+                            </PermissionGate>
                         )}
                     </div>
                 </div>
@@ -217,51 +223,55 @@ export default function DashboardPage() {
                                 ))}
                             </div>
                         ) : todoData?.length > 0 ? (
-                            <table className="w-full text-left text-sm">
+                            <table className="w-full text-left rtl:text-right text-sm">
                                 <thead className="bg-white text-slate-500 font-bold text-[10px] uppercase tracking-wider sticky top-0 z-10 shadow-sm">
                                     <tr>
                                         <th className="px-4 py-3 bg-slate-50 text-left ltr:text-left rtl:text-right">{t('documents.task') || 'Task'}</th>
-                                        <th className="px-4 py-3 bg-slate-50 text-right ltr:text-right rtl:text-left">{t('documents.date')}</th>
-                                        <th className="px-4 py-3 bg-slate-50 text-right">{t('common.actions')}</th>
+                                        <th className="px-4 py-3 bg-slate-50 text-center">{t('documents.action') || 'Action'}</th>
+                                        <th className="px-4 py-3 bg-slate-50 text-center">{t('common.actions') || 'Actions'}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
                                     {todoData.map((doc) => (
                                         <tr key={doc.name} className="hover:bg-slate-50 transition-colors group">
-                                            <td className="px-4 py-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="h-10 w-10 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                                            <td className="px-4 py-4 w-full">
+                                                <div className="flex items-start gap-4 h-full">
+                                                    <div className="h-10 w-10 shrink-0 rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
                                                         {doc.created_by_image ? (
                                                             <img src={`https://app.dms.salasah.sa${doc.created_by_image}`} alt={doc.created_by_name} className="h-full w-full object-cover" />
                                                         ) : (
-                                                            <div className="h-full w-full flex items-center justify-center text-slate-400 font-bold text-xs">
-                                                                {doc.created_by_name?.charAt(0) || 'U'}
+                                                            <div className="h-full w-full flex items-center justify-center text-slate-400 font-bold text-sm">
+                                                                {doc.creator_name ? doc.creator_name.charAt(0) : doc.created_by_name ? doc.created_by_name.charAt(0) : 'U'}
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <div className="min-w-0">
-                                                        <div className="font-bold text-slate-900 text-sm group-hover:text-indigo-600 transition-colors truncate mb-0.5">{doc.name}</div>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">{doc.discipline}</span>
-                                                            <span className="h-1 w-1 rounded-full bg-slate-300"></span>
-                                                            <span className="text-[10px] font-medium text-slate-400 truncate max-w-[100px]">{doc.document_type}</span>
+                                                    <div className="flex flex-col gap-2 min-w-0">
+                                                        <div className="font-bold text-slate-900 text-sm tracking-tight break-words">{doc.name}</div>
+                                                        <div className="flex flex-wrap items-center gap-2">
+                                                            <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider border whitespace-nowrap ${doc.submittal_kind === 'reverse' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                                                                {doc.submittal_kind || doc.discipline}
+                                                            </span>
+                                                            <span className="text-[10px] font-bold text-slate-400 whitespace-nowrap">
+                                                                {doc.creation ? new Date(doc.creation).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US') : '-'}
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-4 text-slate-500 text-xs font-bold whitespace-nowrap">
-                                                <div className="flex flex-col items-end">
-                                                    <span className="text-slate-900">{new Date(doc.creation).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US')}</span>
-                                                    <span className="text-[10px] text-slate-400 font-medium">{new Date(doc.creation).toLocaleTimeString(isRTL ? 'ar-SA' : 'en-US', { hour: '2-digit', minute: '2-digit' })}</span>
-                                                </div>
+                                            <td className="px-4 py-4 align-top text-center">
+                                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tight break-words">
+                                                    {doc.next_workflow_action || '-'}
+                                                </span>
                                             </td>
-                                            <td className="px-4 py-4 text-right">
-                                                <Link
-                                                    href={`/documents/${doc.name}`}
-                                                    className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-slate-50 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition-all border border-slate-100"
-                                                >
-                                                    <Eye className="h-4 w-4" />
-                                                </Link>
+                                            <td className="px-4 py-4 align-top text-center">
+                                                <div className="flex items-center justify-center">
+                                                    <Link
+                                                        href={`/documents/${doc.name}`}
+                                                        className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-slate-50 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition-all border border-slate-100"
+                                                    >
+                                                        <Eye className="h-4 w-4" />
+                                                    </Link>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -345,8 +355,8 @@ export default function DashboardPage() {
                                                     <div className="flex flex-col gap-1">
                                                         <div className="font-bold text-slate-900 text-xs tracking-tight break-words">{doc.name}</div>
                                                         <div className="flex flex-wrap items-center gap-1.5">
-                                                            <span className={`px-1.5 py-0.5 rounded-[4px] text-[9px] uppercase font-bold tracking-wide border whitespace-nowrap ${doc.submittal_type === 'Re-Submittal' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
-                                                                {doc.submittal_type || doc.discipline}
+                                                            <span className={`px-1.5 py-0.5 rounded-[4px] text-[9px] uppercase font-bold tracking-wide border whitespace-nowrap ${doc.submittal_kind === 'reverse' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                                                                {doc.submittal_kind || doc.discipline}
                                                             </span>
                                                             <span className="text-[9px] font-bold text-slate-400 whitespace-nowrap">
                                                                 {doc.creation ? new Date(doc.creation).toLocaleString() : '-'}

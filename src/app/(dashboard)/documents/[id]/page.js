@@ -949,7 +949,7 @@ export default function DocumentDetailsPage() {
 
                                         <div className="flex flex-col">
                                             <div className={`text-xs font-bold transition-colors ${isCurrent ? 'text-indigo-700' : isCompleted ? 'text-slate-600' : 'text-slate-400'}`}>
-                                                {isRTL ? (state.name_ar || state.name) : state.name}
+                                                {isRTL ? (state.name_ar || state.name) : state.name_en}
                                             </div>
                                             {/* Try to find matching history timestamp */}
                                             {(() => {
