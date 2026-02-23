@@ -129,7 +129,7 @@ export default function Navbar({ isSidebarCollapsed, onToggleSidebar, onMobileMe
                         >
                             <div className="navbar__user-info">
                                 <p className="navbar__user-name">{user?.fullName || 'User'}</p>
-                                <p className="navbar__user-role">Administrator</p>
+                                <p className="navbar__user-role">{user?.userId}</p>
                             </div>
                             <div className="navbar__user-avatar relative overflow-hidden">
                                 {user?.userImage ? (

@@ -285,6 +285,9 @@ export const api = {
     getConsultantSpecialistEngineers: () =>
         apiRequest('api/method/dms.api.workflow.get_consultant_specialist_engineers'),
 
+    getUsersByDiscipline: (doctype, name) =>
+        apiRequest(`api/method/dms.api.workflow.get_users_by_discipline?doctype=${encodeURIComponent(doctype)}&name=${encodeURIComponent(name)}`),
+
     applyAction: (data) =>
         apiRequest('api/method/dms.api.workflow.apply_action', {
             method: 'POST',

@@ -139,9 +139,13 @@ export default function DocumentDetailsPage() {
             if (needsEngineer && consultantEngineers.length === 0) {
                 try {
                     setActionLoading(true);
-                    const res = await api.getConsultantSpecialistEngineers();
+                    const res = await api.getUsersByDiscipline('Masar Document', doc.name);
                     if (res.message && res.message.success) {
-                        setConsultantEngineers(res.message.data.users || []);
+                        const users = res.message.data.users || [];
+                        setConsultantEngineers(users);
+                        if (users.length > 0) {
+                            setSelectedEngineer(users[0].email);
+                        }
                     }
                 } catch (err) {
                     console.error("Failed to load engineers", err);
@@ -533,16 +537,15 @@ export default function DocumentDetailsPage() {
                                                         <select
                                                             value={selectedEngineer || ''}
                                                             onChange={(e) => setSelectedEngineer(e.target.value)}
-                                                            className="w-full p-3 pl-10 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none text-sm bg-white"
+                                                            className="w-full py-3 px-10 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none text-sm bg-white text-ellipsis overflow-hidden"
                                                         >
-                                                            <option value="">{t('common.select') || "Select..."}</option>
                                                             {consultantEngineers.map((eng) => (
                                                                 <option key={eng.email} value={eng.email}>
                                                                     {eng.full_name} ({eng.email})
                                                                 </option>
                                                             ))}
                                                         </select>
-                                                        <UserCircle className="absolute left-3 top-3.5 w-5 h-5 text-slate-400 pointer-events-none" />
+                                                        <UserCircle className="absolute right-4 rtl:left-4 rtl:right-auto top-3.5 w-5 h-5 text-slate-400 pointer-events-none" />
                                                     </div>
                                                 </div>
                                             )}
@@ -931,34 +934,63 @@ export default function DocumentDetailsPage() {
                             <div className="absolute left-3 top-2 bottom-4 w-0.5 bg-slate-200 rtl:right-3 rtl:left-auto" />
 
                             {workflowStates.map((state, idx) => {
-                                const isCompleted = idx < currentStateIndex;
-                                const isCurrent = idx === currentStateIndex;
-                                const isPending = idx > currentStateIndex;
+                                // Fallback logic for old docs without workflow_states_status
+                                const isFallbackCompleted = !doc.workflow_states_status && idx < currentStateIndex;
+                                const isFallbackCurrent = !doc.workflow_states_status && idx === currentStateIndex;
+
+                                // Find if this state exists in the document's actual steps
+                                const actualStep = doc.workflow_states_status?.steps?.find(s => s.state === state.name);
+
+                                const isCompleted = actualStep?.status === 'completed' || isFallbackCompleted;
+                                const isRejected = actualStep?.status === 'rejected_point';
+                                const isCurrent = doc.workflow_state === state.name || isFallbackCurrent;
+
+                                let dotClass = 'bg-white border-slate-200';
+                                if (isCompleted) {
+                                    dotClass = 'bg-indigo-600 border-indigo-600';
+                                } else if (isRejected) {
+                                    dotClass = 'bg-white border-rose-500 ring-4 ring-rose-50';
+                                } else if (isCurrent) {
+                                    if (doc.workflow_states_status?.is_rejected) {
+                                        dotClass = 'bg-white border-rose-500 ring-4 ring-rose-50';
+                                    } else {
+                                        dotClass = 'bg-white border-indigo-600 ring-4 ring-indigo-50';
+                                    }
+                                }
+
+                                let textClass = 'text-slate-400';
+                                if (isRejected || (isCurrent && doc.workflow_states_status?.is_rejected)) {
+                                    textClass = 'text-rose-600';
+                                } else if (isCurrent) {
+                                    textClass = 'text-indigo-700';
+                                } else if (isCompleted) {
+                                    textClass = 'text-slate-600';
+                                }
 
                                 return (
-                                    <div key={state.name} className="relative pl-10 rtl:pr-10 rtl:pl-0 py-3 first:pt-0 last:pb-0 group">
+                                    <div key={state.name || idx} className="relative pl-10 rtl:pr-10 rtl:pl-0 py-3 first:pt-0 last:pb-0 group">
                                         {/* Dot */}
-                                        <div className={`absolute left-0 rtl:right-0 rtl:left-auto top-4 w-6 h-6 rounded-full border-2 flex items-center justify-center z-10 transition-all
-                                             ${isCompleted ? 'bg-indigo-600 border-indigo-600' :
-                                                isCurrent ? 'bg-white border-indigo-600 ring-4 ring-indigo-50' :
-                                                    'bg-white border-slate-200'}
-                                         `}>
+                                        <div className={`absolute left-0 rtl:right-0 rtl:left-auto top-4 w-6 h-6 rounded-full border-2 flex items-center justify-center z-10 transition-all ${dotClass}`}>
                                             {isCompleted && <div className="w-2 h-2 rounded-full bg-white" />}
-                                            {isCurrent && <div className="w-2.5 h-2.5 rounded-full bg-indigo-600 animate-pulse" />}
+                                            {isRejected && <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />}
+                                            {isCurrent && !isRejected && <div className={`w-2.5 h-2.5 rounded-full ${doc.workflow_states_status?.is_rejected ? 'bg-rose-500' : 'bg-indigo-600'} animate-pulse`} />}
                                         </div>
 
                                         <div className="flex flex-col">
-                                            <div className={`text-xs font-bold transition-colors ${isCurrent ? 'text-indigo-700' : isCompleted ? 'text-slate-600' : 'text-slate-400'}`}>
-                                                {isRTL ? (state.name_ar || state.name) : state.name_en}
+                                            <div className={`text-xs font-bold transition-colors ${textClass}`}>
+                                                {isRTL ? (state.name_ar || state.name) : (state.name_en || state.name)}
                                             </div>
                                             {/* Try to find matching history timestamp */}
-                                            {(() => {
-                                                const historyItem = history.find(h => h.state === state.name || (isCompleted && idx === 0 && !h.state)); // Loose matching
-                                                //  For actual timestamp, we usually match action to state
-                                                return historyItem ? (
-                                                    <div className="text-[10px] font-medium text-slate-400 mt-0.5">{formatDate(historyItem.timestamp)}</div>
-                                                ) : null;
-                                            })()}
+                                            {actualStep?.timestamp ? (
+                                                <div className="text-[10px] font-medium text-slate-400 mt-0.5">{formatDate(actualStep.timestamp)}</div>
+                                            ) : (
+                                                (() => {
+                                                    const historyItem = history.find(h => h.state === state.name || (isCompleted && idx === 0 && !h.state));
+                                                    return historyItem ? (
+                                                        <div className="text-[10px] font-medium text-slate-400 mt-0.5">{formatDate(historyItem.timestamp)}</div>
+                                                    ) : null;
+                                                })()
+                                            )}
                                         </div>
                                     </div>
                                 )
