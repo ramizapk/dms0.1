@@ -8,7 +8,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
 import {
     Calendar, MapPin, Building, Building2, UserCircle, Briefcase, FileText,
-    ArrowLeft, Edit, Mail, Info, Clock, Layers, User, Home
+    ArrowLeft, Edit, Mail, Info, Clock, Layers, User, Home, Settings
 } from 'lucide-react';
 import Link from 'next/link';
 import PermissionGate from '@/components/auth/PermissionGate';
@@ -225,6 +225,48 @@ export default function ProjectDetailsPage() {
                                     )}
                                 </div>
                             </div>
+
+                            {/* Project Settings Table */}
+                            {project.project_numbering_settings && project.project_numbering_settings.length > 0 && (
+                                <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-8 flex flex-col gap-4">
+                                    <h3 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
+                                        <Settings className="h-5 w-5 text-indigo-500" />
+                                        {t('projects.project_settings') || 'إعدادات المشروع'}
+                                    </h3>
+                                    <div className="overflow-x-auto rounded-2xl border border-slate-100">
+                                        <table className="w-full text-sm text-start">
+                                            <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100">
+                                                <tr>
+                                                    <th className="px-4 py-3 text-center w-16">#</th>
+
+                                                    <th className="px-4 py-3">{t('projects.fields.document_type') || 'نوع المستند'}</th>
+                                                    <th className="px-4 py-3">{t('projects.fields.discipline') || 'التخصص'}</th>
+                                                    <th className="px-4 py-3 text-center">{t('projects.fields.start_number') || 'رقم البداية'}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100 text-slate-700">
+                                                {project.project_numbering_settings.map((setting, index) => (
+                                                    <tr key={setting.name || index} className="hover:bg-slate-50/50 transition-colors">
+                                                        <td className="px-4 py-3 text-center text-slate-400 font-medium">{index + 1}</td>
+
+                                                        <td className="px-4 py-3">
+                                                            <span className="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-medium border border-blue-100">
+                                                                {setting.document_type}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-4 py-3">
+                                                            <span className="inline-flex items-center px-2 py-1 rounded-md bg-purple-50 text-purple-700 text-xs font-medium border border-purple-100">
+                                                                {setting.discipline}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-4 py-3 text-center font-bold text-slate-700 bg-slate-50/50">{setting.start_number}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Right Column - Stakeholders */}

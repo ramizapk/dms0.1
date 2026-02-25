@@ -314,6 +314,7 @@
         "not_specified": "Not Specified",
         "create_project": "Create New Project",
         "stakeholders": "Project Team",
+        "project_settings": "Submittals Settings",
         "form_description": "Please provide the necessary details to create a new project record.",
         "manager": "Project Manager",
         "create_new_project": "Create New Project",
@@ -338,7 +339,10 @@
             "custom_room": "Room",
             "custom_description": "Description",
             "expected_start_date": "Expected Start Date",
-            "expected_end_date": "Expected End Date"
+            "expected_end_date": "Expected End Date",
+            "document_type": "Document Type",
+            "discipline": "Discipline",
+            "start_number": "Start Number"
         },
         "delete_project": "Delete Project",
         "delete_confirmation": "Are you sure you want to delete this project? This action cannot be undone.",
@@ -388,6 +392,7 @@
         "transparent_images_note": "Please ensure that signature and stamp images are transparent (PNG) for best results."
     },
     "common": {
+        "name": "Name",
         "loading": "Loading...",
         "processing": "Processing...",
         "saving": "Saving...",

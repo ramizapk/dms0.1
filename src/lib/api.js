@@ -280,6 +280,8 @@ export const api = {
             body: { name }
         }),
 
+    getDocumentTypesList: () => apiRequest('api/method/dms.api.document_types.list_document_types'),
+
     getDocumentTypes: () => apiRequest('api/resource/Masar Document Type'),
 
     createDocument: (data) =>

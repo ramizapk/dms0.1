@@ -19,7 +19,10 @@ import {
     FileText,
     Building2,
     Layers,
-    Home
+    Home,
+    Settings,
+    Plus,
+    Trash2
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/context/ToastContext';
@@ -40,6 +43,14 @@ export default function EditProjectPage() {
     const [contractors, setContractors] = useState([]);
     const [owners, setOwners] = useState([]);
     const [consultants, setConsultants] = useState([]);
+    const [documentTypes, setDocumentTypes] = useState([]);
+
+    const disciplines = [
+        { value: 'Mechanical', label: 'Mechanical' },
+        { value: 'Civil', label: 'Civil' },
+        { value: 'Architectural', label: 'Architectural' },
+        { value: 'Electrical', label: 'Electrical' },
+    ];
 
     // Form State
     const initialFormState = {
@@ -57,10 +68,12 @@ export default function EditProjectPage() {
         custom_contractor: '',
         custom_description: '',
         expected_start_date: '',
-        expected_end_date: ''
+        expected_end_date: '',
+        project_numbering_settings: []
     };
 
     const [formData, setFormData] = useState(initialFormState);
+    const [originalSettingsLength, setOriginalSettingsLength] = useState(0);
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
@@ -72,16 +85,17 @@ export default function EditProjectPage() {
                     api.getProjectManagers(),
                     api.getContractors(),
                     api.getOwners(),
-                    api.getConsultants()
+                    api.getConsultants(),
+                    api.getDocumentTypesList()
                 ]);
 
-                const [projectManagersRes, contractorsRes, ownersRes, consultantsRes] = optionsResults;
+                const [projectManagersRes, contractorsRes, ownersRes, consultantsRes, docTypesRes] = optionsResults;
 
                 const processOptions = (result) => {
                     if (result.status === 'fulfilled' && result.value.message?.success && Array.isArray(result.value.message.data)) {
                         return result.value.message.data.map(item => ({
                             value: item.value,
-                            label: `${item.label || item.full_name} (${item.email || item.value})`
+                            label: `${item.label || item.full_name}`
                         }));
                     }
                     return [];
@@ -91,6 +105,13 @@ export default function EditProjectPage() {
                 setContractors(processOptions(contractorsRes));
                 setOwners(processOptions(ownersRes));
                 setConsultants(processOptions(consultantsRes));
+
+                if (docTypesRes.status === 'fulfilled' && docTypesRes.value?.message?.success) {
+                    setDocumentTypes(docTypesRes.value.message.data.map(dt => ({
+                        value: dt.name,
+                        label: dt.name
+                    })));
+                }
 
                 // Fetch project details
                 if (params.id) {
@@ -112,8 +133,10 @@ export default function EditProjectPage() {
                             custom_contractor: data.custom_contractor || '',
                             custom_description: data.custom_description || '',
                             expected_start_date: data.expected_start_date || '',
-                            expected_end_date: data.expected_end_date || ''
+                            expected_end_date: data.expected_end_date || '',
+                            project_numbering_settings: data.project_numbering_settings || []
                         });
+                        setOriginalSettingsLength(data.project_numbering_settings ? data.project_numbering_settings.length : 0);
                     }
                 }
             } catch (err) {
@@ -136,8 +159,67 @@ export default function EditProjectPage() {
         }
     };
 
+    const handleSettingChange = (index, field, value) => {
+        // Prevent editing original settings
+        if (index < originalSettingsLength) return;
+
+        setFormData(prev => {
+            const newSettings = [...prev.project_numbering_settings];
+            newSettings[index] = { ...newSettings[index], [field]: value };
+            return { ...prev, project_numbering_settings: newSettings };
+        });
+    };
+
+    const addSetting = () => {
+        setFormData(prev => ({
+            ...prev,
+            project_numbering_settings: [
+                ...prev.project_numbering_settings,
+                { document_type: '', discipline: '', start_number: 1 }
+            ]
+        }));
+    };
+
+    const removeSetting = (index) => {
+        // Prevent removing original settings
+        if (index < originalSettingsLength) return;
+
+        setFormData(prev => {
+            const newSettings = [...prev.project_numbering_settings];
+            newSettings.splice(index, 1);
+            return { ...prev, project_numbering_settings: newSettings };
+        });
+    };
+
+    const validateSettings = () => {
+        const settings = formData.project_numbering_settings;
+        const seen = new Set();
+        for (let i = 0; i < settings.length; i++) {
+            const row = settings[i];
+
+            // Only validate new rows for completeness
+            if (i >= originalSettingsLength) {
+                if (!row.document_type || !row.discipline || row.start_number === '' || row.start_number === null) {
+                    showToast(isRTL ? 'يرجى إكمال كافة حقول إعدادات الطلبات.' : 'Please complete all submittal settings fields.', 'error');
+                    return false;
+                }
+            }
+
+            // Ensure no duplicates overall
+            const key = `${row.document_type}-${row.discipline}`;
+            if (seen.has(key)) {
+                showToast(isRTL ? 'لا يمكن تكرار نفس النوع والتخصص في الإعدادات.' : 'Cannot duplicate the same Document Type and Discipline in settings.', 'error');
+                return false;
+            }
+            seen.add(key);
+        }
+        return true;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!validateSettings()) return;
+
         setSubmitting(true);
         setErrors({});
 
@@ -328,6 +410,115 @@ export default function EditProjectPage() {
                                         placeholder={t('projects.placeholders.enter_description')}
                                     />
                                 </div>
+                            </div>
+
+                            {/* Project Settings Section */}
+                            <div className="pt-6 border-t border-slate-100 mt-8">
+                                <div className="flex items-center justify-between mb-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-10 w-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                                            <Settings className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-bold text-slate-900">{t('projects.project_settings') || 'إعدادات الطلبات'}</h3>
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={addSetting}
+                                        className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors shadow-sm"
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                        {isRTL ? 'إضافة إعداد' : 'Add Setting'}
+                                    </button>
+                                </div>
+
+                                {formData.project_numbering_settings.length > 0 ? (
+                                    <div className="space-y-4">
+                                        {formData.project_numbering_settings.map((setting, index) => {
+                                            const isExistingRecord = index < originalSettingsLength;
+
+                                            // Handle case where documentType value is setting.document_type, but display label might be matching documentTypes list
+                                            // Make sure we select value properly if it's existing. If not found in documentTypes list (because API returns abbreviated value sometimes), this might need careful mapping.
+                                            // For now, setting mapping logic assumes the options match existing string.
+
+                                            return (
+                                                <div key={index} className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-start bg-slate-50/50 p-4 rounded-2xl border border-slate-100 relative group transition-all hover:border-indigo-100">
+                                                    <div className="sm:col-span-5 space-y-2">
+                                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">{t('projects.fields.document_type') || 'نوع المستند'}</label>
+                                                        <select
+                                                            value={setting.document_type}
+                                                            onChange={(e) => handleSettingChange(index, 'document_type', e.target.value)}
+                                                            required
+                                                            disabled={isExistingRecord}
+                                                            className={`w-full rounded-xl border-slate-200 bg-white p-3 text-sm font-bold text-slate-700 outline-none transition-all appearance-none ${isExistingRecord ? 'opacity-70 cursor-not-allowed bg-slate-100' : 'focus:ring-4 focus:border-indigo-500 focus:ring-indigo-500/10 cursor-pointer'}`}
+                                                        >
+                                                            <option value="">{t('common.select') || 'Select...'}</option>
+                                                            {/* If existing record and option not in list, add it temporarily so it renders correctly */}
+                                                            {isExistingRecord && !documentTypes.find(dt => dt.value === setting.document_type) && (
+                                                                <option value={setting.document_type}>{setting.document_type}</option>
+                                                            )}
+                                                            {documentTypes.map(dt => (
+                                                                <option key={dt.value} value={dt.value}>{dt.label}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                    <div className="sm:col-span-4 space-y-2">
+                                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">{t('projects.fields.discipline') || 'التخصص'}</label>
+                                                        <select
+                                                            value={setting.discipline}
+                                                            onChange={(e) => handleSettingChange(index, 'discipline', e.target.value)}
+                                                            required
+                                                            disabled={isExistingRecord}
+                                                            className={`w-full rounded-xl border-slate-200 bg-white p-3 text-sm font-bold text-slate-700 outline-none transition-all appearance-none ${isExistingRecord ? 'opacity-70 cursor-not-allowed bg-slate-100' : 'focus:ring-4 focus:border-indigo-500 focus:ring-indigo-500/10 cursor-pointer'}`}
+                                                        >
+                                                            <option value="">{t('common.select') || 'Select...'}</option>
+                                                            {/* If existing record and option not in list, add it temporarily so it renders correctly */}
+                                                            {isExistingRecord && !disciplines.find(d => d.value === setting.discipline) && (
+                                                                <option value={setting.discipline}>{setting.discipline}</option>
+                                                            )}
+                                                            {disciplines.map(d => (
+                                                                <option key={d.value} value={d.value}>{d.label}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                    <div className="sm:col-span-2 space-y-2">
+                                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">{t('projects.fields.start_number') || 'رقم البداية'}</label>
+                                                        <input
+                                                            type="number"
+                                                            value={setting.start_number}
+                                                            onChange={(e) => handleSettingChange(index, 'start_number', parseInt(e.target.value) || 0)}
+                                                            required
+                                                            disabled={isExistingRecord}
+                                                            min="1"
+                                                            className={`w-full rounded-xl border-slate-200 bg-white p-3 text-sm font-bold text-slate-700 outline-none transition-all ${isExistingRecord ? 'opacity-70 cursor-not-allowed bg-slate-100' : 'focus:ring-4 focus:border-indigo-500 focus:ring-indigo-500/10'}`}
+                                                        />
+                                                    </div>
+                                                    <div className="sm:col-span-1 flex items-end justify-end h-full pt-6">
+                                                        {!isExistingRecord ? (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => removeSetting(index)}
+                                                                className="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-colors shrink-0"
+                                                                title={t('common.delete')}
+                                                            >
+                                                                <Trash2 className="w-5 h-5" />
+                                                            </button>
+                                                        ) : (
+                                                            <div className="p-3 shrink-0 visible h-11 pointer-events-none"></div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-8 bg-slate-50 border border-slate-100 rounded-2xl border-dashed">
+                                        <p className="text-sm font-bold text-slate-400">
+                                            {isRTL ? 'لا توجد إعدادات مضافة. انقر على "إضافة إعداد" للبدء.' : 'No settings added. Click "Add Setting" to begin.'}
+                                        </p>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="pt-8 flex items-center justify-end gap-4 border-t border-slate-100 mt-8">

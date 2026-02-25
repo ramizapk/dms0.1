@@ -319,6 +319,7 @@
     "not_specified": "غير محدد",
     "create_project": "إنشاء مشروع جديد",
     "stakeholders": "فريق المشروع",
+    "project_settings": "إعدادات الطلبات",
     "form_description": "يرجى تقديم التفاصيل اللازمة لإنشاء سجل مشروع جديد.",
     "manager": "مدير المشروع",
     "create_new_project": "إنشاء مشروع جديد",
@@ -343,7 +344,10 @@
       "custom_room": "الغرفة",
       "custom_description": "الوصف",
       "expected_start_date": "تاريخ البدء المتوقع",
-      "expected_end_date": "تاريخ الانتهاء المتوقع"
+      "expected_end_date": "تاريخ الانتهاء المتوقع",
+      "document_type": "نوع المستند",
+      "discipline": "التخصص",
+      "start_number": "رقم البداية"
     },
     "delete_project": "حذف المشروع",
     "delete_confirmation": "هل أنت متأكد أنك تريد حذف هذا المشروع؟ هذا الإجراء لا يمكن التراجع عنه.",
@@ -393,6 +397,7 @@
     "transparent_images_note": "يرجى استخدام صور مفرغة الخلفية (PNG) للتوقيع والختم للحصول على أفضل نتيجة."
   },
   "common": {
+    "name": "الاسم",
     "loading": "جاري التحميل...",
     "processing": "جاري المعالجة...",
     "saving": "جاري الحفظ...",
