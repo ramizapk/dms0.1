@@ -112,7 +112,7 @@ export const api = {
         const fields = JSON.stringify([
             "name", "full_name", "email", "mobile_no", "department",
             "designation", "role_profile_name", "enabled", "user_type",
-            "creation", "owner", "user_image"
+            "creation", "owner", "user_image", "user_category"
         ]);
         const filters = JSON.stringify([["enabled", "=", "1"]]);
         return apiRequest(`api/resource/User?fields=${encodeURIComponent(fields)}&filters=${encodeURIComponent(filters)}`);
@@ -254,6 +254,31 @@ export const api = {
 
     getProjectParties: (projectName) =>
         apiRequest(`dms.api.documents.get_project_parties?project_name=${encodeURIComponent(projectName)}`),
+
+    // Project Parties Profile
+    getProjectPartyProfiles: (page = 1, pageSize = 20) =>
+        apiRequest(`api/method/dms.api.project_party_profile.list_party_profiles?page=${page}&page_size=${pageSize}`),
+
+    getProjectPartyProfile: (name) =>
+        apiRequest(`api/method/dms.api.project_party_profile.get_party_profile?name=${encodeURIComponent(name)}`),
+
+    createProjectPartyProfile: (data) =>
+        apiRequest('api/method/dms.api.project_party_profile.create_party_profile', {
+            method: 'POST',
+            body: data
+        }),
+
+    updateProjectPartyProfile: (data) =>
+        apiRequest('api/method/dms.api.project_party_profile.update_party_profile', {
+            method: 'POST',
+            body: data
+        }),
+
+    deleteProjectPartyProfile: (name) =>
+        apiRequest('api/method/dms.api.project_party_profile.delete_party_profile', {
+            method: 'POST',
+            body: { name }
+        }),
 
     getDocumentTypes: () => apiRequest('api/resource/Masar Document Type'),
 

@@ -78,7 +78,7 @@ export default function AddProjectPage() {
                         if (res.message && res.message.success && Array.isArray(res.message.data)) {
                             return res.message.data.map(item => ({
                                 value: item.value,
-                                label: `${item.label || item.full_name} (${item.email || item.value})`
+                                label: `${item.label || item.full_name} `
                             }));
                         }
                     } else {

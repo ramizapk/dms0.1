@@ -19,6 +19,7 @@
         "projects": "Projects",
         "users": "Users Management",
         "archive": "Archive",
+        "project-parties": "Project Parties",
         "settings": "Settings",
         "menu": "Navigation",
         "collapse": "Collapse",
@@ -260,6 +261,35 @@
             "select": "Select..."
         },
         "success_create": "User created successfully"
+    },
+    "project_parties": {
+        "title": "Project Parties",
+        "subtitle": "Manage and view project party profiles",
+        "add_party": "Add New Party",
+        "edit_party": "Edit Party",
+        "delete_party": "Delete Party",
+        "delete_confirmation": "Are you sure you want to delete this party? This action cannot be undone.",
+        "form_description": "Enter the details for the new party profile.",
+        "edit_form_description": "Update details for the party profile.",
+        "no_parties": "No parties found",
+        "name": "Party Name",
+        "type": "Party Type",
+        "logo": "Logo",
+        "company_logo": "Company Logo",
+        "fields": {
+            "party_name_arabic": "Arabic Name",
+            "party_name_english": "English Name",
+            "party_type": "Party Type",
+            "company_logo": "Company Logo"
+        },
+        "placeholders": {
+            "party_name_arabic": "Enter Arabic Name",
+            "party_name_english": "Enter English Name",
+            "select_party_type": "Select Party Type"
+        },
+        "success_create": "Party profile created successfully",
+        "success_update": "Party profile updated successfully",
+        "success_delete": "Party profile deleted successfully"
     },
     "projects": {
         "title": "Projects Management",

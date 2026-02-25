@@ -16,6 +16,8 @@ import {
     FileStack,
     X,
     CheckSquare,
+    Users,
+    Briefcase,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
@@ -27,6 +29,8 @@ const iconMap = {
     Settings,
     Archive,
     CheckSquare,
+    Users,
+    Briefcase,
 };
 
 export default function Sidebar({ isCollapsed, onToggle, isMobileOpen, onMobileClose }) {

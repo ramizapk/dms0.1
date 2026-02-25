@@ -20,6 +20,7 @@
     "users": "إدارة المستخدمين",
     "settings": "الإعدادات",
     "archive": "الارشيف",
+    "project-parties": "ملفات الأطراف",
     "menu": "التنقل",
     "collapse": "طي القائمة",
     "expand": "توسيع القائمة"
@@ -265,6 +266,35 @@
       "select": "اختر..."
     },
     "success_create": "تم إنشاء المستخدم بنجاح"
+  },
+  "project_parties": {
+    "title": "أطراف المشروع",
+    "subtitle": "إدارة وعرض ملفات أطراف المشروع",
+    "add_party": "إضافة جهة جديدة",
+    "edit_party": "تعديل الجهة",
+    "delete_party": "حذف الجهة",
+    "delete_confirmation": "هل أنت متأكد أنك تريد حذف هذه الجهة؟ هذا الإجراء لا يمكن التراجع عنه.",
+    "form_description": "أدخل تفاصيل الجهة",
+    "edit_form_description": "تحديث التفاصيل للجهة.",
+    "no_parties": "لا توجد جهات",
+    "name": "اسم الجهة",
+    "type": "نوع الجهة",
+    "logo": "الشعار",
+    "company_logo": "شعار الشركة",
+    "fields": {
+      "party_name_arabic": "الاسم بالعربية",
+      "party_name_english": "الاسم بالإنجليزية",
+      "party_type": "نوع الجهة",
+      "company_logo": "شعار الشركة"
+    },
+    "placeholders": {
+      "party_name_arabic": "أدخل الاسم بالعربية",
+      "party_name_english": "أدخل الاسم بالإنجليزية",
+      "select_party_type": "اختر نوع الجهة"
+    },
+    "success_create": "تم إنشاء ملف الجهة بنجاح",
+    "success_update": "تم التحديث بنجاح",
+    "success_delete": "تم حذف الجهة بنجاح"
   },
   "projects": {
     "title": "إدارة المشاريع",

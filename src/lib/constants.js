@@ -68,6 +68,7 @@ export const NAV_ITEMS = [
     { key: 'documents', path: '/documents', icon: 'FileText' },
     { key: 'projects', path: '/projects', icon: 'FolderKanban' },
     { key: 'users', path: '/users', icon: 'Users' },
+    { key: 'project-parties', path: '/project-parties', icon: 'Briefcase' },
     { key: 'archive', path: '/archive', icon: 'Archive' },
     { key: 'settings', path: '/settings', icon: 'Settings' },
 ];
@@ -79,5 +80,6 @@ export const WORKSPACE_MAPPING = {
     'المستندات': 'documents',
     'المشاريع': 'projects',
     'إدارة المستخدمين': 'users',
+    'ملفات-الأطراف': 'project-parties',
     'الأرشيف': 'archive',
 };

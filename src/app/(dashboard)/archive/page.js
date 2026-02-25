@@ -176,15 +176,14 @@ export default function ArchivePage() {
                     ))}
                 </div>
 
-                {/* Mini Stats Row */}
                 {
-                    data?.meta?.doc_types && (
+                    data?.meta?.by_type && (
                         <div className="flex items-center justify-center gap-3 overflow-x-auto flex-wrap pb-2 scrollbar-hide">
-                            {data.meta.doc_types.map((dt, idx) => (
+                            {data.meta.by_type.map((dt, idx) => (
                                 <MiniStatBadge
                                     key={`${dt.abbr}-${idx}`}
                                     abbr={dt.abbr}
-                                    count={data.stats?.by_type?.find(t => t.name === dt.name)?.count || 0} // Assuming backend provides counts, otherwise just badge
+                                    count={dt.count || 0}
                                     isActive={filters.document_type === dt.name}
                                     onClick={() => {
                                         setFilters({ ...filters, document_type: filters.document_type === dt.name ? '' : dt.name });
