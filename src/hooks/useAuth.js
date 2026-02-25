@@ -28,10 +28,10 @@ export function useAuth() {
             const data = await api.login(usr, pwd);
             if (data.message === 'Logged In') {
                 if (data.workspaces) {
-                    Cookies.set('workspaces', JSON.stringify(data.workspaces));
+                    Cookies.set('workspaces', JSON.stringify(data.workspaces), { expires: 7 });
                 }
                 if (data.permissions) {
-                    Cookies.set('permissions', JSON.stringify(data.permissions));
+                    Cookies.set('permissions', JSON.stringify(data.permissions), { expires: 7 });
                 }
                 router.push('/dashboard');
                 return true;
