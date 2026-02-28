@@ -238,6 +238,30 @@ export default function DocumentDetailsPage() {
         }).format(date);
     };
 
+    // Workflow state translation map (English -> Arabic)
+    const workflowStateTranslations = {
+        'Draft – Contractor Specialist Engineer': 'مسودة – مهندس المقاول المختص',
+        'Contractor Project Manager – Contractor': 'مدير مشروع المقاول – المقاول',
+        'Contractor Document Officer – After PM Approval – Contractor': 'مسؤول وثائق المقاول – بعد موافقة المدير – المقاول',
+        'Consultant Document Officer – Technical Routing – Consultant': 'مسؤول وثائق الاستشاري – التوجيه الفني – الاستشاري',
+        'Consultant Specialist Engineer – Consultant': 'المهندس المختص – الاستشاري',
+        'Consultant Project Manager – Consultant': 'مدير مشروع الاستشاري – الاستشاري',
+        'Owner': 'المالك',
+        'Final Approval': 'الموافقة النهائية',
+    };
+
+    // Helper to translate a workflow state string
+    const translateState = (stateStr) => {
+        if (!stateStr) return '';
+        if (isRTL) {
+            // Arabic: try exact match first, then partial match
+            if (workflowStateTranslations[stateStr]) return workflowStateTranslations[stateStr];
+            const key = Object.keys(workflowStateTranslations).find(k => stateStr.includes(k) || k.includes(stateStr));
+            return key ? workflowStateTranslations[key] : stateStr;
+        }
+        return stateStr; // English: return as-is
+    };
+
     // Helper to find specific history entries based on role or state keywords
     const findHistoryEntry = (keywords) => {
         // Search in reverse to find the latest action
@@ -249,16 +273,42 @@ export default function DocumentDetailsPage() {
     };
 
     // Derived Data from History
-    const preparedBy = history.length > 0 ? history[0] : null; // First entry typically
-    const submittedBy = findHistoryEntry(['Contractor Project Manager', 'Contractor Document Officer', 'PM']);
-    const inspectedBy = findHistoryEntry(['Consultant Specialist', 'Consultant Document Officer', 'Technical Routing']);
-    const approvedBy = findHistoryEntry(['Owner', 'Program Manager', 'Final Approval']);
+    const preparedBy = history.length > 0 ? history[0] : null; // First entry = document creator (Contractor Specialist)
+    const submittedBy = findHistoryEntry(['Contractor Project Manager', 'Contractor Document Officer']); // PM or DO step
+    const inspectedBy = findHistoryEntry(['Consultant Specialist', 'Consultant Document Officer', 'Technical Routing']); // Consultant review
+    // approvedBy: last entry whose next_state contains Consultant Project Manager (or Owner)
+    const approvedBy = history.length > 0
+        ? ([...history].reverse().find(h =>
+            (h.state && (h.state.includes('Consultant Project Manager') || h.state.includes('Owner') || h.state.includes('Final Approval'))) ||
+            (h.next_state && (h.next_state.includes('Consultant Project Manager') || h.next_state.includes('Owner') || h.next_state.includes('Final Approval')))
+        ) || history[history.length - 1]) // fallback to last entry
+        : null;
 
     // Filter comments from Consultants or Owners
     const consultantComments = history.filter(h =>
         (h.role_profile?.includes('Consultant') || h.state?.includes('Consultant') || h.role_profile?.includes('Owner')) &&
         h.notes
     );
+
+    // ── Approval Code ──────────────────────────────────────────────────────────
+    // Derived from the action taken at "Consultant Specialist Engineer" step
+    const consultantSpecialistStep = doc.workflow_states_status?.steps?.find(
+        s => s.state?.includes('Consultant Specialist Engineer')
+    );
+    const actionToApprovalCode = (action) => {
+        if (!action) return null;
+        const a = action.trim();
+        if (a === 'Approve') return 'A- Approved';
+        if (a === 'Approve With Notes') return 'B- Approved with Comments';
+        if (a === 'Revise & Resubmit') return 'C- Revised & Resubmit';
+        if (a === 'Reject') return 'D- Rejected';
+        if (a === 'For Information') return 'F- For Information';
+        return a; // fallback: show the action as-is
+    };
+    const computedApprovalCode = consultantSpecialistStep?.action_taken
+        ? actionToApprovalCode(consultantSpecialistStep.action_taken)
+        : (doc.approval_code || null);
+    // ───────────────────────────────────────────────────────────────────────────
 
 
     return (
@@ -791,106 +841,178 @@ export default function DocumentDetailsPage() {
                                 <RichTextDisplay content={doc.description} />
                             </div>
                         </div>
+                        {/* Signatures Outer Container: Top Section – Contractors Remarks */}
+                        <div className="border border-indigo-900 bg-white mb-0 flex flex-col">
+                            {/* Contractors Remarks Header */}
+                            <div className="p-2 border-b border-indigo-900 font-bold text-indigo-900 text-[10px]">
+                                {t('documents.contractors_remarks') || 'Contractors Remarks:'}
+                            </div>
 
-                        {/* Contractor Remarks / Signatures */}
-                        <div className="bg-indigo-50/50 p-2 border-b border-slate-200 font-bold text-indigo-900 uppercase text-xs tracking-wider border-t-2 border-indigo-900">
-                            {t('documents.contractors_remarks')}:
-                        </div>
-                        <div className="grid grid-cols-3 divide-x-2 divide-indigo-900 text-xs border-b-2 border-indigo-900 rtl:divide-x-reverse">
-                            <div className="p-4 space-y-4">
-                                <div className="uppercase font-bold text-slate-500 tracking-wider text-[10px]">{t('documents.prepared_by')}:</div>
-                                <div className="font-bold text-slate-900">{preparedBy ? (preparedBy.user_full_name || preparedBy.user) : '-'}</div>
-                                <div className="h-12 flex items-end">
-                                    {preparedBy?.digital_signature ? (
-                                        <img src={`https://app.dms.salasah.sa${preparedBy.digital_signature}`} alt="Signature" className="max-h-full max-w-full object-contain" />
-                                    ) : (
-                                        <div className="text-xs text-slate-400 italic">No Signature</div>
-                                    )}
+                            {/* Empty space for remarks */}
+                            <div className="min-h-[60px]"></div>
+
+                            {/* Top 3 Columns Row */}
+                            <div className="grid grid-cols-3 border-t border-indigo-900 min-h-[160px]">
+
+                                {/* Col 1: PREPARED BY */}
+                                <div className="p-3 flex flex-col border-r border-indigo-900 rtl:border-r-0 rtl:border-l rtl:border-indigo-900">
+                                    <div className="font-bold uppercase text-indigo-900 text-[10px] border-b border-slate-200 pb-1 mb-2">
+                                        {t('documents.prepared_by') || 'PREPARED BY'}:
+                                    </div>
+                                    <div className="text-slate-700 text-[10px] mb-2">
+                                        {preparedBy?.role_profile || ''}
+                                    </div>
+                                    {/* Signature Image */}
+                                    <div className="flex-1 flex items-center justify-center my-2">
+                                        {preparedBy?.digital_signature
+                                            ? <img src={`https://app.dms.salasah.sa${preparedBy.digital_signature}`} className="h-14 max-w-full object-contain" alt="Signature" />
+                                            : <div className="h-14" />
+                                        }
+                                    </div>
+                                    {/* Name at bottom */}
+                                    <div className="text-slate-900 font-bold text-[10px] text-center border-t border-slate-200 pt-1 mt-1">
+                                        {preparedBy ? (preparedBy.user_full_name || preparedBy.user) : ''}
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="p-4 space-y-4">
-                                <div className="uppercase font-bold text-slate-500 tracking-wider text-[10px]">{t('documents.sign_stamp')}:</div>
-                                <div className="h-16 flex items-center justify-center bg-white border border-slate-200 rounded p-1">
-                                    {submittedBy?.digital_stamp ? (
-                                        <img src={`https://app.dms.salasah.sa${submittedBy.digital_stamp}`} alt="Stamp" className="max-h-full max-w-full object-contain" />
-                                    ) : (
-                                        <div className="text-[9px] text-center text-slate-400 font-bold border-2 border-slate-200 border-dashed p-1 rounded">NO STAMP</div>
-                                    )}
+
+                                {/* Col 2: SIGN & STAMP */}
+                                <div className="p-3 flex flex-col border-r border-indigo-900 rtl:border-r-0 rtl:border-l rtl:border-indigo-900">
+                                    <div className="font-bold uppercase text-indigo-900 text-[10px] border-b border-slate-200 pb-1 mb-2 text-center">
+                                        {t('documents.sign_stamp') || 'SIGN & STAMP'}:
+                                    </div>
+                                    {/* Stamp Image centered */}
+                                    <div className="flex-1 flex items-center justify-center">
+                                        {preparedBy?.digital_stamp
+                                            ? <img src={`https://app.dms.salasah.sa${preparedBy.digital_stamp}`} className="h-20 max-w-full object-contain" alt="Stamp" />
+                                            : <div className="h-20" />
+                                        }
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="p-4 space-y-4">
-                                <div className="uppercase font-bold text-slate-500 tracking-wider text-[10px]">{t('documents.submitted_by')}:</div>
-                                <div className="font-bold text-slate-900">{submittedBy ? (submittedBy.user_full_name || submittedBy.user) : '-'}</div>
-                                <div className="h-12 flex items-end">
-                                    {submittedBy?.digital_signature ? (
-                                        <img src={`https://app.dms.salasah.sa${submittedBy.digital_signature}`} alt="Signature" className="max-h-full max-w-full object-contain" />
-                                    ) : (
-                                        <div className="text-xs text-slate-400 italic">No Signature</div>
-                                    )}
+
+                                {/* Col 3: SUBMITTED BY */}
+                                <div className="p-3 flex flex-col mb-0">
+                                    <div className="font-bold uppercase text-indigo-900 text-[10px] border-b border-slate-200 pb-1 mb-2">
+                                        {t('documents.submitted_by') || 'SUBMITTED BY'}:
+                                    </div>
+                                    <div className="text-slate-700 text-[10px] mb-2">
+                                        {submittedBy?.role_profile || ''}
+                                    </div>
+                                    {/* Signature Image */}
+                                    <div className="flex-1 flex items-center justify-center my-2">
+                                        {submittedBy?.digital_signature
+                                            ? <img src={`https://app.dms.salasah.sa${submittedBy.digital_signature}`} className="h-14 max-w-full object-contain" alt="Signature" />
+                                            : <div className="h-14" />
+                                        }
+                                    </div>
+                                    {/* Name at bottom */}
+                                    <div className="text-slate-900 font-bold text-[10px] text-center border-t border-slate-200 pt-1 mt-1">
+                                        {submittedBy ? (submittedBy.user_full_name || submittedBy.user) : ''}
+                                    </div>
                                 </div>
+
                             </div>
                         </div>
 
-                        {/* Consultant Comments */}
-                        <div className="border-b-2 border-indigo-900 min-h-[120px]">
-                            <div className="bg-slate-50 p-2 border-b border-slate-200 font-bold text-slate-900 uppercase text-xs tracking-wider">
-                                {t('documents.client_comments')}:
+                        {/* Signatures Outer Container: Bottom Section – Client/Consultants */}
+                        <div className="border  mt-0 border-indigo-900 bg-white flex flex-col">
+                            {/* Client Comments Header */}
+                            <div className="p-2 border-b border-indigo-900 font-bold uppercase text-indigo-900 text-[10px]">
+                                {t('documents.client_comments') || 'CLIENT/CONSULTANTS COMMENTS:'}
                             </div>
-                            <div className="p-4 space-y-3">
-                                {consultantComments.length > 0 ? (
-                                    consultantComments.map((comment, idx) => (
-                                        <div key={idx} className="text-xs border-b border-slate-100 last:border-0 pb-2 last:pb-0">
-                                            <div className="font-bold text-indigo-900 mb-1">{comment.user_full_name || comment.user} <span className="text-slate-400 font-normal">({formatDate(comment.timestamp)})</span>:</div>
-                                            <div className="text-slate-700">{comment.notes}</div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="text-slate-400 text-xs italic">{t('common.no_data') || "No comments"}</div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Approvals */}
-                        <div className="grid grid-cols-1 border-b-2 border-indigo-900">
-                            <div className="flex">
-                                <div className="w-[180px] p-2 bg-slate-50 border-r border-indigo-900 rtl:border-l rtl:border-r-0 flex items-center font-bold text-slate-900 text-xs uppercase">{t('documents.approval_codes')}:</div>
-                                <div className="p-2 flex-1 font-bold text-indigo-600 text-xs flex items-center">A-APPROVED</div>
-                            </div>
-                        </div>
-
-                        {/* Final Signatures */}
-                        <div className="grid grid-cols-2 divide-x-2 divide-indigo-900 text-xs rtl:divide-x-reverse">
-                            {/* Inspected By */}
-                            <div className="flex flex-col">
-                                <div className="p-2 bg-slate-50 border-b border-slate-200 font-bold text-slate-900 uppercase text-[10px] text-center">{t('documents.inspected_by')}</div>
-                                <div className="flex-1 min-h-[100px] flex flex-col items-center justify-center p-4 space-y-2">
-                                    <div className="font-bold text-slate-800">{inspectedBy ? (inspectedBy.user_full_name || inspectedBy.user) : '-'}</div>
-                                    {inspectedBy?.digital_signature ? (
-                                        <div className="h-16 relative flex items-center justify-center">
-                                            <img src={`https://app.dms.salasah.sa${inspectedBy.digital_signature}`} alt="Signature" className="max-h-full max-w-full object-contain" />
-                                        </div>
+                            <div className="min-h-[60px]"></div>
+                            {/* Comments Content – compact, only shown when there is content */}
+                            {(doc.notes || consultantComments.length > 0) && (
+                                <div className="p-2 text-slate-700 text-[10px] ">
+                                    {doc.notes ? (
+                                        <div className="whitespace-pre-wrap">{doc.notes}</div>
                                     ) : (
-                                        <div className="w-32 h-16 border border-slate-200 bg-white opacity-50 relative flex items-center justify-center">
-                                            <div className="text-slate-300 text-xs italic">Pending</div>
+                                        <div className="space-y-1">
+                                            {consultantComments.map((comment, idx) => (
+                                                <div key={idx}>
+                                                    <span className="font-bold text-indigo-900">{comment.user_full_name || comment.user}: </span>
+                                                    <span>{comment.notes}</span>
+                                                </div>
+                                            ))}
                                         </div>
                                     )}
                                 </div>
-                            </div>
-                            {/* Approved By */}
-                            <div className="flex flex-col">
-                                <div className="p-2 bg-slate-50 border-b border-slate-200 font-bold text-slate-900 uppercase text-[10px] text-center">{t('documents.approved_by')}</div>
-                                <div className="flex-1 min-h-[100px] flex flex-col items-center justify-center p-4 space-y-2">
-                                    <div className="font-bold text-slate-800">{approvedBy ? (approvedBy.user_full_name || approvedBy.user) : '-'}</div>
-                                    {approvedBy?.digital_signature ? (
-                                        <div className="h-16 relative flex items-center justify-center">
-                                            <img src={`https://app.dms.salasah.sa${approvedBy.digital_signature}`} alt="Signature" className="max-h-full max-w-full object-contain" />
-                                        </div>
-                                    ) : (
-                                        <div className="w-32 h-16 border border-slate-200 bg-white opacity-50 relative flex items-center justify-center">
-                                            <div className="text-slate-300 text-xs italic">Pending</div>
-                                        </div>
-                                    )}
+                            )}
+
+                            {/* Approval Codes Row */}
+                            <div className="flex flex-row border-t border-indigo-900 divide-x divide-indigo-900 rtl:divide-x-reverse font-bold text-[10px]">
+                                <div className="p-2 flex items-center justify-center text-slate-700 whitespace-nowrap">
+                                    {t('documents.approval_codes') || 'Approval Codes'}:
                                 </div>
+                                <div className={`flex-1 p-2 flex items-center justify-start px-4 uppercase tracking-wider font-black
+                                    ${computedApprovalCode?.startsWith('A') ? 'text-emerald-600' :
+                                        computedApprovalCode?.startsWith('B') ? 'text-blue-600' :
+                                            computedApprovalCode?.startsWith('C') ? 'text-amber-600' :
+                                                computedApprovalCode?.startsWith('D') ? 'text-rose-600' :
+                                                    computedApprovalCode?.startsWith('F') ? 'text-slate-600' :
+                                                        'text-indigo-600'}`}>
+                                    {computedApprovalCode || '-'}
+                                </div>
+                            </div>
+
+                            {/* Signatures Bottom Row */}
+                            <div className="grid grid-cols-3 border-t border-indigo-900 min-h-[160px]">
+
+                                {/* Col 1: INSPECTED BY */}
+                                <div className="p-3 flex flex-col border-r border-indigo-900 rtl:border-r-0 rtl:border-l rtl:border-indigo-900">
+                                    <div className="font-bold uppercase text-indigo-900 text-[10px] border-b border-slate-200 pb-1 mb-2">
+                                        {t('documents.inspected_by') || 'Inspected By'}:
+                                    </div>
+                                    <div className="text-slate-700 text-[10px] mb-2">
+                                        {inspectedBy?.role_profile || ''}
+                                    </div>
+                                    {/* Signature Image */}
+                                    <div className="flex-1 flex items-center justify-center my-2">
+                                        {inspectedBy?.digital_signature
+                                            ? <img src={`https://app.dms.salasah.sa${inspectedBy.digital_signature}`} className="h-14 max-w-full object-contain" alt="Signature" />
+                                            : <div className="h-14" />
+                                        }
+                                    </div>
+                                    {/* Name at bottom */}
+                                    <div className="text-slate-900 font-bold text-[10px] text-center border-t border-slate-200 pt-1 mt-1">
+                                        {inspectedBy ? (inspectedBy.user_full_name || inspectedBy.user) : ''}
+                                    </div>
+                                </div>
+
+                                {/* Col 2: SIGN & STAMP */}
+                                <div className="p-3 flex flex-col border-r border-indigo-900 rtl:border-r-0 rtl:border-l rtl:border-indigo-900">
+                                    <div className="font-bold uppercase text-indigo-900 text-[10px] border-b border-slate-200 pb-1 mb-2 text-center">
+                                        {t('documents.sign_stamp') || 'SIGN & STAMP'}:
+                                    </div>
+                                    {/* Stamp Image centered */}
+                                    <div className="flex-1 flex items-center justify-center">
+                                        {inspectedBy?.digital_stamp
+                                            ? <img src={`https://app.dms.salasah.sa${inspectedBy.digital_stamp}`} className="h-20 max-w-full object-contain" alt="Stamp" />
+                                            : <div className="h-20" />
+                                        }
+                                    </div>
+                                </div>
+
+                                {/* Col 3: APPROVED BY */}
+                                <div className="p-3 flex flex-col">
+                                    <div className="font-bold uppercase text-indigo-900 text-[10px] border-b border-slate-200 pb-1 mb-2">
+                                        {t('documents.approved_by') || 'Approved By'}:
+                                    </div>
+                                    <div className="text-slate-700 text-[10px] mb-2">
+                                        {approvedBy?.role_profile || ''}
+                                    </div>
+                                    {/* Signature Image */}
+                                    <div className="flex-1 flex items-center justify-center my-2">
+                                        {approvedBy?.digital_signature
+                                            ? <img src={`https://app.dms.salasah.sa${approvedBy.digital_signature}`} className="h-14 max-w-full object-contain" alt="Signature" />
+                                            : <div className="h-14" />
+                                        }
+                                    </div>
+                                    {/* Name at bottom */}
+                                    <div className="text-slate-900 font-bold text-[10px] text-center border-t border-slate-200 pt-1 mt-1">
+                                        {approvedBy ? (approvedBy.user_full_name || approvedBy.user) : ''}
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
 

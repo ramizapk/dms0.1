@@ -115,7 +115,7 @@ export const api = {
             "creation", "owner", "user_image", "user_category"
         ]);
         const filters = JSON.stringify([["enabled", "=", "1"]]);
-        return apiRequest(`api/resource/User?fields=${encodeURIComponent(fields)}&filters=${encodeURIComponent(filters)}`);
+        return apiRequest(`api/resource/User?fields=${encodeURIComponent(fields)}`);
     },
 
     getUser: (userId) => apiRequest(`api/resource/User/${encodeURIComponent(userId)}`),

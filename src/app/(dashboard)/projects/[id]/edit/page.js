@@ -370,17 +370,17 @@ export default function EditProjectPage() {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {renderInput('project_name', 'text', <Type className="w-4 h-4" />, true)}
-                                {renderInput('custom_project_name_en', 'text', <Type className="w-4 h-4" />, true)}
+                                {renderInput('custom_project_name_en', 'text', <Type className="w-4 h-4" />, false)}
 
                                 {renderInput('custom_project_code', 'text', <Hash className="w-4 h-4" />, true)}
-                                {renderInput('custom_location', 'text', <MapPin className="w-4 h-4" />, true)}
+                                {renderInput('custom_location', 'text', <MapPin className="w-4 h-4" />, false)}
 
                                 {renderInput('custom_building', 'text', <Building2 className="w-4 h-4" />)}
                                 {renderInput('custom_floor', 'text', <Layers className="w-4 h-4" />)}
                                 {renderInput('custom_room', 'text', <Home className="w-4 h-4" />)}
 
                                 <div className="md:col-span-2">
-                                    {renderSelect('custom_project_manager', projectManagers, loadingOptions, <UserCircle className="w-4 h-4" />, true, 'select_manager')}
+                                    {renderSelect('custom_project_manager', projectManagers, loadingOptions, <UserCircle className="w-4 h-4" />, false, 'select_manager')}
                                 </div>
 
                                 <div className="md:col-span-2">
@@ -393,8 +393,8 @@ export default function EditProjectPage() {
                                     {renderSelect('custom_contractor', contractors, loadingOptions, <UserCircle className="w-4 h-4" />, false, 'select_contractor')}
                                 </div>
 
-                                {renderInput('expected_start_date', 'date', <Calendar className="w-4 h-4" />, true)}
-                                {renderInput('expected_end_date', 'date', <Calendar className="w-4 h-4" />, true)}
+                                {renderInput('expected_start_date', 'date', <Calendar className="w-4 h-4" />, false)}
+                                {renderInput('expected_end_date', 'date', <Calendar className="w-4 h-4" />, false)}
 
                                 <div className="md:col-span-2 space-y-2">
                                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">

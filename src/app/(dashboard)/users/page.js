@@ -230,7 +230,7 @@ export default function UsersPage() {
                                                                 }`}>
                                                                 {user.enabled ? <UserCheck className="h-3.5 w-3.5" /> : <UserX className="h-3.5 w-3.5" />}
                                                                 <span className="text-[11px] font-bold">
-                                                                    {user.enabled ? t('users.enabled') : t('users.disabled')}
+                                                                    {user.enabled == 1 ? t('users.enabled') : t('users.disabled')}
                                                                 </span>
                                                             </div>
                                                         </td>
