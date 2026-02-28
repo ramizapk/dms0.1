@@ -45,7 +45,7 @@ export default function EditUserPage({ params }) {
         party: '',
         user_category: '',
         role_profile_name: '',
-        department: '',
+        // department: '',
         designation: '',
         language: 'ar',
         user_image: '',
@@ -176,7 +176,7 @@ export default function EditUserPage({ params }) {
         );
     };
 
-    const renderSelect = (name, options, loading, labelKey = null, disabled = false) => {
+    const renderSelect = (name, options, loading, labelKey = null, disabled = false, required = false) => {
         const key = labelKey || name;
         return (
             <div className="space-y-2">
@@ -189,7 +189,7 @@ export default function EditUserPage({ params }) {
                         value={formData[name]}
                         onChange={handleChange}
                         disabled={loading || disabled}
-                        required={true}
+                        required={required}
                         className={`w-full rounded-xl border-slate-200 bg-slate-50/50 p-3 text-sm font-bold text-slate-700 outline-none focus:ring-4 transition-all appearance-none 
                             ${disabled ? 'opacity-60 cursor-not-allowed' : ''}
                             ${errors[name]
@@ -286,7 +286,7 @@ export default function EditUserPage({ params }) {
                                 {renderSelect('user_category', userCategories, false)}
 
                                 {renderSelect('role_profile_name', roleProfiles, loadingOptions, 'role_profile')}
-                                {renderSelect('department', departments, loadingOptions)}
+                                {/* {renderSelect('department', departments, loadingOptions)} */}
                                 {renderSelect('designation', designations, loadingOptions)}
                             </div>
 

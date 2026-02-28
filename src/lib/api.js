@@ -127,7 +127,7 @@ export const api = {
         }),
 
     createUser: (userData) =>
-        apiRequest('api/resource/User', {
+        apiRequest('api/method/dms.api.users.create_user', {
             method: 'POST',
             body: userData
         }),

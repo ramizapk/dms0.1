@@ -45,7 +45,7 @@ export default function AddUserPage() {
         party: '',
         user_category: '',
         role_profile_name: '',
-        department: '',
+        // department: '',
         designation: '',
         language: 'ar',
         user_image: '',
@@ -153,7 +153,7 @@ export default function AddUserPage() {
     };
 
     const parties = ['Contractor', 'Consultant', 'Owner'];
-    const userCategories = ['Mechanical', 'Civil', 'Architectural', 'Electrical'];
+    const userCategories = ['Mechanical', 'Civil', 'Architectural', 'Electrical', 'Other'];
 
     // Helper to render input with error
     const renderInput = (name, type = 'text', required = false, labelKey = null) => {
@@ -210,7 +210,7 @@ export default function AddUserPage() {
         );
     };
 
-    const renderSelect = (name, options, loading, labelKey = null) => {
+    const renderSelect = (name, options, loading, labelKey = null, required = false) => {
         const key = labelKey || name;
         return (
             <div className="space-y-2">
@@ -223,7 +223,7 @@ export default function AddUserPage() {
                         value={formData[name]}
                         onChange={handleChange}
                         disabled={loading}
-                        required={true}
+                        required={required}
                         className={`w-full rounded-xl border-slate-200 bg-slate-50/50 p-3 text-sm font-bold text-slate-700 outline-none focus:ring-4 transition-all appearance-none ${errors[name]
                             ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10'
                             : 'focus:border-indigo-500 focus:ring-indigo-500/10'
@@ -311,7 +311,7 @@ export default function AddUserPage() {
                                 {renderSelect('user_category', userCategories, false)}
 
                                 {renderSelect('role_profile_name', roleProfiles, loadingOptions, 'role_profile')}
-                                {renderSelect('department', departments, loadingOptions)}
+                                {/*{renderSelect('department', departments, loadingOptions)}  */}
                                 {renderSelect('designation', designations, loadingOptions)}
                             </div>
 

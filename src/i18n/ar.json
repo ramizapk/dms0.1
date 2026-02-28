@@ -254,7 +254,7 @@
       "user_image": "صورة المستخدم",
       "digital_signature": "التوقيع الرقمي",
       "digital_stamp": "الختم الرقمي",
-      "user_category": "التصنيف"
+      "user_category": "القسم"
     },
     "placeholders": {
       "first_name": "أدخل الاسم الأول",
