@@ -265,7 +265,11 @@
       "password": "أدخل كلمة المرور",
       "select": "اختر..."
     },
-    "success_create": "تم إنشاء المستخدم بنجاح"
+    "success_create": "تم إنشاء المستخدم بنجاح",
+    "toggle_status": "تغيير الحالة",
+    "enable_user": "تفعيل المستخدم",
+    "disable_user": "إيقاف المستخدم",
+    "status_updated": "تم تحديث حالة المستخدم بنجاح"
   },
   "project_parties": {
     "title": "أطراف المشروع",

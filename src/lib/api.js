@@ -126,6 +126,12 @@ export const api = {
             body: data
         }),
 
+    toggleUserStatus: (userEmail, enabled) =>
+        apiRequest(`api/resource/User/${encodeURIComponent(userEmail)}`, {
+            method: 'PUT',
+            body: { enabled: enabled ? 1 : 0 }
+        }),
+
     createUser: (userData) =>
         apiRequest('api/method/dms.api.users.create_user', {
             method: 'POST',
@@ -133,7 +139,7 @@ export const api = {
         }),
 
     disableUser: (email) =>
-        apiRequest(`api/method/dms.api.users.disable_user?name=${encodeURIComponent(email)}`, {
+        apiRequest(`api/method/dms.api.users.delete_user?name=${encodeURIComponent(email)}`, {
             method: 'GET'
         }),
 

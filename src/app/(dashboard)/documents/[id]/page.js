@@ -182,19 +182,29 @@ export default function DocumentDetailsPage() {
                 setNotes('');
                 setSelectedEngineer(null);
 
-                // Update local state directly to reflect changes
-                const updatedData = res.message.data;
-                setDoc(prev => ({
-                    ...prev,
-                    workflow_state: updatedData.new_state,
-                    modified: updatedData.modified,
-                    modified_by: updatedData.modified_by
-                }));
+                // Re-fetch all document data to fully refresh the page
+                try {
+                    const docName = doc.name;
 
-                // Refresh history to show the new action
-                const historyRes = await api.getWorkflowHistory('Masar Document', doc.name);
-                if (historyRes.message && historyRes.message.success) {
-                    setHistory(historyRes.message.data.history || []);
+                    // Fetch updated document details (includes workflow_state, workflow_states_status, permissions, etc.)
+                    const docRes = await api.getDocument(docName);
+                    if (docRes.message && docRes.message.data) {
+                        setDoc(docRes.message.data);
+                    }
+
+                    // Refresh workflow history to show the new action
+                    const historyRes = await api.getWorkflowHistory('Masar Document', docName);
+                    if (historyRes.message && historyRes.message.success) {
+                        setHistory(historyRes.message.data.history || []);
+                    }
+
+                    // Refresh files list
+                    const filesRes = await api.getFiles(docName);
+                    if (filesRes.data) {
+                        setFiles(filesRes.data);
+                    }
+                } catch (refreshErr) {
+                    console.error('Failed to refresh document data after action', refreshErr);
                 }
             } else {
                 showToast(res.message?.message || 'Failed', 'error');

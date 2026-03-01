@@ -260,7 +260,11 @@
             "password": "Enter password",
             "select": "Select..."
         },
-        "success_create": "User created successfully"
+        "success_create": "User created successfully",
+        "toggle_status": "Toggle Status",
+        "enable_user": "Enable User",
+        "disable_user": "Disable User",
+        "status_updated": "User status updated successfully"
     },
     "project_parties": {
         "title": "Project Parties",

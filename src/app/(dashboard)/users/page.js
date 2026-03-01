@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/provider';
 import api from '@/lib/api';
@@ -34,6 +35,46 @@ export default function UsersPage() {
     const [userToDelete, setUserToDelete] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
+    // Status Toggle State
+    const [statusDropdown, setStatusDropdown] = useState(null); // holds user.name of open dropdown
+    const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
+    const [isTogglingStatus, setIsTogglingStatus] = useState(null); // holds user.name being updated
+
+    const openStatusDropdown = (e, user) => {
+        if (statusDropdown === user.name) {
+            setStatusDropdown(null);
+            return;
+        }
+        const rect = e.currentTarget.getBoundingClientRect();
+        setDropdownPos({
+            top: rect.bottom + window.scrollY + 4,
+            left: rect.left + window.scrollX,
+        });
+        setStatusDropdown(user.name);
+    };
+
+    const handleToggleStatus = async (user, newEnabled) => {
+        setStatusDropdown(null);
+        setIsTogglingStatus(user.name);
+        try {
+            const userEmail = user.email || user.name;
+            const enabledInt = newEnabled ? 1 : 0;
+            console.log('[toggleStatus] calling toggleUserStatus:', userEmail, enabledInt);
+            const res = await api.toggleUserStatus(userEmail, enabledInt);
+            console.log('[toggleStatus] response:', res);
+            // Update local state immediately on success
+            setUsers(prev => prev.map(u =>
+                u.name === user.name ? { ...u, enabled: enabledInt } : u
+            ));
+            showToast(t('users.status_updated'), 'success');
+        } catch (err) {
+            console.error('[toggleStatus] error:', err);
+            showToast(err.message || t('common.error'), 'error');
+        } finally {
+            setIsTogglingStatus(null);
+        }
+    };
+
     const handleDeleteClick = (user) => {
         setUserToDelete(user);
         setDeleteModalOpen(true);
@@ -48,8 +89,22 @@ export default function UsersPage() {
             const userEmail = userToDelete.email || userToDelete.name;
             const res = await api.disableUser(userEmail);
             if (res.message && res.message.success) {
-                showToast(isRTL ? (res.message.message_ar || 'تم حذف المستخدم بنجاح') : (res.message.message || 'User deleted successfully'), 'success');
+                showToast(
+                    isRTL
+                        ? (res.message.message_ar || 'تم حذف المستخدم بنجاح')
+                        : (res.message.message || 'User deleted successfully'),
+                    'success'
+                );
                 setUsers(users.filter(u => u.name !== userToDelete.name));
+                setDeleteModalOpen(false);
+                setUserToDelete(null);
+            } else {
+                // API returned success: false — show the error message from the response
+                const errObj = res.message?.error;
+                const errMsg = isRTL
+                    ? (errObj?.message_ar || res.message?.message_ar || 'فشل حذف المستخدم')
+                    : (errObj?.message || res.message?.message || 'Failed to delete user');
+                showToast(errMsg, 'error');
                 setDeleteModalOpen(false);
                 setUserToDelete(null);
             }
@@ -224,15 +279,30 @@ export default function UsersPage() {
                                                             <span className="text-sm font-bold text-slate-600">{user.user_category || '-'}</span>
                                                         </td>
                                                         <td>
-                                                            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border w-fit ${user.enabled
-                                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                                                : 'bg-slate-50 text-slate-500 border-slate-200'
-                                                                }`}>
-                                                                {user.enabled ? <UserCheck className="h-3.5 w-3.5" /> : <UserX className="h-3.5 w-3.5" />}
+                                                            {/* Status badge — triggers portal dropdown */}
+                                                            <button
+                                                                onClick={(e) => openStatusDropdown(e, user)}
+                                                                disabled={isTogglingStatus === user.name}
+                                                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border w-fit cursor-pointer transition-all hover:opacity-80 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed ${user.enabled
+                                                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                                        : 'bg-slate-50 text-slate-500 border-slate-200'
+                                                                    }`}
+                                                            >
+                                                                {isTogglingStatus === user.name ? (
+                                                                    <svg className="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                                                                    </svg>
+                                                                ) : user.enabled ? (
+                                                                    <UserCheck className="h-3.5 w-3.5" />
+                                                                ) : (
+                                                                    <UserX className="h-3.5 w-3.5" />
+                                                                )}
                                                                 <span className="text-[11px] font-bold">
                                                                     {user.enabled == 1 ? t('users.enabled') : t('users.disabled')}
                                                                 </span>
-                                                            </div>
+                                                                <svg className="h-3 w-3 ml-0.5 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" /></svg>
+                                                            </button>
                                                         </td>
                                                         <td>
                                                             <div className="flex items-center gap-2">
@@ -328,15 +398,30 @@ export default function UsersPage() {
 
                                                     <div className="flex justify-between items-center pt-2">
                                                         <span className="text-xs font-bold text-slate-400 uppercase">{t('users.status')}</span>
-                                                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border w-fit ${user.enabled
-                                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                                            : 'bg-slate-50 text-slate-500 border-slate-200'
-                                                            }`}>
-                                                            {user.enabled ? <UserCheck className="h-3.5 w-3.5" /> : <UserX className="h-3.5 w-3.5" />}
+                                                        {/* Status badge — triggers portal dropdown */}
+                                                        <button
+                                                            onClick={(e) => openStatusDropdown(e, user)}
+                                                            disabled={isTogglingStatus === user.name}
+                                                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border w-fit cursor-pointer transition-all hover:opacity-80 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed ${user.enabled
+                                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                                    : 'bg-slate-50 text-slate-500 border-slate-200'
+                                                                }`}
+                                                        >
+                                                            {isTogglingStatus === user.name ? (
+                                                                <svg className="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                                                                </svg>
+                                                            ) : user.enabled ? (
+                                                                <UserCheck className="h-3.5 w-3.5" />
+                                                            ) : (
+                                                                <UserX className="h-3.5 w-3.5" />
+                                                            )}
                                                             <span className="text-[11px] font-bold">
-                                                                {user.enabled ? t('users.enabled') : t('users.disabled')}
+                                                                {user.enabled == 1 ? t('users.enabled') : t('users.disabled')}
                                                             </span>
-                                                        </div>
+                                                            <svg className="h-3 w-3 ml-0.5 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" /></svg>
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </motion.div>
@@ -359,6 +444,55 @@ export default function UsersPage() {
                         message={t('users.delete_confirmation')}
                         isDeleting={isDeleting}
                     />
+
+                    {/* ── Portal Dropdown ─────────────────────────────────────
+                         Rendered directly in document.body to fully escape
+                         framer-motion's stacking context inside the table rows.
+                    ────────────────────────────────────────────────────────── */}
+                    {statusDropdown && typeof window !== 'undefined' && (() => {
+                        const activeUser = users.find(u => u.name === statusDropdown);
+                        if (!activeUser) return null;
+                        return createPortal(
+                            <>
+                                {/* Backdrop */}
+                                <div
+                                    className="fixed inset-0"
+                                    style={{ zIndex: 9998 }}
+                                    onClick={() => setStatusDropdown(null)}
+                                />
+                                {/* Dropdown Menu */}
+                                <div
+                                    style={{
+                                        position: 'absolute',
+                                        top: dropdownPos.top,
+                                        left: dropdownPos.left,
+                                        zIndex: 9999,
+                                        minWidth: '11rem',
+                                    }}
+                                    className="rounded-xl bg-white border border-slate-100 shadow-xl shadow-slate-200/60 overflow-hidden"
+                                >
+                                    <button
+                                        onClick={() => handleToggleStatus(activeUser, 1)}
+                                        disabled={activeUser.enabled == 1}
+                                        className="w-full flex items-center gap-2.5 px-4 py-3 text-sm font-bold text-emerald-700 hover:bg-emerald-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                    >
+                                        <UserCheck className="h-4 w-4" />
+                                        {t('users.enable_user')}
+                                    </button>
+                                    <div className="border-t border-slate-100" />
+                                    <button
+                                        onClick={() => handleToggleStatus(activeUser, 0)}
+                                        disabled={activeUser.enabled == 0}
+                                        className="w-full flex items-center gap-2.5 px-4 py-3 text-sm font-bold text-rose-600 hover:bg-rose-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                    >
+                                        <UserX className="h-4 w-4" />
+                                        {t('users.disable_user')}
+                                    </button>
+                                </div>
+                            </>,
+                            document.body
+                        );
+                    })()}
                 </div>
             </PermissionGate>
         </WorkspaceGuard>
