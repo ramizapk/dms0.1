@@ -763,9 +763,9 @@ export default function DocumentDetailsPage() {
                         </div>
 
                         {/* Logos Section */}
-                        <div className="grid grid-cols-3 divide-x-2 divide-indigo-900 border-b-2 border-indigo-900 rtl:divide-x-reverse">
+                        <div className="grid grid-cols-3 border-b-2 border-indigo-900">
                             {/* Consultant */}
-                            <div className="p-4 text-center space-y-2">
+                            <div className="p-4 text-center space-y-2 border-r-2 border-indigo-900 rtl:border-l-2 rtl:border-r-0">
                                 {/* Logo */}
                                 <div className="h-16 flex items-center justify-center">
                                     {doc.consultant_user_image_url ? (
@@ -777,7 +777,7 @@ export default function DocumentDetailsPage() {
                                 <div className="text-sm font-bold text-indigo-900 uppercase">{t('documents.custom_consultant')}</div>
                             </div>
                             {/* Owner */}
-                            <div className="p-4 text-center space-y-2">
+                            <div className="p-4 text-center space-y-2 border-r-2 border-indigo-900 rtl:border-l-2 rtl:border-r-0">
                                 <div className="h-16 flex items-center justify-center">
                                     {doc.owner_user_image_url ? (
                                         <img src={doc.owner_user_image_url} alt="Owner Logo" className="max-h-full max-w-full object-contain" />
@@ -801,9 +801,9 @@ export default function DocumentDetailsPage() {
                         </div>
 
                         {/* Company Names Row */}
-                        <div className="grid grid-cols-3 divide-x-2 divide-indigo-900 border-b-2 border-indigo-900 bg-slate-50 rtl:divide-x-reverse text-xs font-bold text-slate-700">
-                            <div className="p-2 text-center">{doc?.custom_consultant_name || t('common.not_specified')}</div>
-                            <div className="p-2 text-center">{doc?.custom_owner_name || t('common.not_specified')}</div>
+                        <div className="grid grid-cols-3 border-b-2 border-indigo-900 bg-slate-50 text-xs font-bold text-slate-700">
+                            <div className="p-2 text-center border-r-2 border-indigo-900 rtl:border-l-2 rtl:border-r-0">{doc?.custom_consultant_name || t('common.not_specified')}</div>
+                            <div className="p-2 text-center border-r-2 border-indigo-900 rtl:border-l-2 rtl:border-r-0">{doc?.custom_owner_name || t('common.not_specified')}</div>
                             <div className="p-2 text-center">{doc?.custom_contractor_name || t('common.not_specified')}</div>
                         </div>
 
