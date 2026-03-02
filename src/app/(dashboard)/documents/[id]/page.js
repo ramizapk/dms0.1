@@ -120,10 +120,10 @@ export default function DocumentDetailsPage() {
     // Apply Action
     const handleApplyAction = async (actionName, isConfirmed = false) => {
         const isConsultantRouting = doc.workflow_state === 'Consultant Document Officer – Technical Routing – Consultant';
-        const needsEngineer = isConsultantRouting && (actionName === 'Approve' || actionName === 'Approve With Notes');
+        const needsEngineer = isConsultantRouting && (actionName === 'Approve' || actionName === 'Approve With Notes' || actionName === 'B - Approved with Comments');
 
         // 1. Intercept for Engineer Selection (or just Notes)
-        if ((needsEngineer || actionName === 'Approve With Notes') && !isConfirmed) {
+        if ((needsEngineer || actionName === 'Approve With Notes' || actionName === 'B - Approved with Comments') && !isConfirmed) {
             setPendingAction(actionName);
             setNotes(''); // Clear previous notes
 
@@ -164,7 +164,7 @@ export default function DocumentDetailsPage() {
             };
 
             // Add notes if applicable (always send notes if it was 'Approve With Notes' action, even if empty string if allowed)
-            if (actionName === 'Approve With Notes') {
+            if (actionName === 'Approve With Notes' || actionName === 'B - Approved with Comments') {
                 payload.notes = notes;
             }
 
@@ -285,14 +285,15 @@ export default function DocumentDetailsPage() {
     // Derived Data from History
     const preparedBy = history.length > 0 ? history[0] : null; // First entry = document creator (Contractor Specialist)
     const submittedBy = findHistoryEntry(['Contractor Project Manager', 'Contractor Document Officer']); // PM or DO step
-    const inspectedBy = findHistoryEntry(['Consultant Specialist', 'Consultant Document Officer', 'Technical Routing']); // Consultant review
+    const inspectedBy = findHistoryEntry(['Consultant Specialist']); // Consultant review
     // approvedBy: last entry whose next_state contains Consultant Project Manager (or Owner)
-    const approvedBy = history.length > 0
-        ? ([...history].reverse().find(h =>
-            (h.state && (h.state.includes('Consultant Project Manager') || h.state.includes('Owner') || h.state.includes('Final Approval'))) ||
-            (h.next_state && (h.next_state.includes('Consultant Project Manager') || h.next_state.includes('Owner') || h.next_state.includes('Final Approval')))
-        ) || history[history.length - 1]) // fallback to last entry
-        : null;
+    const approvedBy = findHistoryEntry(['Consultant Project Manager', 'Owner']);
+    // const approvedBy = history.length > 0
+    //     ? ([...history].reverse().find(h =>
+    //         (h.state && (h.state.includes('Consultant Project Manager') || h.state.includes('Owner') || h.state.includes('Final Approval'))) ||
+    //         (h.next_state && (h.next_state.includes('Consultant Project Manager') || h.next_state.includes('Owner') || h.next_state.includes('Final Approval')))
+    //     ) || history[history.length - 1]) // fallback to last entry
+    //     : null;
 
     // Filter comments from Consultants or Owners
     const consultantComments = history.filter(h =>
@@ -301,10 +302,13 @@ export default function DocumentDetailsPage() {
     );
 
     // ── Approval Code ──────────────────────────────────────────────────────────
-    // Derived from the action taken at "Consultant Specialist Engineer" step
+    const consultantProjectManagerStep = doc.workflow_states_status?.steps?.find(
+        s => s.state?.includes('Consultant Project Manager')
+    );
     const consultantSpecialistStep = doc.workflow_states_status?.steps?.find(
         s => s.state?.includes('Consultant Specialist Engineer')
     );
+
     const actionToApprovalCode = (action) => {
         if (!action) return null;
         const a = action.trim();
@@ -315,9 +319,13 @@ export default function DocumentDetailsPage() {
         if (a === 'For Information') return 'F- For Information';
         return a; // fallback: show the action as-is
     };
-    const computedApprovalCode = consultantSpecialistStep?.action_taken
-        ? actionToApprovalCode(consultantSpecialistStep.action_taken)
-        : (doc.approval_code || null);
+
+    let computedApprovalCode = doc.approval_code || null;
+    if (consultantProjectManagerStep?.action_taken) {
+        computedApprovalCode = actionToApprovalCode(consultantProjectManagerStep.action_taken);
+    } else if (consultantSpecialistStep?.action_taken) {
+        computedApprovalCode = actionToApprovalCode(consultantSpecialistStep.action_taken);
+    }
     // ───────────────────────────────────────────────────────────────────────────
 
 
@@ -601,7 +609,7 @@ export default function DocumentDetailsPage() {
                                             )}
 
                                         {/* Notes Input - Only for 'Approve With Notes' (or others if we expand) */}
-                                        {pendingAction === 'Approve With Notes' && (
+                                        {(pendingAction === 'Approve With Notes' || pendingAction === 'B - Approved with Comments') && (
                                             <div className="mb-4">
                                                 <label className="block text-sm font-bold text-slate-700 mb-2">
                                                     {t('documents.notes') || "Notes"} <span className="text-red-500">*</span>
@@ -630,7 +638,7 @@ export default function DocumentDetailsPage() {
                                                 onClick={() => handleApplyAction(pendingAction, true)}
                                                 disabled={
                                                     actionLoading ||
-                                                    (pendingAction === 'Approve With Notes' && !notes.trim()) ||
+                                                    ((pendingAction === 'Approve With Notes' || pendingAction === 'B - Approved with Comments') && !notes.trim()) ||
                                                     (doc.workflow_state === 'Consultant Document Officer – Technical Routing – Consultant' &&
                                                         (pendingAction === 'Approve' || pendingAction === 'Approve With Notes') &&
                                                         !selectedEngineer)

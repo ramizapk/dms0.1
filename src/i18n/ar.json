@@ -209,6 +209,7 @@
     "confirm_action_details": "يرجى تأكيد تفاصيل الإجراء أدناه",
     "action_approve": "موافقة",
     "action_approve_with_notes": "موافقة مع ملاحظات",
+    "action_b_-_approved_with_comments": "B - موافقة مع ملاحظات",
     "notes": "الملاحظات",
     "enter_notes": "أدخل الملاحظات",
     "notes_placeholder": "يرجى تقديم ملاحظاتك أو تعليقاتك هنا...",

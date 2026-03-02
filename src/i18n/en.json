@@ -204,6 +204,7 @@
         "confirm_action_details": "Please confirm the action details below",
         "action_approve": "Approve",
         "action_approve_with_notes": "Approve with Notes",
+        "action_b_-_approved_with_comments": "B - Approved with Comments",
         "notes": "Notes",
         "enter_notes": "Enter Notes",
         "notes_placeholder": "Please provide your notes or remarks here...",
