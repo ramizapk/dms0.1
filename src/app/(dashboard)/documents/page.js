@@ -737,12 +737,12 @@ export default function DocumentsPage() {
                                                     <StatusBadge status={doc.status_category} />
                                                 </div>
 
-                                                <div className="flex justify-between items-center py-1">
+                                                {/* <div className="flex justify-between items-center py-1">
                                                     <span className="text-xs font-bold text-slate-400 uppercase">{t('documents.stage')}</span>
                                                     <span className="text-xs font-bold text-slate-500 italic text-right max-w-[50%]">
                                                         {doc.workflow_state || '-'}
                                                     </span>
-                                                </div>
+                                                </div> */}
 
                                                 <div className="flex justify-between items-center py-1">
                                                     <span className="text-xs font-bold text-slate-400 uppercase">{t('documents.action')}</span>
