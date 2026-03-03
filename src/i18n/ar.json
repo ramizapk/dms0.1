@@ -123,6 +123,9 @@
     "success_resubmit": "تمت إعادة التقديم بنجاح",
     "resubmit_title": "إعادة تقديم المستند",
     "resubmitting": "إعادة تقديم للمستند",
+    "delete_document": "حذف الطلب",
+    "delete_document_confirm": "هل أنت متأكد أنك تريد حذف هذا الطلب؟ هذا الإجراء لا يمكن التراجع عنه.",
+    "success_delete": "تم حذف الطلب بنجاح",
     "fields": {
       "project_name": "اسم المشروع",
       "custom_consultant": "الاستشاري",

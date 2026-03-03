@@ -14,13 +14,14 @@ import PageHeader from '@/components/ui/PageHeader';
 import {
     Search, Filter, ChevronLeft, ChevronRight,
     FileText, Download, MoreVertical, SlidersHorizontal, Plus, Edit, Eye, CheckCircle, XCircle, AlertCircle,
-    CheckCircle2, Send, Inbox, FileCheck, RefreshCw, Loader2
+    CheckCircle2, Send, Inbox, FileCheck, RefreshCw, Loader2, Trash2
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/context/ToastContext';
 import PermissionGate from '@/components/auth/PermissionGate';
 import WorkspaceGuard from '@/components/auth/WorkspaceGuard';
+import DeleteConfirmationModal from '@/components/ui/DeleteConfirmationModal';
 
 export default function DocumentsPage() {
     const { t, isRTL } = useI18n();
@@ -44,6 +45,36 @@ export default function DocumentsPage() {
     const [start, setStart] = useState(0);
     const [page, setPage] = useState(1);
     const pageLength = 20;
+
+    // Delete Modal State
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [documentToDelete, setDocumentToDelete] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const handleDeleteClick = (docName) => {
+        setDocumentToDelete(docName);
+        setDeleteModalOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!documentToDelete) return;
+
+        setIsDeleting(true);
+        try {
+            await api.deleteDocument(documentToDelete);
+            showToast(t('documents.success_delete') || 'Document deleted successfully', 'success');
+            fetchData(); // Refresh the list
+            setDeleteModalOpen(false);
+            setDocumentToDelete(null);
+        } catch (error) {
+            console.error("Error deleting document:", error);
+            showToast(error.message || t('common.error'), 'error');
+            setDeleteModalOpen(false);
+            setDocumentToDelete(null);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     const [projects, setProjects] = useState([]);
 
@@ -587,6 +618,17 @@ export default function DocumentsPage() {
                                                                     </Link>
                                                                 )}
                                                             </PermissionGate>
+
+                                                            {/* Delete Button */}
+                                                            <PermissionGate resource="Masar Document" action="delete">
+                                                                <button
+                                                                    onClick={() => handleDeleteClick(doc.name)}
+                                                                    className="h-8 w-8 rounded-lg bg-rose-50 text-rose-500 flex items-center justify-center hover:bg-rose-100 hover:text-rose-600 transition-all border border-rose-100"
+                                                                    title={t('documents.delete_document') || 'Delete'}
+                                                                >
+                                                                    <Trash2 className="h-3.5 w-3.5" />
+                                                                </button>
+                                                            </PermissionGate>
                                                         </div>
                                                     </td>
                                                 </motion.tr>
@@ -647,6 +689,17 @@ export default function DocumentsPage() {
                                                                 <RefreshCw className="h-4.5 w-4.5" />
                                                             </Link>
                                                         )}
+                                                    </PermissionGate>
+
+                                                    {/* Mobile Delete Button */}
+                                                    <PermissionGate resource="Masar Document" action="delete">
+                                                        <button
+                                                            onClick={() => handleDeleteClick(doc.name)}
+                                                            className="h-9 w-9 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all shadow-sm"
+                                                            title={t('documents.delete_document') || 'Delete'}
+                                                        >
+                                                            <Trash2 className="h-4.5 w-4.5" />
+                                                        </button>
                                                     </PermissionGate>
 
                                                     <Link
@@ -796,6 +849,15 @@ export default function DocumentsPage() {
                             </div>
                         )}
                     </div>
+
+                    <DeleteConfirmationModal
+                        isOpen={deleteModalOpen}
+                        onClose={() => setDeleteModalOpen(false)}
+                        onConfirm={handleConfirmDelete}
+                        title={t('documents.delete_document') || 'Delete Document'}
+                        message={t('documents.delete_document_confirm') || 'Are you sure you want to delete this document?'}
+                        isDeleting={isDeleting}
+                    />
                 </div>
             </PermissionGate>
         </WorkspaceGuard >

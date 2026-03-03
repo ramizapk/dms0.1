@@ -123,6 +123,9 @@
         "success_resubmit": "Re-submitted successfully",
         "resubmit_title": "Re-Submit Document",
         "resubmitting": "Re-submitting",
+        "delete_document": "Delete Submittal",
+        "delete_document_confirm": "Are you sure you want to delete this submittal? This action cannot be undone.",
+        "success_delete": "Submittal deleted successfully",
         "fields": {
             "project_name": "Project Name",
             "custom_consultant": "Consultant",

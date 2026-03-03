@@ -305,6 +305,12 @@ export const api = {
             body: data
         }),
 
+    deleteDocument: (name, force = 1) =>
+        apiRequest('api/method/dms.api.documents.delete_document', {
+            method: 'POST',
+            body: { name, force }
+        }),
+
     // Workflow
     getWorkflowHistory: (doctype, name) =>
         apiRequest(`api/method/dms.api.workflow.get_workflow_history?doctype=${encodeURIComponent(doctype)}&name=${encodeURIComponent(name)}`),
