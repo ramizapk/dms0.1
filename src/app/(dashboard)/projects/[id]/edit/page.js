@@ -73,7 +73,6 @@ export default function EditProjectPage() {
     };
 
     const [formData, setFormData] = useState(initialFormState);
-    const [originalSettingsLength, setOriginalSettingsLength] = useState(0);
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
@@ -136,7 +135,6 @@ export default function EditProjectPage() {
                             expected_end_date: data.expected_end_date || '',
                             project_numbering_settings: data.project_numbering_settings || []
                         });
-                        setOriginalSettingsLength(data.project_numbering_settings ? data.project_numbering_settings.length : 0);
                     }
                 }
             } catch (err) {
@@ -160,9 +158,6 @@ export default function EditProjectPage() {
     };
 
     const handleSettingChange = (index, field, value) => {
-        // Prevent editing original settings
-        if (index < originalSettingsLength) return;
-
         setFormData(prev => {
             const newSettings = [...prev.project_numbering_settings];
             newSettings[index] = { ...newSettings[index], [field]: value };
@@ -181,9 +176,6 @@ export default function EditProjectPage() {
     };
 
     const removeSetting = (index) => {
-        // Prevent removing original settings
-        if (index < originalSettingsLength) return;
-
         setFormData(prev => {
             const newSettings = [...prev.project_numbering_settings];
             newSettings.splice(index, 1);
@@ -197,12 +189,10 @@ export default function EditProjectPage() {
         for (let i = 0; i < settings.length; i++) {
             const row = settings[i];
 
-            // Only validate new rows for completeness
-            if (i >= originalSettingsLength) {
-                if (!row.document_type || !row.discipline || row.start_number === '' || row.start_number === null) {
-                    showToast(isRTL ? 'يرجى إكمال كافة حقول إعدادات الطلبات.' : 'Please complete all submittal settings fields.', 'error');
-                    return false;
-                }
+            // Validate rows for completeness
+            if (!row.document_type || !row.discipline || row.start_number === '' || row.start_number === null) {
+                showToast(isRTL ? 'يرجى إكمال كافة حقول إعدادات الطلبات.' : 'Please complete all submittal settings fields.', 'error');
+                return false;
             }
 
             // Ensure no duplicates overall
@@ -436,12 +426,6 @@ export default function EditProjectPage() {
                                 {formData.project_numbering_settings.length > 0 ? (
                                     <div className="space-y-4">
                                         {formData.project_numbering_settings.map((setting, index) => {
-                                            const isExistingRecord = index < originalSettingsLength;
-
-                                            // Handle case where documentType value is setting.document_type, but display label might be matching documentTypes list
-                                            // Make sure we select value properly if it's existing. If not found in documentTypes list (because API returns abbreviated value sometimes), this might need careful mapping.
-                                            // For now, setting mapping logic assumes the options match existing string.
-
                                             return (
                                                 <div key={index} className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-start bg-slate-50/50 p-4 rounded-2xl border border-slate-100 relative group transition-all hover:border-indigo-100">
                                                     <div className="sm:col-span-5 space-y-2">
@@ -450,12 +434,11 @@ export default function EditProjectPage() {
                                                             value={setting.document_type}
                                                             onChange={(e) => handleSettingChange(index, 'document_type', e.target.value)}
                                                             required
-                                                            disabled={isExistingRecord}
-                                                            className={`w-full rounded-xl border-slate-200 bg-white p-3 text-sm font-bold text-slate-700 outline-none transition-all appearance-none ${isExistingRecord ? 'opacity-70 cursor-not-allowed bg-slate-100' : 'focus:ring-4 focus:border-indigo-500 focus:ring-indigo-500/10 cursor-pointer'}`}
+                                                            className={`w-full rounded-xl border-slate-200 bg-white p-3 text-sm font-bold text-slate-700 outline-none transition-all appearance-none focus:ring-4 focus:border-indigo-500 focus:ring-indigo-500/10 cursor-pointer`}
                                                         >
                                                             <option value="">{t('common.select') || 'Select...'}</option>
                                                             {/* If existing record and option not in list, add it temporarily so it renders correctly */}
-                                                            {isExistingRecord && !documentTypes.find(dt => dt.value === setting.document_type) && (
+                                                            {setting.document_type && !documentTypes.find(dt => dt.value === setting.document_type) && (
                                                                 <option value={setting.document_type}>{setting.document_type}</option>
                                                             )}
                                                             {documentTypes.map(dt => (
@@ -469,12 +452,11 @@ export default function EditProjectPage() {
                                                             value={setting.discipline}
                                                             onChange={(e) => handleSettingChange(index, 'discipline', e.target.value)}
                                                             required
-                                                            disabled={isExistingRecord}
-                                                            className={`w-full rounded-xl border-slate-200 bg-white p-3 text-sm font-bold text-slate-700 outline-none transition-all appearance-none ${isExistingRecord ? 'opacity-70 cursor-not-allowed bg-slate-100' : 'focus:ring-4 focus:border-indigo-500 focus:ring-indigo-500/10 cursor-pointer'}`}
+                                                            className={`w-full rounded-xl border-slate-200 bg-white p-3 text-sm font-bold text-slate-700 outline-none transition-all appearance-none focus:ring-4 focus:border-indigo-500 focus:ring-indigo-500/10 cursor-pointer`}
                                                         >
                                                             <option value="">{t('common.select') || 'Select...'}</option>
                                                             {/* If existing record and option not in list, add it temporarily so it renders correctly */}
-                                                            {isExistingRecord && !disciplines.find(d => d.value === setting.discipline) && (
+                                                            {setting.discipline && !disciplines.find(d => d.value === setting.discipline) && (
                                                                 <option value={setting.discipline}>{setting.discipline}</option>
                                                             )}
                                                             {disciplines.map(d => (
@@ -489,24 +471,19 @@ export default function EditProjectPage() {
                                                             value={setting.start_number}
                                                             onChange={(e) => handleSettingChange(index, 'start_number', parseInt(e.target.value) || 0)}
                                                             required
-                                                            disabled={isExistingRecord}
                                                             min="1"
-                                                            className={`w-full rounded-xl border-slate-200 bg-white p-3 text-sm font-bold text-slate-700 outline-none transition-all ${isExistingRecord ? 'opacity-70 cursor-not-allowed bg-slate-100' : 'focus:ring-4 focus:border-indigo-500 focus:ring-indigo-500/10'}`}
+                                                            className={`w-full rounded-xl border-slate-200 bg-white p-3 text-sm font-bold text-slate-700 outline-none transition-all focus:ring-4 focus:border-indigo-500 focus:ring-indigo-500/10`}
                                                         />
                                                     </div>
                                                     <div className="sm:col-span-1 flex items-end justify-end h-full pt-6">
-                                                        {!isExistingRecord ? (
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => removeSetting(index)}
-                                                                className="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-colors shrink-0"
-                                                                title={t('common.delete')}
-                                                            >
-                                                                <Trash2 className="w-5 h-5" />
-                                                            </button>
-                                                        ) : (
-                                                            <div className="p-3 shrink-0 visible h-11 pointer-events-none"></div>
-                                                        )}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeSetting(index)}
+                                                            className="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-colors shrink-0"
+                                                            title={t('common.delete')}
+                                                        >
+                                                            <Trash2 className="w-5 h-5" />
+                                                        </button>
                                                     </div>
                                                 </div>
                                             );

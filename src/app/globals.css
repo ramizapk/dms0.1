@@ -1164,9 +1164,6 @@ p {
 }
 
 @media (max-width: 480px) {
-  .navbar__notification-btn {
-    display: none;
-  }
 
   .navbar__divider {
     display: none;

@@ -335,7 +335,7 @@ export default function DocumentDetailsPage() {
                 @media print {
                     @page {
                         size: A4 portrait;
-                        margin: 5mm;
+                        margin: 0mm;
                     }
 
                     /* Global Layout Reset - vital for sidebar independence */
@@ -343,9 +343,9 @@ export default function DocumentDetailsPage() {
                         margin: 0 !important;
                         padding: 0 !important;
                         border: 0 !important;
-                        width: 100% !important;
-                        height: 100% !important;
-                        overflow: visible !important;
+                        width: 210mm !important;
+                        height: 297mm !important;
+                        overflow: hidden !important;
                         position: static !important; /* Override sticky/fixed positioning */
                         background: white !important;
                         -webkit-print-color-adjust: exact !important;
@@ -364,21 +364,23 @@ export default function DocumentDetailsPage() {
                     }
 
                     #printable-document {
-                        position: absolute !important;
-                        left: 0 !important;
-                        top: 0 !important;
-                        width: 100% !important;
-                        max-width: 100% !important;
+                        position: relative !important;
+                        left: 2mm !important; /* Small margin to show left border */
+                        right: 2mm !important; /* Small margin to show right border */
+                        top: -10mm !important;  /* Reduced top margin */
+                        width: calc(100% - 4mm) !important; /* Subtract margins for right border */
+                        max-width: calc(100% - 4mm) !important;
+                        height: fit-content !important;
                         margin: 0 !important;
                         padding: 0 !important;
                         background: white !important;
                         border: 1px solid black !important;
                         border-radius: 0 !important;
                         box-shadow: none !important;
-                        overflow: visible !important;
-                        height: auto !important;
-                        color: black !important;
-                        font-family: 'Times New Roman', serif !important; /* Professional font for print */
+                        overflow: hidden !important;
+                        box-sizing: border-box !important;
+                        page-break-after: avoid !important;
+                        page-break-inside: avoid !important;
                     }
 
                     /* Force Grid layouts */
@@ -419,75 +421,36 @@ export default function DocumentDetailsPage() {
                         margin-top: 2mm !important;
                     }
 
-                    /* Adjust Heights */
+                    /* Adjust Heights - Gentler downscaling */
                     #printable-document .min-h-\[160px\] {
-                        min-height: 20mm !important;
+                        min-height: 100px !important;
                     }
                     
                     #printable-document .min-h-\[120px\] {
-                        min-height: 15mm !important;
+                        min-height: 80px !important;
                     }
                     
                     #printable-document .min-h-\[100px\] {
-                         min-height: 15mm !important;
+                         min-height: 70px !important;
+                    }
+                    
+                    #printable-document .min-h-\[60px\] {
+                         min-height: 30px !important;
                     }
                      
+                    /* Preserve image scales by not crushing them */
                     #printable-document .h-16 {
-                        height: 12mm !important;
+                        height: 50px !important;
                     }
                     
-                     #printable-document .h-12 {
-                        height: 10mm !important;
-                    }
-
-                    /* Typography */
-                    #printable-document h1 {
-                        font-size: 16pt !important;
-                        margin-bottom: 2mm !important;
-                        color: black !important; /* Force black title or keep red if strictly needed? User asked for professional */
+                    #printable-document .h-20 {
+                        height: 70px !important;
                     }
                     
-                    #printable-document .text-2xl,
-                    #printable-document .text-3xl {
-                        font-size: 14pt !important;
+                    #printable-document .h-14 {
+                        height: 50px !important;
                     }
 
-                    #printable-document .text-lg,
-                    #printable-document .text-xl {
-                        font-size: 12pt !important;
-                    }
-                    
-                    #printable-document .text-sm,
-                    #printable-document .text-base {
-                        font-size: 10pt !important;
-                    }
-                    
-                    #printable-document .text-xs,
-                    #printable-document .text-\[10px\],
-                    #printable-document .text-\[9px\] {
-                         font-size: 9pt !important;
-                    }
-
-                    /* Colors & Borders */
-                    #printable-document .bg-slate-50,
-                    #printable-document .bg-indigo-50,
-                    #printable-document .bg-indigo-50\/50 {
-                        background-color: #f0f0f0 !important; /* Light gray for print */
-                        print-color-adjust: exact !important;
-                    }
-
-                    #printable-document .border-indigo-900,
-                    #printable-document .border-slate-200 {
-                        border-color: black !important;
-                        border-width: 1px !important;
-                    }
-
-                     /* Signatures & Stamps */
-                    #printable-document .font-dancing-script {
-                        font-family: cursive !important;
-                        color: #000 !important;
-                    }
-                    
                     /* Hide scrollbars */
                     ::-webkit-scrollbar {
                         display: none;
