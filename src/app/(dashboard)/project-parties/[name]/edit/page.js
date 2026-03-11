@@ -85,7 +85,14 @@ export default function EditProjectPartyPage() {
 
         try {
             // Note: The API update expects "name" explicitly in the body
-            await api.updateProjectPartyProfile({ name: partyName, ...formData });
+            const response = await api.updateProjectPartyProfile({ name: partyName, ...formData });
+
+            if (response?.message?.success === false) {
+                const errorData = response.message.error;
+                const errorMsg = isRTL ? (errorData?.message_ar || errorData?.message) : (errorData?.message || errorData?.message_ar);
+                throw new Error(errorMsg || t('common.error'));
+            }
+
             showToast(t('project_parties.success_update'), 'success');
             router.push('/project-parties');
         } catch (err) {

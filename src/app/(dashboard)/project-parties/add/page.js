@@ -49,7 +49,14 @@ export default function AddProjectPartyPage() {
         setErrors({});
 
         try {
-            await api.createProjectPartyProfile(formData);
+            const response = await api.createProjectPartyProfile(formData);
+            
+            if (response?.message?.success === false) {
+                const errorData = response.message.error;
+                const errorMsg = isRTL ? (errorData?.message_ar || errorData?.message) : (errorData?.message || errorData?.message_ar);
+                throw new Error(errorMsg || t('common.error'));
+            }
+
             showToast(t('project_parties.success_create'), 'success');
             router.push('/project-parties');
         } catch (err) {
